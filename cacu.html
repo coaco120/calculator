@@ -3,27 +3,46 @@
 <head>  
     <meta charset="UTF-8">  
     <title>奇門局數計算器</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
     <script src="lunar.js"></script>  
     <style>  
+        * {  
+            box-sizing: border-box;  
+        }  
         body {  
             font-family: Arial, sans-serif;  
             max-width: 600px;  
             margin: 0 auto;  
-            padding: 20px;  
+            padding: 15px;  
             text-align: center;  
+            line-height: 1.6;  
         }  
         input, select {  
-            width: 40%;  
-            margin-bottom: 10px;  
-            padding: 5px;  
+            width: 100%;  
+            margin-bottom: 15px;  
+            padding: 10px;  
+            font-size: 16px; /* 防止iOS自動縮放 */  
+            border: 1px solid #ddd;  
+            border-radius: 5px;  
+        }  
+        button {  
+            width: 100%;  
+            padding: 12px;  
+            background-color: #4CAF50;  
+            color: white;  
+            border: none;  
+            border-radius: 5px;  
+            font-size: 16px;  
+            margin-top: 10px;  
         }  
         #result {  
             margin-top: 20px;  
             border: 1px solid #ddd;  
-            padding: 20px;  
+            padding: 15px;  
             background-color: #f9f9f9;  
             position: relative;  
-        }  
+            border-radius: 8px;  
+        }    
         .yang-dun { color: #e47a1c; }  
         .yin-dun { color: #782a9c; }  
         .qimen-ju {  
@@ -81,22 +100,41 @@
         .gan-7 { color: #ff8303; } /* 庚、申 */  
         .gan-8 { color: #ffb141; } /* 辛、酉 */  
         .gan-9 { color: #1d1aa1; } /* 壬、子 */  
-        .gan-10 { color: #1b7acb; } /* 癸、亥 */  
+        .gan-10 { color: #1b7acb; } /* 癸、亥 */ 
+
+        /* 響應式調整 */  
+        @media screen and (max-width: 600px) {  
+            body {  
+                padding: 10px;  
+            }  
+            input, select, button {  
+                font-size: 16px; /* 確保字體大小適合手機 */  
+            }  
+            .eight-characters {  
+                font-size: 14px;  
+            }  
+        }  
+
+        /* 解決 iOS 輸入問題 */  
+        input[type="number"] {  
+            -webkit-appearance: none;  
+            margin: 0;  
+        }  
     </style>  
 </head>  
 <body>   
     <h2>奇門局數計算器</h2>  
     <div>  
         <label>年份（範圍：0001年 ~ 9999年）</label><br>  
-        <input type="number" id="year" placeholder="請輸入公曆年">  
+        <input type="number" pattern="\d*" inputmode="numeric" id="year" placeholder="請輸入公曆年">  
     </div>  
     <div>  
         <label>月</label><br>  
-        <input type="number" id="month" placeholder="請輸入公曆月">  
+        <input type="number" pattern="\d*" inputmode="numeric" id="month" placeholder="請輸入公曆月">  
     </div>  
     <div>  
         <label>日</label><br>  
-        <input type="number" id="day" placeholder="請輸入公曆日">  
+        <input type="number" pattern="\d*" inputmode="numeric" id="day" placeholder="請輸入公曆日">  
     </div>  
     <div>  
         <label>時</label><br>  
@@ -116,9 +154,8 @@
         </select>  
     </div>  
     <button onclick="calculate()">計算</button>  
-
     <div id="result"></div>  
-
+    
     <script>  
         const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];  
         const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']; 
