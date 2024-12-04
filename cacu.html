@@ -1,0 +1,138 @@
+<!DOCTYPE html>  
+<html lang="zh-TW">  
+<head>  
+    <meta charset="UTF-8">  
+    <title>奇門局數計算器</title>  
+    <script src="lunar.js"></script>  
+    <style>  
+        body {  
+            font-family: Arial, sans-serif;  
+            max-width: 600px;  
+            margin: 0 auto;  
+            padding: 20px;  
+        }  
+        input, select {  
+            width: 100%;  
+            margin-bottom: 10px;  
+            padding: 5px;  
+        }  
+        #result {  
+            margin-top: 20px;  
+            border: 1px solid #ddd;  
+            padding: 10px;  
+        }  
+    </style>  
+</head>  
+<body>  
+    <h2>奇門局數計算器</h2>  
+    <div>  
+        <label>年：</label>  
+        <input type="number" id="year" placeholder="請輸入陽曆年">  
+        
+        <label>月：</label>  
+        <input type="number" id="month" placeholder="請輸入陽曆月">  
+        
+        <label>日：</label>  
+        <input type="number" id="day" placeholder="請輸入陽曆日">  
+        
+        <label>時辰：</label>  
+        <select id="time">  
+            <option value="子">子時 (23:00-01:00)</option>  
+            <option value="丑">丑時 (01:00-03:00)</option>  
+            <option value="寅">寅時 (03:00-05:00)</option>  
+            <option value="卯">卯時 (05:00-07:00)</option>  
+            <option value="辰">辰時 (07:00-09:00)</option>  
+            <option value="巳">巳時 (09:00-11:00)</option>  
+            <option value="午">午時 (11:00-13:00)</option>  
+            <option value="未">未時 (13:00-15:00)</option>  
+            <option value="申">申時 (15:00-17:00)</option>  
+            <option value="酉">酉時 (17:00-19:00)</option>  
+            <option value="戌">戌時 (19:00-21:00)</option>  
+            <option value="亥">亥時 (21:00-23:00)</option>  
+        </select>  
+        
+        <button onclick="calculate()">計算</button>  
+    </div>  
+
+    <div id="result"></div>  
+
+    <script>  
+        function convertToChinese(number) {  
+            const cnNums = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];  
+            const cnChars = ['', '十', '百', '千', '萬'];  
+            
+            if (number < 10) return cnNums[number];  
+            
+            let result = '';  
+            const numStr = number.toString();  
+            for (let i = 0; i < numStr.length; i++) {  
+                const digit = parseInt(numStr[i]);  
+                if (digit !== 0) {  
+                    result += (digit === 1 && i === 0 && numStr.length === 2 ? '' : cnNums[digit]) +   
+                              (numStr.length - i > 1 ? cnChars[numStr.length - i - 1] : '');  
+                }  
+            }  
+            return result;  
+        }  
+
+        function calculate() {  
+            const year = parseInt(document.getElementById('year').value);  
+            const month = parseInt(document.getElementById('month').value);  
+            const day = parseInt(document.getElementById('day').value);  
+            const time = document.getElementById('time').value;  
+
+            if (!year || !month || !day) {  
+                alert('請完整填寫所有資料');  
+                return;  
+            }  
+
+            // 使用 Solar 類建立日期  
+            const solar = Solar.fromYmd(year, month, day);  
+            
+            // 獲取農曆  
+            const lunar = solar.getLunar();  
+
+            // 農曆日期轉換  
+            const lunarYear = convertToChinese(lunar.getYear());  
+            const lunarMonth = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '臘'][lunar.getMonth() - 1];  
+            const lunarDay = lunar.getDayString();  
+            const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;  
+
+            // 干支計算  
+            const yearGanZhi = solar.getYearGanZhi();  
+            const monthGanZhi = solar.getMonthGanZhi();  
+            const dayGanZhi = solar.getDayGanZhi();  
+            const eightCharacters = `${yearGanZhi}年${monthGanZhi}月${dayGanZhi}日${time}時`;  
+
+            // 計算局數  
+            const sumValues = {  
+                '子': 11, '丑': 12, '寅': 1, '卯': 2,   
+                '辰': 5, '巳': 6, '午': 7, '未': 8,   
+                '申': 9, '酉': 10, '戌': 11, '亥': 12  
+            };  
+
+            const yearBranchValue = sumValues[yearGanZhi.substr(-1)];  
+            const monthBranchValue = sumValues[monthGanZhi.substr(-1)];  
+            const dayBranchValue = sumValues[dayGanZhi.substr(-1)];  
+            const timeBranchValue = sumValues[time];  
+
+            const total = yearBranchValue + monthBranchValue + dayBranchValue + timeBranchValue;  
+            const formation = total % 9 || 9;  
+
+            // 判斷陰遁還是陽遁  
+            const summerSolstice = new Date(year, 5, 21);  
+            const winterSolstice = new Date(year, 11, 21);  
+            const inputDate = new Date(year, month - 1, day);  
+            
+            const dun = inputDate > summerSolstice && inputDate < winterSolstice ? '陰遁' : '陽遁';  
+
+            const resultDiv = document.getElementById('result');  
+            resultDiv.innerHTML = `  
+                <p>【四柱八字】<br>${eightCharacters}</p>  
+                <p>【農曆日期】<br>${lunarDateStr}</p>  
+                <p>【奇門局數】<br>${dun}${formation}局</p>  
+            `;  
+        }  
+    </script>  
+</body>  
+</html>
