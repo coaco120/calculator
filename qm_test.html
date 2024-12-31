@@ -1,170 +1,89 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <title>奇門局數計算器</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="lunar.js"></script>
-    <script src="script.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 15px;
-            text-align: center;
-            line-height: 1.6;
-        }
-        input, select {
-            width: 100%;
-            margin-bottom: 15px;
-            padding: 10px;
-            font-size: 16px; /* 防止iOS自動縮放 */
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-        #result {
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            background-color: #f9f9f9;
-            position: relative;
-            border-radius: 8px;
-        }
-        .yang-dun { color: #e47a1c; }
-        .yin-dun { color: #782a9c; }
-        .qimen-ju {
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
-        details {
-            margin-top: 20px;
-            text-align: left;
-        }
-        details summary {
-            cursor: pointer;
-            color: #666;
-        }
-        details pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        .eight-characters {
-            display: table;
-            margin: 0 auto;
-            border-collapse: collapse;
-        }
-        .eight-characters div {
-            display: table-row;
-        }
-        .eight-characters div span {
-            display: table-cell;
-            padding: 5px;
-            text-align: center;
-        }
-        .eight-characters .header {
-            font-size: 0.6em;
-            color: #666;
-        }
-        .eight-characters .chars {
-            font-weight: bold;
-        }
-        .author-info {
-            position: absolute;
-            bottom: 5px;
-            right: 10px;
-            font-size: 0.7em;
-            color: #999;
-        }
-        /* 新增的COLOR */
-        .gan-1 { color: #1e8116; } /* 甲、寅 */
-        .gan-2 { color: #2eb751; } /* 乙、卯 */
-        .gan-3 { color: #d51d1d; } /* 丙、午 */
-        .gan-4 { color: #ff4133; } /* 丁、巳 */
-        .gan-5 { color: #7a440e; } /* 戊、戌、辰 */
-        .gan-6 { color: #b47537; } /* 己、丑、未 */
-        .gan-7 { color: #ff8303; } /* 庚、申 */
-        .gan-8 { color: #ffb141; } /* 辛、酉 */
-        .gan-9 { color: #1d1aa1; } /* 壬、子 */
-        .gan-10 { color: #1b7acb; } /* 癸、亥 */
-
-        .wuxin-1 { color: gold; } /* 金、驚門、開門 */
-        .wuxin-2 { color: green; } /* 木、傷門、杜門 */
-        .wuxin-3 { color: blue; } /* 水、休門 */
-        .wuxin-4 { color: red; } /* 火、景門 */
-        .wuxin-5 { color: brown; } /* 土、生門、死門*/
-
-        /* 響應式調整 */
-        @media screen and (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            input, select, button {
-                font-size: 16px; /* 確保字體大小適合手機 */
-            }
-            .eight-characters {
-                font-size: 14px;
-            }
-        }
-
-        /* 解決 iOS 輸入問題 */
-        input[type="number"] {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-    </style>
-</head>
-<body>
-    <h2>奇門局數計算器</h2>
-    <div>
-        <label>年份（範圍：0001年 ~ 9999年）</label><br>
-        <input type="number" pattern="\d*" inputmode="numeric" id="year" placeholder="請輸入公曆年">
-    </div>
-    <div>
-        <label>月</label><br>
-        <input type="number" pattern="\d*" inputmode="numeric" id="month" placeholder="請輸入公曆月">
-    </div>
-    <div>
-        <label>日</label><br>
-        <input type="number" pattern="\d*" inputmode="numeric" id="day" placeholder="請輸入公曆日">
-    </div>
-    <div>
-        <label>時</label><br>
-        <select id="time">
-            <option value="0">子時 (23:00-01:00)</option>
-            <option value="1">丑時 (01:00-03:00)</option>
-            <option value="2">寅時 (03:00-05:00)</option>
-            <option value="3">卯時 (05:00-07:00)</option>
-            <option value="4">辰時 (07:00-09:00)</option>
-            <option value="5">巳時 (09:00-11:00)</option>
-            <option value="6">午時 (11:00-13:00)</option>
-            <option value="7">未時 (13:00-15:00)</option>
-            <option value="8">申時 (15:00-17:00)</option>
-            <option value="9">酉時 (17:00-19:00)</option>
-            <option value="10">戌時 (19:00-21:00)</option>
-            <option value="11">亥時 (21:00-23:00)</option>
-        </select>
-    </div>
-    <button onclick="calculate()">計算</button>
-    <div id="qimenJuResult"></div>
-    <div id="qimenPanResult"></div>
-    <div id="debugMessage"></div>
-
+<!DOCTYPE html>  
+<html lang="zh-TW">  
+<head>  
+    <meta charset="UTF-8">  
+    <title>奇門局數計算器</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
+    <script src="lunar.js"></script>  
+    <script src="script.js"></script>  
+    <link rel="stylesheet" type="text/css" href="style.css">  
+</head>  
+<body>  
+    <h2>奇門局數計算器</h2>  
+    <div>  
+        <label>年份（範圍：0001年 ~ 9999年）</label><br>  
+        <input type="number" pattern="\d*" inputmode="numeric" id="year" placeholder="請輸入公曆年">  
+    </div>  
+    <div>  
+        <label>月</label><br>  
+        <input type="number" pattern="\d*" inputmode="numeric" id="month" placeholder="請輸入公曆月">  
+    </div>  
+    <div>  
+        <label>日</label><br>  
+        <input type="number" pattern="\d*" inputmode="numeric" id="day" placeholder="請輸入公曆日">  
+    </div>  
+    <div>  
+        <label>時</label><br>  
+        <select id="time">  
+            <option value="0">子時 (23:00-01:00)</option>  
+            <option value="1">丑時 (01:00-03:00)</option>  
+            <option value="2">寅時 (03:00-05:00)</option>  
+            <option value="3">卯時 (05:00-07:00)</option>  
+            <option value="4">辰時 (07:00-09:00)</option>  
+            <option value="5">巳時 (09:00-11:00)</option>  
+            <option value="6">午時 (11:00-13:00)</option>  
+            <option value="7">未時 (13:00-15:00)</option>  
+            <option value="8">申時 (15:00-17:00)</option>  
+            <option value="9">酉時 (17:00-19:00)</option>  
+            <option value="10">戌時 (19:00-21:00)</option>  
+            <option value="11">亥時 (21:00-23:00)</option>  
+        </select>  
+    </div>  
+    <button onclick="calculate()">計算</button>  
+    <div id="qimenJuResult"></div>  
+    <div id="qimenPanResult">  
+        <!-- 九宮格容器 -->  
+        <div class="grid-container">  
+            <div class="grid-item palace-4" id="palace-4">  
+                <div class="grid-title">第4宮</div>  
+                <div class="grid-content"></div>  
+            </div>  
+            <div class="grid-item palace-9" id="palace-9">  
+                <div class="grid-title">第9宮</div>  
+                <div class="grid-content"></div>  
+            </div>  
+            <div class="grid-item palace-2" id="palace-2">  
+                <div class="grid-title">第2宮</div>  
+                <div class="grid-content"></div>  
+            </div>  
+            <div class="grid-item palace-3" id="palace-3">  
+                <div class="grid-title">第3宮</div>  
+                <div class="grid-content"></div>  
+            </div>  
+            <div class="grid-item palace-5" id="palace-5">  
+                <div class="grid-title">第5宮</div>  
+                <div class="grid-content"></div>  
+            </div>  
+            <div class="grid-item palace-7" id="palace-7">  
+                <div class="grid-title">第7宮</div>  
+                <div class="grid-content"></div>  
+            </div>  
+            <div class="grid-item palace-8" id="palace-8">  
+                <div class="grid-title">第8宮</div>  
+                <div class="grid-content"></div>  
+            </div>  
+            <div class="grid-item palace-1" id="palace-1">  
+                <div class="grid-title">第1宮</div>  
+                <div class="grid-content"></div>  
+            </div>  
+            <div class="grid-item palace-6" id="palace-6">  
+                <div class="grid-title">第6宮</div>  
+                <div class="grid-content"></div>  
+            </div>  
+        </div>  
+    </div>  
+    <div id="debugMessage"></div>  
+    
     <script>
 
         const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
@@ -416,37 +335,7 @@
           // Clear 中宮地盤天干
           gongs[5].set('地盤天干', []);
 
-          /* Combine two loops into one
-                    j = 0;
-
-                    if(dunType === '陽遁')
-                    {
-                      for(let i = ju; i <= ju + 8; ++i, ++j)
-                      {
-                        otherMessage += '第 ' + ((i - 1) % 9 + 1).toString() + ' 宮設地盤天干 ' + diPanTianGanArray[j] + '\n';
-                        gongs[(i - 1) % 9 + 1].set('地盤天干', new Set([diPanTianGanArray[j]]));
-
-                        if(diPanTianGanArray[j] === xunShou)
-                        {
-                          setZhiFuXing_ZhiShiMen((i - 1) % 9 + 1);
-                        }
-                      }
-                    }
-
-                    else {
-                      for(let i = ju + 9; i > ju; --i, ++j)
-                      {
-                        otherMessage += '第 ' + ((i - 1) % 9 + 1).toString() + ' 宮設地盤天干 ' + diPanTianGanArray[j] + '\n';
-                        gongs[(i - 1) % 9 + 1].set('地盤天干', new Set([diPanTianGanArray[j]]));
-
-                        if(diPanTianGanArray[j] === xunShou)
-                        {
-                          setZhiFuXing_ZhiShiMen((i - 1) % 9 + 1);
-                        }
-                      }
-                    }
-          */
-        }s
+        }
 
         // 05 - 設定九星
         function setJiaoXing(hourGan) {
@@ -1047,52 +936,28 @@
                 `;
 
             // 顯示盤
-            const qimenPanResultDiv = document.getElementById('qimenPanResult');
-
-            var panResult = '';
-
-            for(let i = 0; i < gongs_order_clockwise.length; ++i)
-            {
-              var j = gongs_order_clockwise[i];
-              panResult += '第 ' + gongs_order_clockwise[i] + ' 宮\n\n';
-
-              panResult += '神 - ' + gongs[j].get('神') + '\t\t' + gongs[j].get('天盤天干') + '\n';
-              panResult += '星 - ' + gongs[j].get('星') + '\t\t' + gongs[j].get('地盤天干') + '\n';
-              panResult += '門 - ' + gongs[j].get('門') + '\t\t\n';
-
-              if(gongs[j].get('空亡'))
-              {
-                panResult += '空';
-              }
-
-              if(gongs[j].get('擊刑'))
-              {
-                panResult += '刑';
-              }
-
-              if(gongs[j].get('入墓'))
-              {
-                panResult += '墓';
-              }
-
-              if(gongs[j].get('馬星'))
-              {
-                panResult += '馬';
-              }
-
-              if(gongs[j].get('門迫'))
-              {
-                panResult += '迫';
-              }
-
-              panResult += '\n\n';
-            }
-
-            qimenPanResultDiv.innerHTML = `
-                <pre>
-${panResult}
-                </pre>
-                `;
+            const qimenPanResultDiv = document.getElementById('qimenPanResult');  
+            qimenPanResultDiv.innerHTML = `  
+                <div class="grid-container">  
+                    ${[4,9,2,3,5,7,8,1,6].map(i => `  
+                        <div class="grid-item palace-${i}" id="palace-${i}">  
+                            <div class="grid-title">第${i}宮</div>  
+                            <div class="grid-content">  
+                                <div class="shen">神 - ${gongs[i].get('神') || ''} ${gongs[i].get('天盤天干') || ''}</div>  
+                                <div class="xing">星 - ${gongs[i].get('星') || ''} ${gongs[i].get('地盤天干') || ''}</div>  
+                                <div class="men">門 - ${gongs[i].get('門') || ''}</div>  
+                                <div class="marks">  
+                                    ${gongs[i].get('空亡') ? '空' : ''}  
+                                    ${gongs[i].get('擊刑') ? '刑' : ''}  
+                                    ${gongs[i].get('入墓') ? '墓' : ''}  
+                                    ${gongs[i].get('馬星') ? '馬' : ''}  
+                                    ${gongs[i].get('門迫') ? '迫' : ''}  
+                                </div>  
+                            </div>  
+                        </div>  
+                    `).join('')}  
+                </div>  
+            `;  
 
           const debugMessageDiv = document.getElementById('debugMessage');
           debugMessageDiv.innerHTML = `
@@ -1111,13 +976,12 @@ ${panResult}
       夏至: ${lunar._getJieQiSolar(I18n.getMessage('jq.xiaZhi')).toYmdHms()}
       冬至: ${lunar._getJieQiSolar("DONG_ZHI").toYmdHms()}
       遁類: ${dunType}
-      其他: ${otherMessage}`
+      其他: ${otherMessage}
+      -------------------------------  
+        create by Jess Poon  
+        any inquiry please contact: jpoon120@gmail.com` 
                     }</pre>
                 </details>
-                <div class="author-info">
-                    create by Jess Poon<br>
-                    any inquiry please contact: jpoon120@gmail.com
-                </div>
             `;
         }
     </script>
