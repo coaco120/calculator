@@ -935,27 +935,48 @@
                 <p>${lunarDateStr}</p>
                 `;
 
-            // 顯示盤
+            // 顯示盤  
             const qimenPanResultDiv = document.getElementById('qimenPanResult');  
             qimenPanResultDiv.innerHTML = `  
                 <div class="grid-container">  
-                    ${[4,9,2,3,5,7,8,1,6].map(i => `  
-                        <div class="grid-item palace-${i}" id="palace-${i}">  
-                            <div class="grid-title">第${i}宮</div>  
-                            <div class="grid-content">  
-                                <div class="shen">神 - ${gongs[i].get('神') || ''} ${gongs[i].get('天盤天干') || ''}</div>  
-                                <div class="xing">星 - ${gongs[i].get('星') || ''} ${gongs[i].get('地盤天干') || ''}</div>  
-                                <div class="men">門 - ${gongs[i].get('門') || ''}</div>  
-                                <div class="marks">  
-                                    ${gongs[i].get('空亡') ? '空' : ''}  
-                                    ${gongs[i].get('擊刑') ? '刑' : ''}  
-                                    ${gongs[i].get('入墓') ? '墓' : ''}  
-                                    ${gongs[i].get('馬星') ? '馬' : ''}  
-                                    ${gongs[i].get('門迫') ? '迫' : ''}  
+                    ${[4,9,2,3,5,7,8,1,6].map(i => {  
+                        // 獲取當前宮位的天干  
+                        const tianPanGan = gongs[i].get('天盤天干') || '';  
+                        const diPanGan = gongs[i].get('地盤天干') || '';  
+                        
+                        // 檢查是否與八字天干匹配（修改這裡）  
+                        const bazi = [dayGan];  // 這裡應該是實際的八字天干  
+                        if (!bazi.includes('甲')) {  
+                            bazi.push('戊');  // 如果沒有甲，加入戊  
+                        }  
+                        const matchingGans = [yearGan, monthGan, dayGan, hourGan];  
+                        const isTianPanMatch = matchingGans.includes(tianPanGan) || tianPanGan === '戊';  
+                        const isDiPanMatch = matchingGans.includes(diPanGan) || diPanGan === '戊';  
+                        
+                        return `  
+                            <div class="grid-item palace-${i}" id="palace-${i}">  
+                                <div class="grid-title">第${i}宮</div>  
+                                <div class="grid-content">  
+                                    <div class="shen">  
+                                        <span class="label">神 - ${gongs[i].get('神') || ''}</span>  
+                                        <span class="gan gan-${getGanColor(tianPanGan)} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan}</span>  
+                                    </div>  
+                                    <div class="xing">  
+                                        <span class="label">星 - ${gongs[i].get('星') || ''}</span>  
+                                        <span class="gan gan-${getGanColor(diPanGan)} ${isDiPanMatch ? 'grid-gan-bold' : ''}">${diPanGan}</span>  
+                                    </div>  
+                                    <div class="men">門 - ${gongs[i].get('門') || ''}</div>  
+                                    <div class="marks">  
+                                        ${gongs[i].get('空亡') ? '空' : ''}  
+                                        ${gongs[i].get('擊刑') ? '刑' : ''}  
+                                        ${gongs[i].get('入墓') ? '墓' : ''}  
+                                        ${gongs[i].get('馬星') ? '馬' : ''}  
+                                        ${gongs[i].get('門迫') ? '迫' : ''}  
+                                    </div>  
                                 </div>  
                             </div>  
-                        </div>  
-                    `).join('')}  
+                        `;  
+                    }).join('')}  
                 </div>  
             `;  
 
