@@ -5,7 +5,7 @@
     <title>奇門局數計算器</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="lunar.js"></script>
-    <script src="script.js"></script>  
+    <script src="script.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -162,8 +162,7 @@
     </div>
     <button onclick="calculate()">計算</button>
     <div id="qimenJuResult"></div>
-<!--    <div id="qimenPanResult"></div>-->
-
+    <div id="qimenPanResult"></div>
     <div id="debugMessage"></div>
 
     <script>
@@ -172,7 +171,7 @@
         const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
         const MEN = ['休', '生', '傷', '杜', '景', '死', '驚', '開'];
-        const XING = ['薘', '任', '沖', '輔', '英', '芮', '柱', '心'];
+        const XING = ['蓬', '任', '沖', '輔', '英', '芮', '柱', '心'];
         const SHEN = ['符', '蛇', '陰', '合', '虎', '武', '九', '天'];
         const GONG = ['坎', '艮', '震', '巽', '離', '坤', '兌', '乾'];
         const WUXIN = ['金', '木', '水', '火', '土'];
@@ -356,6 +355,7 @@
 
           else
           {
+            // 其他宮：找出原宮是那一個，再設值符星及值使門
             for(let i = 0; i < gongs_order_clockwise.length; ++i)
             {
               if(gong === gongs_order_clockwise[i])
@@ -368,44 +368,534 @@
           }
         }
 
+        // 03 04 - 設地盤天干、旬首、值符星及值使門
         function setDiPanTianGan_ZhiFuXing_ZhiShiMen(dunType, ju, xunShou) {
 
           const diPanTianGanArray = ['戊', '己', '庚', '辛', '壬', '癸', '丁', '丙', '乙'];
           var j = 0;
+          var start = 0;
+          var finish = 0;
+          var change = 0;
 
+          // Need to consider both directions for 陽遁 & 陰遁
           if(dunType === '陽遁')
           {
-            for(let i = ju; i <= ju + 8; ++i, ++j)
-            {
-              otherMessage += '第 ' + ((i - 1) % 9 + 1).toString() + ' 宮設地盤天干 ' + diPanTianGanArray[j] + '\n';
-              gongs[(i - 1) % 9 + 1].set('地盤天干', diPanTianGanArray[j]);
-
-              if(diPanTianGanArray[j] === xunShou)
-              {
-                setZhiFuXing_ZhiShiMen((i - 1) % 9 + 1);
-              }
-            }
+            start = ju;
+            finish = ju + 8;
+            change = 1;
           }
-
           else {
-            for(let i = ju + 9; i > ju; --i, ++j)
-            {
-              otherMessage += '第 ' + ((i - 1) % 9 + 1).toString() + ' 宮設地盤天干 ' + diPanTianGanArray[j] + '\n';
-              gongs[(i - 1) % 9 + 1].set('地盤天干', diPanTianGanArray[j]);
+            start = ju + 9;
+            finish = ju;
+            change = -1;
+          }
 
-              if(diPanTianGanArray[j] === xunShou)
-              {
-                setZhiFuXing_ZhiShiMen((i - 1) % 9 + 1);
-              }
+          for(let i = start; ; i += change, ++j)
+          {
+            if(dunType === '陽遁' && i > ju + 8)
+            {
+              break;
+            }
+            if(dunType === '陰遁' && i <= ju)
+            {
+              break;
+            }
+
+            gongs[(i - 1) % 9 + 1].set('地盤天干', [diPanTianGanArray[j]]);
+            otherMessage += '第 ' + ((i - 1) % 9 + 1).toString() + ' 宮設地盤天干 ' + diPanTianGanArray[j] + '\n';
+
+            if(diPanTianGanArray[j] === xunShou)
+            {
+              setZhiFuXing_ZhiShiMen((i - 1) % 9 + 1);
             }
           }
 
-          gongs[2].set('地盤天干', gongs[2].get('地盤天干') + gongs[5].get('地盤天干'));
+          gongs[2].set('地盤天干', [gongs[2].get('地盤天干')[0], gongs[5].get('地盤天干')[0]]);
           otherMessage += '第 2 宮設地盤天干 ' + gongs[2].get('地盤天干') + '\n';
 
-          gongs[5].set('地盤天干', '');
-          otherMessage += '第 5 宮設地盤天干 ' + gongs[5].get('地盤天干') + '\n';
+          // Clear 中宮地盤天干
+          gongs[5].set('地盤天干', []);
+
+          /* Combine two loops into one
+                    j = 0;
+
+                    if(dunType === '陽遁')
+                    {
+                      for(let i = ju; i <= ju + 8; ++i, ++j)
+                      {
+                        otherMessage += '第 ' + ((i - 1) % 9 + 1).toString() + ' 宮設地盤天干 ' + diPanTianGanArray[j] + '\n';
+                        gongs[(i - 1) % 9 + 1].set('地盤天干', new Set([diPanTianGanArray[j]]));
+
+                        if(diPanTianGanArray[j] === xunShou)
+                        {
+                          setZhiFuXing_ZhiShiMen((i - 1) % 9 + 1);
+                        }
+                      }
+                    }
+
+                    else {
+                      for(let i = ju + 9; i > ju; --i, ++j)
+                      {
+                        otherMessage += '第 ' + ((i - 1) % 9 + 1).toString() + ' 宮設地盤天干 ' + diPanTianGanArray[j] + '\n';
+                        gongs[(i - 1) % 9 + 1].set('地盤天干', new Set([diPanTianGanArray[j]]));
+
+                        if(diPanTianGanArray[j] === xunShou)
+                        {
+                          setZhiFuXing_ZhiShiMen((i - 1) % 9 + 1);
+                        }
+                      }
+                    }
+          */
+        }s
+
+        // 05 - 設定九星
+        function setJiaoXing(hourGan) {
+
+          let startGong = 0;
+          let startIndex = 0;
+          let startXing = 0;
+
+          if(hourGan === '甲')
+          {
+            hourGan = pan.get('旬首');
+          }
+
+          // 先找出值符星由第幾宮開始
+          for(let i = 1; i < gongs.length; ++i) {
+
+            let diPanTianGan = gongs[i].get('地盤天干');
+
+            for(let j = 0; j < diPanTianGan.length; ++j) {
+              if(diPanTianGan[j] === hourGan) {
+                startGong = i;
+                otherMessage += '值符星 ' + pan.get('值符星') + ' 始於第 ' + startGong.toString() + ' 宮\n';
+                break;
+              }
+            }
+
+            if(startGong > 0)
+            {
+              break;
+            }
+          }
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+            // 找出八宮順序的 index
+            if(gongs_order_clockwise[i] === startGong)
+            {
+              startIndex = i;
+            }
+
+            // 找出值符星的 index
+            if(pan.get('值符星') === XING[i])
+            {
+              startXing = i;
+            }
+          }
+
+          // 從值符星開始設到不同的宮
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+            gongIndex = gongs_order_clockwise[(i + startIndex) % 8];
+            gongs[gongIndex].set('星', XING[(i + startXing) % 8]);
+            otherMessage += '第 ' + gongIndex.toString() + ' 宮設星 ' + XING[(i + startXing) % 8] + ' \n';
+          }
+
+          gongs[5].set('星', '禽');
         }
+
+        // 06 - 設定天盤天干
+        function setTianPanTianGan() {
+
+          let diPanTianGan = gongs[1].get('地盤天干');
+          let startGong = 0;
+          let destGongIndex = 0;
+
+          // 先找出值符星由第幾宮開始
+          for(let i = 1; i < gongs.length; ++i) {
+
+            if(gongs[i].get('星') === '蓬') {
+              startDestGong = i;
+              break;
+            }
+          }
+
+          otherMessage += diPanTianGan + ' 設到第 ' + startDestGong.toString() + ' 宮\n';
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i)
+          {
+            if(startDestGong === gongs_order_clockwise[i]) {
+              destGongIndex = i;
+              break;
+            }
+          }
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i)
+          {
+              gongs[gongs_order_clockwise[(destGongIndex + i) % 8]].set('天盤天干', gongs[gongs_order_clockwise[i]].get('地盤天干'));
+              otherMessage += '第 ' + gongs_order_clockwise[(destGongIndex + i) % 8].toString() + ' 宮設天盤天干 ' + gongs[gongs_order_clockwise[i]].get('地盤天干') + ' \n';
+          }
+        }
+
+        // 07 - 設定八門
+        function setBaMen() {
+
+          var xunZhi = pan.get('旬支');
+          var xunShou = pan.get('旬首');
+          var hourGan = pan.get('時干');
+          var hourZhi = pan.get('時支');
+
+          const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+
+          var zhiDiff = 0;
+          var hourZhiLocation = 0;
+          var zunZhiLocation = 0;
+          let startGong = 0;
+          let startGongIndex = 0;
+          let startMenIndex = 0;
+
+          // 先找出旬支數到時支有多少個支，陽遁順數，陰遁逆數
+          // 找出旬支排多少個支
+          while(ZHI[zunZhiLocation] != xunZhi) {
+            zunZhiLocation++;
+          }
+
+          while(ZHI[hourZhiLocation] != hourZhi) {
+            hourZhiLocation++;
+          }
+
+          otherMessage += '旬支' + xunZhi + '排第 ' + zunZhiLocation.toString() + '\n';
+          otherMessage += '時支' + hourZhi + '排第 ' + hourZhiLocation.toString() + '\n';
+
+          if(hourZhiLocation < zunZhiLocation)
+          {
+              hourZhiLocation += 12;
+          }
+
+          // 支數差
+          zhiDiff = hourZhiLocation - zunZhiLocation;
+
+          otherMessage += "支差：" + zhiDiff.toString() + '\n';
+          otherMessage += "旬首：" + xunShou + '\n';
+
+          // 先找出值符星由第幾宮開始
+          for(let i = 1; i < gongs.length; ++i) {
+
+            let diPanTianGan = gongs[i].get('地盤天干');
+
+            for(let j = 0; j < diPanTianGan.length; ++j) {
+              if(diPanTianGan[j] === xunShou) {
+                startGong = i;
+                otherMessage += '第 ' + startGong.toString() + ' 宮開始數\n';
+                break;
+              }
+            }
+          }
+
+          if(pan.get('遁類') === '陽遁') {
+            // 順數
+            startGong = startGong + zhiDiff;
+            if(startGong > 9)
+            {
+              startGong = startGong - 9;
+            }
+          } else {
+            // 逆數
+            startGong = startGong - zhiDiff;
+            if(startGong < 1)
+            {
+              startGong = startGong + 9;
+            }
+          }
+
+          if(startGong === 5)
+          {
+            startGong = 2;
+          }
+
+          otherMessage += '值使門 ' + pan.get('值使門') + ' 始於第 ' + startGong.toString() + ' 宮\n';
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+
+            if(gongs_order_clockwise[i] === startGong) {
+              startGongIndex = i;
+            }
+
+            if(MEN[i] === pan.get('值使門')) {
+              startMenIndex = i;
+            }
+          }
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+
+            gongs[gongs_order_clockwise[(i + startGongIndex) % 8]].set('門', MEN[(i + startMenIndex) % 8]);
+            otherMessage += '第 ' + gongs_order_clockwise[(i + startGongIndex) % 8].toString() + ' 宮設 ' + MEN[(i + startMenIndex) % 8] + ' 門\n';
+
+          }
+        }
+
+
+        // 08 - 設定八神
+        function setBaShen() {
+
+          var xunShou = pan.get('旬首');
+          var startGong = 0;
+          var startShenIndex = 0;
+
+          // 先找出值符星由第幾宮開始
+          for(let i = 1; i < gongs.length; ++i) {
+
+            let tianPanTianGan = gongs[i].get('天盤天干');
+
+            for(let j = 0; tianPanTianGan && j < tianPanTianGan.length; ++j) {
+              if(tianPanTianGan[j] === xunShou) {
+                startGong = i;
+                otherMessage += '第 ' + startGong.toString() + ' 宮開始數\n';
+                break;
+              }
+            }
+
+          }
+
+          if(pan.get('遁類') === '陽遁') {
+            // 順數
+            for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+              if(gongs_order_clockwise[i] === startGong) {
+                startGongIndex = i;
+              }
+            }
+          } else {
+            // 逆數
+            for(let i = 0; i < gongs_order_anticlockwise.length; ++i) {
+              if(gongs_order_anticlockwise[i] === startGong) {
+                startGongIndex = i;
+              }
+            }
+          }
+
+          otherMessage += '值符 始於第 ' + startGong.toString() + ' 宮\n';
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+              if(pan.get('遁類') === '陽遁') {
+                gongs[gongs_order_clockwise[(i + startGongIndex) % 8]].set('神', SHEN[i]);
+                otherMessage += '第 ' + gongs_order_clockwise[(i + startGongIndex) % 8].toString() + ' 宮設 ' + SHEN[i] + ' 神\n';
+              }
+              else {
+                gongs[gongs_order_anticlockwise[(i + startGongIndex) % 8]].set('神', SHEN[i]);
+                otherMessage += '第 ' + gongs_order_anticlockwise[(i + startGongIndex) % 8].toString() + ' 宮設 ' + SHEN[i] + ' 神\n';
+              }
+          }
+        }
+
+        // 09 - 找擊刑
+        function setJiXing()
+        {
+          // Case 1
+          // 8 宮 ～ 庚
+          // 9 宮 ～ 辛
+          // 3 宮 ～ 戊
+          // 2 宮 ～ 己
+          // 4 宮 ～ 壬癸
+          var jiXingMap = {
+            '庚' : 8,
+            '辛' : 9,
+            '戊' : 3,
+            '己' : 2,
+            '壬' : 4,
+            '癸' : 4
+          };
+
+          for(let gan in jiXingMap)
+          {
+            // 先找出值符星由第幾宮開始
+            let tianPanTianGan = gongs[jiXingMap[gan]].get('天盤天干');
+            let diPanTianGan = gongs[jiXingMap[gan]].get('地盤天干');
+            var jiXing = false;
+
+            for(let j = 0; tianPanTianGan && j < tianPanTianGan.length; ++j) {
+              if(tianPanTianGan[j] === gan) {
+                gongs[jiXingMap[gan]].set('擊刑', true);
+                otherMessage += '第 ' + jiXingMap[gan].toString() + ' 宮設 擊刑 - ' + gan + '\n';
+                break;
+              }
+            }
+            for(let j = 0; diPanTianGan && j < diPanTianGan.length; ++j) {
+              if(diPanTianGan[j] === gan) {
+                gongs[jiXingMap[gan]].set('擊刑', true);
+                otherMessage += '第 ' + jiXingMap[gan].toString() + ' 宮設 擊刑 - ' + gan + '\n';
+                break;
+              }
+            }
+          }
+
+          // Case 2
+          // 辛 ＋ 辛
+          // 壬 ＋ 壬
+          for(let i = 1; i < 10; i++)
+          {
+            // 先找出值符星由第幾宮開始
+            let tianPanTianGan = gongs[i].get('天盤天干');
+            let diPanTianGan = gongs[i].get('地盤天干');
+
+            var tian_xin = false;
+            var di_xin = false;
+            var tian_ren = false;
+            var di_ren = false;
+
+            for(let j = 0; tianPanTianGan && j < tianPanTianGan.length; ++j) {
+              if(tianPanTianGan[j] === '辛') {
+                tian_xin = true;
+              } else if(tianPanTianGan[j] === '壬') {
+                tian_ren = true;
+              }
+            }
+
+            for(let j = 0; diPanTianGan && j < diPanTianGan.length; ++j) {
+              if(diPanTianGan[j] === '辛') {
+                di_xin = true;
+              } else if(diPanTianGan[j] === '壬') {
+                di_ren = true;
+              }
+            }
+
+            if(tian_xin && di_xin)
+            {
+              gongs[i].set('擊刑', true);
+              otherMessage += '第 ' + i.toString() + ' 宮設 擊刑 - 天地辛\n';
+            }
+
+            if(tian_ren && di_ren)
+            {
+              gongs[i].set('擊刑', true);
+              otherMessage += '第 ' + i.toString() + ' 宮設 擊刑 - 天地壬\n';
+            }
+          }
+        }
+
+        // 10 - 找入墓
+        function setRuWu()
+        {
+          // 8 宮 ～ 丁，己，庚
+          // 6 宮 ～ 乙，丙，戊
+          // 4 宮 ～ 辛，壬
+          // 2 宮 ～ 乙，癸
+
+          var ruWuMap = {
+            '丁' : [8],
+            '己' : [8],
+            '庚' : [8],
+            '辛' : [4],
+            '壬' : [4],
+            '丙' : [6],
+            '戊' : [6],
+            '癸' : [2],
+            '乙' : [2, 6]
+          };
+
+          for(let gan in ruWuMap)
+          {
+
+            for(let i = 0; i < ruWuMap[gan].length; ++i)
+            {
+              let gong = ruWuMap[gan][i];
+
+              // 先找出值符星由第幾宮開始
+              let tianPanTianGan = gongs[gong].get('天盤天干');
+              let diPanTianGan = gongs[gong].get('地盤天干');
+              var ruWu = false;
+
+              for(let j = 0; tianPanTianGan && j < tianPanTianGan.length; ++j) {
+                if(tianPanTianGan[j] === gan) {
+                  gongs[gong].set('入墓', true);
+                  otherMessage += '第 ' + gong.toString() + ' 宮設 入墓 - ' + gan + '\n';
+                  break;
+                }
+              }
+              for(let j = 0; diPanTianGan && j < diPanTianGan.length; ++j) {
+                if(diPanTianGan[j] === gan) {
+                  gongs[gong].set('入墓', true);
+                  otherMessage += '第 ' + gong.toString() + ' 宮設 入墓 - ' + gan + '\n';
+                  break;
+                }
+              }
+
+            }
+          }
+        }
+
+        // 11 - 找門迫
+        function setMenBi()
+        {
+          // 生，死 於 1 宮
+          // 傷，杜 於 2 宮
+          // 驚，開 於 3 宮
+          // 驚，開 於 4 宮
+          // 景 於 6 宮
+          // 景 於 7 宮
+          // 傷，杜 於 8 宮
+          // 休 於 9 宮
+
+          var menBiMap = {
+            '休' : [9],
+            '生' : [1],
+            '傷' : [8, 2],
+            '杜' : [8, 2],
+            '景' : [6, 7],
+            '死' : [1],
+            '驚' : [3, 4],
+            '開' : [3, 4]
+          };
+
+          for(let men in menBiMap)
+          {
+            for(let i = 0; i < menBiMap[men].length; ++i)
+            {
+              let gong = menBiMap[men][i];
+
+              if(men === gongs[gong].get('門')) {
+                  gongs[gong].set('門迫', true);
+                  otherMessage += '第 ' + gong.toString() + ' 宮設 門迫 - ' + men + '\n';
+                  break;
+              }
+            }
+          }
+        }
+
+
+        // 12 - 找馬星
+        function setMaXing()
+        {
+          // 2 宮 ～ 寅、午、戌
+          // 4 宮 ～ 亥、卯、未
+          // 6 宮 ～ 巳、酉、丑
+          // 8 宮 ～ 申、子、辰
+
+          var maXingMap = {
+            '寅' : 2,
+            '午' : 2,
+            '戌' : 2,
+            '亥' : 4,
+            '卯' : 4,
+            '未' : 4,
+            '巳' : 6,
+            '酉' : 6,
+            '丑' : 6,
+            '申' : 8,
+            '子' : 8,
+            '辰' : 8
+          };
+
+          var hourZhi = pan.get('時支');
+
+          for(let zhi in maXingMap)
+          {
+            if(zhi === hourZhi) {
+                gongs[maXingMap[zhi]].set('馬星', true);
+                otherMessage += '第 ' + maXingMap[zhi].toString() + ' 宮設 馬星 - ' + zhi + '\n';
+                break;
+            }
+          }
+        }
+
 
         function calculate() {
 
@@ -456,7 +946,11 @@
             // 計旬首及空亡
             const kongWangAndXunShou = getKongWangAndXunShou(hourGan + hourZhi);
             pan.set('旬', kongWangAndXunShou['旬'] + kongWangAndXunShou['旬首']);
-            pan.set('時干', hourGan + hourZhi);
+            pan.set('旬首', kongWangAndXunShou['旬首']);
+            pan.set('旬支', kongWangAndXunShou['旬'].at(1));
+            pan.set('時干', hourGan);
+            pan.set('時支', hourZhi);
+            pan.set('遁類', dunType);
 
             // 設定空亡
             for(let i = 0; i < kongWangAndXunShou['空亡'].length; ++i) {
@@ -468,13 +962,59 @@
             otherMessage += dunType + '\n';
 
             // 設定地盤天干
+            otherMessage += '找地盤天干：\n';
             setDiPanTianGan_ZhiFuXing_ZhiShiMen(dunType, qimenJu.ju, kongWangAndXunShou['旬首']);
+            otherMessage += '\n';
 
-            otherMessage += '旬首：' + pan.get('旬') + '\n';
+            otherMessage += '找旬首、值符星、值使門：\n';
+            otherMessage += '旬：' + pan.get('旬') + '\n';
+            otherMessage += '旬首：' + pan.get('旬首') + '\n';
+            otherMessage += '旬支：' + pan.get('旬支') + '\n';
             otherMessage += '時干：' + pan.get('時干') + '\n';
+            otherMessage += '時支：' + pan.get('時支') + '\n';
             otherMessage += '值符星：' + pan.get('值符星') + '\n';
             otherMessage += '值使門：' + pan.get('值使門') + '\n';
+            otherMessage += '\n';
 
+            // 設九星跟時干走，不用天禽
+            otherMessage += '找九星：\n';
+            setJiaoXing(hourGan);
+            otherMessage += '\n';
+
+            // 設天盤天干跟九星
+            otherMessage += '找天盤天干：\n';
+            setTianPanTianGan();
+            otherMessage += '\n';
+
+            // 設八門
+            otherMessage += '找八門：\n';
+            setBaMen();
+            otherMessage += '\n';
+
+            // 設八神
+            otherMessage += '找八神：\n';
+            setBaShen();
+            otherMessage += '\n';
+
+            // 設擊刑
+            otherMessage += '找擊刑：\n';
+            setJiXing();
+            otherMessage += '\n';
+
+            // 設入墓
+            otherMessage += '找入墓：\n';
+            setRuWu();
+            otherMessage += '\n';
+
+            // 設門迫
+            otherMessage += '找門迫：\n';
+            setMenBi();
+            otherMessage += '\n';
+
+            // 設門迫
+            otherMessage += '找馬星：\n';
+            setMaXing();
+            otherMessage += '\n';
 
             // 結果顯示
             const qimenJuResultDiv = document.getElementById('qimenJuResult');
@@ -504,6 +1044,54 @@
                     </div>
                 </div>
                 <p>${lunarDateStr}</p>
+                `;
+
+            // 顯示盤
+            const qimenPanResultDiv = document.getElementById('qimenPanResult');
+
+            var panResult = '';
+
+            for(let i = 0; i < gongs_order_clockwise.length; ++i)
+            {
+              var j = gongs_order_clockwise[i];
+              panResult += '第 ' + gongs_order_clockwise[i] + ' 宮\n\n';
+
+              panResult += '神 - ' + gongs[j].get('神') + '\t\t' + gongs[j].get('天盤天干') + '\n';
+              panResult += '星 - ' + gongs[j].get('星') + '\t\t' + gongs[j].get('地盤天干') + '\n';
+              panResult += '門 - ' + gongs[j].get('門') + '\t\t\n';
+
+              if(gongs[j].get('空亡'))
+              {
+                panResult += '空';
+              }
+
+              if(gongs[j].get('擊刑'))
+              {
+                panResult += '刑';
+              }
+
+              if(gongs[j].get('入墓'))
+              {
+                panResult += '墓';
+              }
+
+              if(gongs[j].get('馬星'))
+              {
+                panResult += '馬';
+              }
+
+              if(gongs[j].get('門迫'))
+              {
+                panResult += '迫';
+              }
+
+              panResult += '\n\n';
+            }
+
+            qimenPanResultDiv.innerHTML = `
+                <pre>
+${panResult}
+                </pre>
                 `;
 
           const debugMessageDiv = document.getElementById('debugMessage');
