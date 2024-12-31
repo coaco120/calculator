@@ -66,6 +66,7 @@ button {
     padding-bottom: 5px;  
 }  
 
+/* 九宮格內容樣式 */   
 .grid-content {  
     text-align: left;  
     padding: 5px;  
@@ -75,14 +76,39 @@ button {
     margin: 5px 0;  
 }  
 
+/* 神煞星門樣式 */  
 .shen, .xing, .men {  
     font-size: 14px;  
+    display: flex;  
+    justify-content: space-between;  
+    align-items: center;  
 }  
 
+.shen .label, .xing .label {  
+    flex: 1;  
+    text-align: left;  
+}  
+
+/* 天干樣式及加粗效果 */  
+.shen .gan, .xing .gan {  
+    margin-left: 10px;  
+    text-align: right;  
+    font-weight: normal; /* 默認字重 */  
+}  
+
+.shen .gan.grid-gan-bold,   
+.xing .gan.grid-gan-bold {  
+    font-weight: 900 !important;  /* 加強加粗效果 */  
+    text-shadow: 0 0 1px; /* 添加文字陰影增強視覺效果 */  
+}  
+
+/* 特殊標記樣式 */  
 .marks {  
     color: red;  
     margin-top: 10px;  
+    text-align: left;  
 }  
+
 
 /* 陰陽遁顏色 */  
 .yang-dun { color: #e47a1c; }  
