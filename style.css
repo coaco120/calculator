@@ -1,0 +1,188 @@
+* {  
+    box-sizing: border-box;  
+}  
+
+body {  
+    font-family: Arial, sans-serif;  
+    max-width: 600px;  
+    margin: 0 auto;  
+    padding: 15px;  
+    text-align: center;  
+    line-height: 1.6;  
+}  
+
+/* 輸入表單樣式 */  
+input, select {  
+    width: 100%;  
+    margin-bottom: 15px;  
+    padding: 10px;  
+    font-size: 16px;  
+    border: 1px solid #ddd;  
+    border-radius: 5px;  
+}  
+
+button {  
+    width: 100%;  
+    padding: 12px;  
+    background-color: #4CAF50;  
+    color: white;  
+    border: none;  
+    border-radius: 5px;  
+    font-size: 16px;  
+    margin-top: 10px;  
+}  
+
+#result {  
+    margin-top: 20px;  
+    border: 1px solid #ddd;  
+    padding: 15px;  
+    background-color: #f9f9f9;  
+    position: relative;  
+    border-radius: 8px;  
+}  
+
+/* 九宮格布局 */  
+.grid-container {  
+    display: grid;  
+    grid-template-columns: repeat(3, 1fr);  
+    gap: 2px;  
+    margin: 20px auto;  
+    max-width: 800px;  
+    background-color: #000;  
+}  
+
+.grid-item {  
+    background-color: white;  
+    border: 1px solid #000;  
+    padding: 15px;  
+    text-align: center;  
+    min-height: 150px;  
+}  
+
+.grid-title {  
+    font-weight: bold;  
+    margin-bottom: 10px;  
+    border-bottom: 1px solid #ccc;  
+    padding-bottom: 5px;  
+}  
+
+.grid-content {  
+    text-align: left;  
+    padding: 5px;  
+}  
+
+.grid-content div {  
+    margin: 5px 0;  
+}  
+
+.shen, .xing, .men {  
+    font-size: 14px;  
+}  
+
+.marks {  
+    color: red;  
+    margin-top: 10px;  
+}  
+
+/* 陰陽遁顏色 */  
+.yang-dun { color: #e47a1c; }  
+.yin-dun { color: #782a9c; }  
+
+/* 八字顯示 */  
+.qimen-ju {  
+    font-size: 2em;  
+    margin-bottom: 20px;  
+}  
+
+.eight-characters {  
+    display: table;  
+    margin: 0 auto;  
+    border-collapse: collapse;  
+}  
+
+.eight-characters div {  
+    display: table-row;  
+}  
+
+.eight-characters div span {  
+    display: table-cell;  
+    padding: 5px;  
+    text-align: center;  
+}  
+
+.eight-characters .header {  
+    font-size: 0.6em;  
+    color: #666;  
+}  
+
+.eight-characters .chars {  
+    font-weight: bold;  
+}  
+
+/* 干支顏色 */  
+.gan-1 { color: #1e8116; } /* 甲、寅 */  
+.gan-2 { color: #2eb751; } /* 乙、卯 */  
+.gan-3 { color: #d51d1d; } /* 丙、午 */  
+.gan-4 { color: #ff4133; } /* 丁、巳 */  
+.gan-5 { color: #7a440e; } /* 戊、戌、辰 */  
+.gan-6 { color: #b47537; } /* 己、丑、未 */  
+.gan-7 { color: #ff8303; } /* 庚、申 */  
+.gan-8 { color: #ffb141; } /* 辛、酉 */  
+.gan-9 { color: #1d1aa1; } /* 壬、子 */  
+.gan-10 { color: #1b7acb; } /* 癸、亥 */  
+
+/* 五行顏色 */  
+.wuxin-1 { color: gold; } /* 金、驚門、開門 */  
+.wuxin-2 { color: green; } /* 木、傷門、杜門 */  
+.wuxin-3 { color: blue; } /* 水、休門 */  
+.wuxin-4 { color: red; } /* 火、景門 */  
+.wuxin-5 { color: brown; } /* 土、生門、死門*/  
+
+/* 其他元素 */  
+details {  
+    margin-top: 20px;  
+    text-align: left;  
+}  
+
+details summary {  
+    cursor: pointer;  
+    color: #666;  
+}  
+
+details pre {  
+    background-color: #f4f4f4;  
+    padding: 10px;  
+    border-radius: 5px;  
+    overflow-x: auto;  
+}  
+
+.author-info {  
+    position: absolute;  
+    bottom: 5px;  
+    right: 10px;  
+    font-size: 0.7em;  
+    color: #999;  
+}  
+
+/* 響應式設計 */  
+@media screen and (max-width: 600px) {  
+    body {  
+        padding: 10px;  
+    }  
+    input, select, button {  
+        font-size: 16px;  
+    }  
+    .eight-characters {  
+        font-size: 14px;  
+    }  
+    .grid-item {  
+        padding: 10px;  
+        min-height: 120px;  
+    }  
+}  
+
+/* iOS 特定樣式 */  
+input[type="number"] {  
+    -webkit-appearance: none;  
+    margin: 0;  
+}
