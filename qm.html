@@ -137,15 +137,15 @@
         }
 
         // 五行顏色
-        function getWuXinColor(wuxin) {
+        function getWuxinColor(input) {
             const colorMap = {
-                '金': 1, '驚': 1, '開': 1,
-                '木': 2, '傷': 2, '杜': 2,
-                '水': 3, '休': 3,
-                '火': 4, '景': 4,
-                '土': 5, '生': 5, '死': 5
+                '金': 1, '驚門': 1, '開門': 1, '天柱': 1, '天心': 1, '九地': 1, '九天': 1, '兌': 1,  '乾': 1,
+                '木': 2, '傷門': 2, '杜門': 2, '天沖': 2, '天輔': 2, '太陰': 2, '六合': 2, '震': 2,  '巽': 2,
+                '水': 3, '休門': 3, '天蓬': 3, '值符': 3, '坎': 3,
+                '火': 4, '景門': 4, '天英': 4, '白虎': 4, '離': 4,
+                '土': 5, '生門': 5, '死門': 5, '天任': 5, '天芮': 5, '騰蛇': 5, '玄武': 5, '艮': 5,  '坤': 5
             };
-            return colorMap[wuxin] || 1;
+            return colorMap[input] || 1;
         }
 
         // 找空亡與旬首
@@ -422,6 +422,7 @@
               otherMessage += '第 ' + gongs_order_clockwise[(destGongIndex + i) % 8].toString() + ' 宮設天盤天干 ' + gongs[gongs_order_clockwise[i]].get('地盤天干') + ' \n';
           }
         }
+
 
         // 07 - 設定八門
         function setBaMen() {
@@ -942,6 +943,7 @@
                         // 獲取當前宮位的天干
                         const tianPanGan = gongs[i].get('天盤天干') || '';
                         const diPanGan = gongs[i].get('地盤天干') || '';
+                        const yinGan = gongs[i].get('引干') || '';
 
                         // 檢查是否與八字天干匹配（修改這裡）
                         const bazi = [dayGan];  // 這裡應該是實際的八字天干
@@ -951,23 +953,24 @@
                         const matchingGans = [yearGan, monthGan, dayGan, hourGan];
                         const isTianPanMatch = matchingGans.includes(tianPanGan) || tianPanGan === '戊';
                         const isDiPanMatch = matchingGans.includes(diPanGan) || diPanGan === '戊';
-
                       if(i != 5)
                       {
                         return `
                             <div class="grid-item palace-${i}" id="palace-${i}">
-                                <div class="grid-title">第${convertToChinese(i)}宮（${gongs[i].get('宮')}）</div>
+                                <div class="grid-title wuxin-${getWuxinColor(gongs[i].get('宮'))}">第${convertToChinese(i)}宮（${gongs[i].get('宮')}）</div>
                                 <div class="grid-content">
                                     <div class="shen">
-                                        <span class="label">${gongs[i].get('天盤神') || ''}</span>
-                                        <span class="label">${gongs[i].get('地盤神') || ''}</span>
+                                        <span class="shen wuxin-${getWuxinColor(gongs[i].get('天盤神'))}">${gongs[i].get('天盤神') || ''}</span>
+                                        <span class="shen wuxin-${getWuxinColor(gongs[i].get('地盤神'))}">${gongs[i].get('地盤神') || ''}</span>
                                         <span class="gan gan-${getGanColor(tianPanGan)} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan}</span>
                                     </div>
                                     <div class="xing">
-                                        <span class="label">${gongs[i].get('星') || ''}</span>
+                                        <span class ="xing wuxin-${getWuxinColor(gongs[i].get('星'))}">${gongs[i].get('星') || ''}</span>
                                         <span class="gan gan-${getGanColor(diPanGan)} ${isDiPanMatch ? 'grid-gan-bold' : ''}">${diPanGan}</span>
                                     </div>
-                                    <div class="men">${gongs[i].get('門') || ''}</div>
+                                    <div class="men">
+                                        <span class="shen wuxin-${getWuxinColor(gongs[i].get('門'))}">${gongs[i].get('門') || ''}</span>
+                                    </div>
                                     <div class="marks">
                                         ${gongs[i].get('空亡') ? '空' : ''}
                                         ${gongs[i].get('擊刑') ? '刑' : ''}
@@ -1023,7 +1026,7 @@
       遁類: ${dunType}
       其他: ${otherMessage}
       -------------------------------
-        create by Jess Poon, AY
+        created by Jess Poon, Antonio Yu
         any inquiry please contact: jpoon120@gmail.com`
                     }</pre>
                 </details>
