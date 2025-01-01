@@ -1,323 +1,1034 @@
-<!DOCTYPE html>  
-<html lang="zh-TW">  
-<head>  
-    <meta charset="UTF-8">  
-    <title>奇門局數計算器</title>  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
-    <script src="lunar.js"></script>  
-    <style>  
-        * {  
-            box-sizing: border-box;  
-        }  
-        body {  
-            font-family: Arial, sans-serif;  
-            max-width: 600px;  
-            margin: 0 auto;  
-            padding: 15px;  
-            text-align: center;  
-            line-height: 1.6;  
-        }  
-        input, select {  
-            width: 100%;  
-            margin-bottom: 15px;  
-            padding: 10px;  
-            font-size: 16px; /* 防止iOS自動縮放 */  
-            border: 1px solid #ddd;  
-            border-radius: 5px;  
-        }  
-        button {  
-            width: 100%;  
-            padding: 12px;  
-            background-color: #4CAF50;  
-            color: white;  
-            border: none;  
-            border-radius: 5px;  
-            font-size: 16px;  
-            margin-top: 10px;  
-        }  
-        #result {  
-            margin-top: 20px;  
-            border: 1px solid #ddd;  
-            padding: 15px;  
-            background-color: #f9f9f9;  
-            position: relative;  
-            border-radius: 8px;  
-        }    
-        .yang-dun { color: #e47a1c; }  
-        .yin-dun { color: #782a9c; }  
-        .qimen-ju {  
-            font-size: 2em;  
-            margin-bottom: 20px;  
-        }  
-        details {  
-            margin-top: 20px;  
-            text-align: left;  
-        }  
-        details summary {  
-            cursor: pointer;  
-            color: #666;  
-        }  
-        details pre {  
-            background-color: #f4f4f4;  
-            padding: 10px;  
-            border-radius: 5px;  
-            overflow-x: auto;  
-        }  
-        .eight-characters {  
-            display: table;  
-            margin: 0 auto;  
-            border-collapse: collapse;  
-        }  
-        .eight-characters div {  
-            display: table-row;  
-        }  
-        .eight-characters div span {  
-            display: table-cell;  
-            padding: 5px;  
-            text-align: center;  
-        }  
-        .eight-characters .header {  
-            font-size: 0.6em;  
-            color: #666;  
-        }  
-        .eight-characters .chars {  
-            font-weight: bold;  
-        }  
-        .author-info {  
-            position: absolute;  
-            bottom: 5px;  
-            right: 10px;  
-            font-size: 0.7em;  
-            color: #999;  
-        }  
-        /* 新增的COLOR */  
-        .gan-1 { color: #1e8116; } /* 甲、寅 */  
-        .gan-2 { color: #2eb751; } /* 乙、卯 */  
-        .gan-3 { color: #d51d1d; } /* 丙、午 */  
-        .gan-4 { color: #ff4133; } /* 丁、巳 */  
-        .gan-5 { color: #7a440e; } /* 戊、戌、辰 */  
-        .gan-6 { color: #b47537; } /* 己、丑、未 */  
-        .gan-7 { color: #ff8303; } /* 庚、申 */  
-        .gan-8 { color: #ffb141; } /* 辛、酉 */  
-        .gan-9 { color: #1d1aa1; } /* 壬、子 */  
-        .gan-10 { color: #1b7acb; } /* 癸、亥 */ 
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>奇門局數計算器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="lunar.js"></script>
+    <script src="script.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <h2>奇門局數計算器</h2>
+    <div>
+        <label>年份（範圍：0001年 ~ 9999年）</label><br>
+        <input type="number" pattern="\d*" inputmode="numeric" id="year" placeholder="請輸入公曆年">
+    </div>
+    <div>
+        <label>月</label><br>
+        <input type="number" pattern="\d*" inputmode="numeric" id="month" placeholder="請輸入公曆月">
+    </div>
+    <div>
+        <label>日</label><br>
+        <input type="number" pattern="\d*" inputmode="numeric" id="day" placeholder="請輸入公曆日">
+    </div>
+    <div>
+        <label>時</label><br>
+        <select id="time">
+            <option value="0">子時 (23:00-01:00)</option>
+            <option value="1">丑時 (01:00-03:00)</option>
+            <option value="2">寅時 (03:00-05:00)</option>
+            <option value="3">卯時 (05:00-07:00)</option>
+            <option value="4">辰時 (07:00-09:00)</option>
+            <option value="5">巳時 (09:00-11:00)</option>
+            <option value="6">午時 (11:00-13:00)</option>
+            <option value="7">未時 (13:00-15:00)</option>
+            <option value="8">申時 (15:00-17:00)</option>
+            <option value="9">酉時 (17:00-19:00)</option>
+            <option value="10">戌時 (19:00-21:00)</option>
+            <option value="11">亥時 (21:00-23:00)</option>
+        </select>
+    </div>
+    <button onclick="calculate()">計算</button>
+    <div id="qimenJuResult"></div>
+    <div id="qimenPanResult">
+        <!-- 九宮格容器 -->
+        <div class="grid-container">
+            <div class="grid-item palace-4" id="palace-4">
+                <div class="grid-title">第四宮（巽）</div>
+                <div class="grid-content"></div>
+            </div>
+            <div class="grid-item palace-9" id="palace-9">
+                <div class="grid-title">第九宮（離）</div>
+                <div class="grid-content"></div>
+            </div>
+            <div class="grid-item palace-2" id="palace-2">
+                <div class="grid-title">第二宮（坤）</div>
+                <div class="grid-content"></div>
+            </div>
+            <div class="grid-item palace-3" id="palace-3">
+                <div class="grid-title">第三宮（震）</div>
+                <div class="grid-content"></div>
+            </div>
+            <div class="grid-item palace-5" id="palace-5">
+                <div class="grid-title">第五宮（中）</div>
+                <div class="grid-content"></div>
+            </div>
+            <div class="grid-item palace-7" id="palace-7">
+                <div class="grid-title">第七宮（兌）</div>
+                <div class="grid-content"></div>
+            </div>
+            <div class="grid-item palace-8" id="palace-8">
+                <div class="grid-title">第八宮（艮）</div>
+                <div class="grid-content"></div>
+            </div>
+            <div class="grid-item palace-1" id="palace-1">
+                <div class="grid-title">第一宮（坎）</div>
+                <div class="grid-content"></div>
+            </div>
+            <div class="grid-item palace-6" id="palace-6">
+                <div class="grid-title">第六宮（乾）</div>
+                <div class="grid-content"></div>
+            </div>
+        </div>
+    </div>
+    <div id="debugMessage"></div>
 
-        /* 響應式調整 */  
-        @media screen and (max-width: 600px) {  
-            body {  
-                padding: 10px;  
-            }  
-            input, select, button {  
-                font-size: 16px; /* 確保字體大小適合手機 */  
-            }  
-            .eight-characters {  
-                font-size: 14px;  
-            }  
-        }  
+    <script>
 
-        /* 解決 iOS 輸入問題 */  
-        input[type="number"] {  
-            -webkit-appearance: none;  
-            margin: 0;  
-        }  
-    </style>  
-</head>  
-<body>   
-    <h2>奇門局數計算器</h2>  
-    <div>  
-        <label>年份（範圍：0001年 ~ 9999年）</label><br>  
-        <input type="number" pattern="\d*" inputmode="numeric" id="year" placeholder="請輸入公曆年">  
-    </div>  
-    <div>  
-        <label>月</label><br>  
-        <input type="number" pattern="\d*" inputmode="numeric" id="month" placeholder="請輸入公曆月">  
-    </div>  
-    <div>  
-        <label>日</label><br>  
-        <input type="number" pattern="\d*" inputmode="numeric" id="day" placeholder="請輸入公曆日">  
-    </div>  
-    <div>  
-        <label>時</label><br>  
-        <select id="time">  
-            <option value="0">子時 (23:00-01:00)</option>  
-            <option value="1">丑時 (01:00-03:00)</option>  
-            <option value="2">寅時 (03:00-05:00)</option>  
-            <option value="3">卯時 (05:00-07:00)</option>  
-            <option value="4">辰時 (07:00-09:00)</option>  
-            <option value="5">巳時 (09:00-11:00)</option>  
-            <option value="6">午時 (11:00-13:00)</option>  
-            <option value="7">未時 (13:00-15:00)</option>  
-            <option value="8">申時 (15:00-17:00)</option>  
-            <option value="9">酉時 (17:00-19:00)</option>  
-            <option value="10">戌時 (19:00-21:00)</option>  
-            <option value="11">亥時 (21:00-23:00)</option>  
-        </select>  
-    </div>  
-    <button onclick="calculate()">計算</button>  
-    <div id="result"></div>  
-    
-    <script>  
-        const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];  
-        const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']; 
+        const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+        const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
-        // 顏色  
-        function getGanColor(gan) {  
-            const colorMap = {  
-                '甲': 1, '寅': 1,  
-                '乙': 2, '卯': 2,  
-                '丙': 3, '午': 3,  
-                '丁': 4, '巳': 4,  
-                '戊': 5, '戌': 5, '辰': 5,  
-                '己': 6, '丑': 6, '未': 6,  
-                '庚': 7, '申': 7,  
-                '辛': 8, '酉': 8,  
-                '壬': 9, '子': 9,  
-                '癸': 10, '亥': 10  
-            };  
-            return colorMap[gan] || 1;  
-        }  
+        const MEN = ['休門', '生門', '傷門', '杜門', '景門', '死門', '驚門', '開門'];
+        const XING = ['天蓬', '天任', '天沖', '天輔', '天英', '天芮', '天柱', '天心'];
+        const SHEN = ['值符', '騰蛇', '太陰', '六合', '白虎', '玄武', '九地', '九天'];
+        const GONG = ['坎', '艮', '震', '巽', '離', '坤', '兌', '乾'];
+        const WUXIN = ['金', '木', '水', '火', '土'];
 
-        // 轉換阿拉伯數字為中文數字  
-        function convertToChinese(number) {  
-            const cnNums = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];  
-            return number.toString().split('').map(digit => cnNums[parseInt(digit)]).join('');  
-        }  
+        // 盤
+        var pan = new Map();
 
-        // 計算時干  
-        function getHourGan(dayGan, hourIndex) {  
-            const subHourGanRules = {  
-                '甲': '甲', '乙': '丙', '丙': '戊',   
-                '丁': '庚', '戊': '壬', '己': '甲',   
-                '庚': '丙', '辛': '戊', '壬': '庚', '癸': '壬'  
-            };  
+        // 九宮
+        var gongs = [];
 
-            const subHourGan = subHourGanRules[dayGan];  
-            const hourGanSequence = ['丙', '丁', '戊', '己', '庚', '辛', '壬', '癸', '甲', '乙'];  
-            const subHourGanIndex = hourGanSequence.indexOf(subHourGan);  
+        for(let i = 1; i < 10; ++i)
+        {
+          gongs[i] = new Map();
+        }
 
-            return hourGanSequence[(subHourGanIndex + hourIndex) % 10];  
-        }  
+        const gongs_order_clockwise = [1, 8, 3, 4, 9, 2, 7, 6];
+        const gongs_order_anticlockwise = [1, 6, 7, 2, 9, 4, 3, 8];
 
-        // 計算奇門局數  
-        function calculateQimenJu(yearZhi, monthZhi, day, hourZhi, month) {  
-            // 原始地支對應數字（保持不變）  
-            const originalZhiToNumber = {  
-                '子': 1, '丑': 2, '寅': 3, '卯': 4, '辰': 5,  
-                '巳': 6, '午': 7, '未': 8, '申': 9, '酉': 10,  
-                '戌': 11, '亥': 12  
-            };  
+        var otherMessage = '\n';
 
-            // 月支特殊對應數字  
-            const monthZhiToNumber = {  
-                '子': 11, '丑': 12, '寅': 1, '卯': 2, '辰': 3,  
-                '巳': 4, '午': 5, '未': 6, '申': 7, '酉': 8,  
-                '戌': 9, '亥': 10  
-            };  
+        // assign names to 九宮
+        for(let i = 0; i < gongs_order_clockwise.length; ++i)
+        {
+          gongs[gongs_order_clockwise[i]].set('宮', GONG[i]);
+        }
 
-            // 判斷遁（通過夏至/冬至）  
-            function determineDunType(month) {  
-                return month >= 7 && month <= 12 ? '陰遁' : '陽遁';  
-            }  
+        gongs[5].set('宮', '中');
 
-            const A = originalZhiToNumber[yearZhi];  
-            const B = monthZhiToNumber[monthZhi];  // 使用特殊的月支對應  
-            const C = day;  
-            const D = originalZhiToNumber[hourZhi];  
+        // 干支顏色
+        function getGanColor(gan) {
+            const colorMap = {
+                '甲': 1, '寅': 1,
+                '乙': 2, '卯': 2,
+                '丙': 3, '午': 3,
+                '丁': 4, '巳': 4,
+                '戊': 5, '戌': 5, '辰': 5,
+                '己': 6, '丑': 6, '未': 6,
+                '庚': 7, '申': 7,
+                '辛': 8, '酉': 8,
+                '壬': 9, '子': 9,
+                '癸': 10, '亥': 10
+            };
+            return colorMap[gan] || 1;
+        }
 
-            const total = A + B + C + D;  
-            const ju = total % 9 === 0 ? 9 : total % 9;  
-            const dunType = determineDunType(month);  
+        // 五行顏色
+        function getWuXinColor(wuxin) {
+            const colorMap = {
+                '金': 1, '驚': 1, '開': 1,
+                '木': 2, '傷': 2, '杜': 2,
+                '水': 3, '休': 3,
+                '火': 4, '景': 4,
+                '土': 5, '生': 5, '死': 5
+            };
+            return colorMap[wuxin] || 1;
+        }
 
-            return { dunType, ju, originalZhiToNumber, monthZhiToNumber, A, B, C, D, total };  
-        }  
+        // 找空亡與旬首
+        function getKongWangAndXunShou(hourGan) {
 
-        function calculate() {  
-            const year = parseInt(document.getElementById('year').value);  
-            const month = parseInt(document.getElementById('month').value);  
-            const day = parseInt(document.getElementById('day').value);  
-            const hourIndex = parseInt(document.getElementById('time').value);  
+          const hourGanRank = {
+              '甲子': 1, '乙丑': 1, '丙寅': 1, '丁卯': 1, '戊辰': 1, '己巳': 1, '庚午': 1, '辛未': 1, '壬申': 1, '癸酉': 1,
+              '甲戌': 2, '乙亥': 2, '丙子': 2, '丁丑': 2, '戊寅': 2, '己卯': 2, '庚辰': 2, '辛巳': 2, '壬午': 2, '癸未': 2,
+              '甲申': 3, '乙酉': 3, '丙戌': 3, '丁亥': 3, '戊子': 3, '己丑': 3, '庚寅': 3, '辛卯': 3, '壬辰': 3, '癸巳': 3,
+              '甲午': 4, '乙未': 4, '丙申': 4, '丁酉': 4, '戊戌': 4, '己亥': 4, '庚子': 4, '辛丑': 4, '壬寅': 4, '癸卯': 4,
+              '甲辰': 5, '乙巳': 5, '丙午': 5, '丁未': 5, '戊申': 5, '己酉': 5, '庚戌': 5, '辛亥': 5, '壬子': 5, '癸丑': 5,
+              '甲寅': 6, '乙卯': 6, '丙辰': 6, '丁巳': 6, '戊午': 6, '己未': 6, '庚申': 6, '辛酉': 6, '壬戌': 6, '癸亥': 6
+          };
 
-            if (!year || !month || !day) {  
-                alert('請完整填寫所有資料');  
-                return;  
-            }  
+          // 旬
+          const XunMap = {
+              1 : '甲子',
+              2 : '甲戌',
+              3 : '甲申',
+              4 : '甲午',
+              5 : '甲辰',
+              6 : '甲寅'
+          };
 
-            // 使用 Solar 類建立日期  
-            const solar = Solar.fromYmd(year, month, day);  
-            
-            // 獲取農曆  
-            const lunar = solar.getLunar();  
+          // 旬首
+          const XunShouMap = {
+              1 : '戊',
+              2 : '己',
+              3 : '庚',
+              4 : '辛',
+              5 : '壬',
+              6 : '癸'
+          };
 
-            // 農曆日期轉換  
-            const dayString = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',   
-                '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',   
-                '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];  
+          // 空亡
+          const KongWangMap = {
+              1 : [6],      // 乾
+              2 : [2, 7],   // 坤兌
+              3 : [9, 2],   // 坤離
+              4 : [4],      // 巽
+              5 : [8, 3],   // 艮震
+              6 : [1, 8]    // 坎艮
+          };
 
-            const lunarYear = convertToChinese(lunar.getYear());  
-            const lunarMonth = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '臘'][lunar.getMonth() - 1];  
-            const lunarDay = dayString[lunar._p.day - 1];   
-            const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;  
+          rank = hourGanRank[hourGan];
 
-            // 干支計算  
-            const yearGan = GAN[lunar._p.yearGanIndex];  
-            const yearZhi = ZHI[lunar._p.yearZhiIndex];  
-            const monthGan = GAN[lunar._p.monthGanIndex];  
-            const monthZhi = ZHI[lunar._p.monthZhiIndex];  
-            const dayGan = GAN[lunar._p.dayGanIndex];  
-            const dayZhi = ZHI[lunar._p.dayZhiIndex];  
-            const hourGan = getHourGan(dayGan, hourIndex);  
-            const hourZhi = ZHI[hourIndex];  
+          return { '旬' : XunMap[rank], '旬首' : XunShouMap[rank], '空亡' : KongWangMap[rank] };
+        }
 
-            // 奇門局數計算  
-            const qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);  
 
-            // 結果顯示  
-            const resultDiv = document.getElementById('result');  
-            resultDiv.innerHTML = `  
-                <div class="qimen-ju">  
-                    <b><span class="${qimenJu.dunType === '陽遁' ? 'yang-dun' : 'yin-dun'}">  
-                    ${qimenJu.dunType}${convertToChinese(qimenJu.ju)}局</span></b>  
-                </div>  
-                <div class="eight-characters">  
-                    <div>  
-                        <span class="header">年</span>  
-                        <span class="header">月</span>  
-                        <span class="header">日</span>  
-                        <span class="header">時</span>  
-                    </div>  
-                    <div>  
-                        <span class="chars gan-${getGanColor(yearGan)}">${yearGan}</span>  
-                        <span class="chars gan-${getGanColor(monthGan)}">${monthGan}</span>  
-                        <span class="chars gan-${getGanColor(dayGan)}">${dayGan}</span>  
-                        <span class="chars gan-${getGanColor(hourGan)}">${hourGan}</span>  
-                    </div>  
-                    <div>  
-                        <span class="chars gan-${getGanColor(yearZhi)}">${yearZhi}</span>  
-                        <span class="chars gan-${getGanColor(monthZhi)}">${monthZhi}</span>  
-                        <span class="chars gan-${getGanColor(dayZhi)}">${dayZhi}</span>  
-                        <span class="chars gan-${getGanColor(hourZhi)}">${hourZhi}</span>  
-                    </div>  
-                </div>  
-                <p>${lunarDateStr}</p>  
-                <details>  
-                    <summary>演算</summary>  
-                    <pre>${  
-                        `偵錯資訊：  
-        (年支): ${yearZhi} -> ${qimenJu.A}  
-        (月支): ${monthZhi} -> ${qimenJu.B}  
-        (日期): ${lunar._p.day}  
-        (時支): ${hourZhi} -> ${qimenJu.D}  
-        總計: ${qimenJu.A} + ${qimenJu.B} + ${lunar._p.day} + ${qimenJu.D} = ${qimenJu.total}  
-        餘數: ${qimenJu.total} % 9 = ${qimenJu.total % 9}  
-        遁類: ${qimenJu.dunType}`  
-                    }</pre>  
-                </details>  
-                <div class="author-info">  
-                    create by Jess Poon<br>  
-                    any inquiry please contact: jpoon120@gmail.com  
-                </div>  
-            `;  
-        }  
-    </script>  
-</body>  
-</html>  
+
+        // 轉換阿拉伯數字為中文數字
+        function convertToChinese(number) {
+            const cnNums = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+            return number.toString().split('').map(digit => cnNums[parseInt(digit)]).join('');
+        }
+
+        // 計算時干
+        function getHourGan(dayGan, hourIndex) {
+            const subHourGanRules = {
+                '甲': '甲', '乙': '丙', '丙': '戊',
+                '丁': '庚', '戊': '壬', '己': '甲',
+                '庚': '丙', '辛': '戊', '壬': '庚', '癸': '壬'
+            };
+
+            const subHourGan = subHourGanRules[dayGan];
+            const hourGanSequence = ['丙', '丁', '戊', '己', '庚', '辛', '壬', '癸', '甲', '乙'];
+            const subHourGanIndex = hourGanSequence.indexOf(subHourGan);
+
+            return hourGanSequence[(subHourGanIndex + hourIndex) % 10];
+        }
+
+        // 計算奇門局數
+        function calculateQimenJu(yearZhi, monthZhi, day, hourZhi, month) {
+            // 原始地支對應數字（保持不變）
+            const originalZhiToNumber = {
+                '子': 1, '丑': 2, '寅': 3, '卯': 4, '辰': 5,
+                '巳': 6, '午': 7, '未': 8, '申': 9, '酉': 10,
+                '戌': 11, '亥': 12
+            };
+
+            // 月支特殊對應數字
+            const monthZhiToNumber = {
+                '子': 11, '丑': 12, '寅': 1, '卯': 2, '辰': 3,
+                '巳': 4, '午': 5, '未': 6, '申': 7, '酉': 8,
+                '戌': 9, '亥': 10
+            };
+
+            const A = originalZhiToNumber[yearZhi];
+            const B = monthZhiToNumber[monthZhi];  // 使用特殊的月支對應
+            const C = day;
+            const D = originalZhiToNumber[hourZhi];
+
+            const total = A + B + C + D;
+            const ju = total % 9 === 0 ? 9 : total % 9;
+
+            return { ju, originalZhiToNumber, monthZhiToNumber, A, B, C, D, total };
+        }
+
+        function determineDunType(year, month, day, hour, minute, second) {
+
+          const solar = Solar.fromYmdHms(year, month, day, hour, minute, second);
+          const lunar = solar.getLunar();
+
+          const xiaZhiDate = lunar._getJieQiSolar(I18n.getMessage('jq.xiaZhi'));
+          const dongZhiDate = lunar._getJieQiSolar("DONG_ZHI");
+
+          // 夏至以前或冬至以後為陽遁，否則為陰遁
+          if (solar.isBefore(xiaZhiDate) || solar.isAfter(dongZhiDate)) {
+            return '陽遁';
+          }
+          else {
+            return '陰遁';
+          }
+        }
+
+        // 找值符星及值使門
+        function setZhiFuXing_ZhiShiMen(gong)
+        {
+          // 中宮：值符星 - 芮，值使門 - 死
+          if(gong === 5)
+          {
+            pan.set('值符星', '天芮');
+            pan.set('值使門', '死門');
+          }
+
+          else
+          {
+            // 其他宮：找出原宮是那一個，再設值符星及值使門
+            for(let i = 0; i < gongs_order_clockwise.length; ++i)
+            {
+              if(gong === gongs_order_clockwise[i])
+              {
+                pan.set('值符星', XING[i]);
+                pan.set('值使門', MEN[i]);
+                break;
+              }
+            }
+          }
+        }
+
+        // 03 04 - 設地盤天干、旬首、值符星及值使門
+        function setDiPanTianGan_ZhiFuXing_ZhiShiMen(dunType, ju, xunShou) {
+
+          const diPanTianGanArray = ['戊', '己', '庚', '辛', '壬', '癸', '丁', '丙', '乙'];
+          var j = 0;
+          var start = 0;
+          var finish = 0;
+          var change = 0;
+
+          // Need to consider both directions for 陽遁 & 陰遁
+          if(dunType === '陽遁')
+          {
+            start = ju;
+            finish = ju + 8;
+            change = 1;
+          }
+          else {
+            start = ju + 9;
+            finish = ju;
+            change = -1;
+          }
+
+          for(let i = start; ; i += change, ++j)
+          {
+            if(dunType === '陽遁' && i > ju + 8)
+            {
+              break;
+            }
+            if(dunType === '陰遁' && i <= ju)
+            {
+              break;
+            }
+
+            gongs[(i - 1) % 9 + 1].set('地盤天干', [diPanTianGanArray[j]]);
+            otherMessage += '第 ' + ((i - 1) % 9 + 1).toString() + ' 宮設地盤天干 ' + diPanTianGanArray[j] + '\n';
+
+            if(diPanTianGanArray[j] === xunShou)
+            {
+              setZhiFuXing_ZhiShiMen((i - 1) % 9 + 1);
+            }
+          }
+
+          gongs[2].set('地盤天干', [gongs[2].get('地盤天干')[0], gongs[5].get('地盤天干')[0]]);
+          otherMessage += '第 2 宮設地盤天干 ' + gongs[2].get('地盤天干') + '\n';
+
+          // Clear 中宮地盤天干
+          gongs[5].set('地盤天干', []);
+
+        }
+
+        // 05 - 設定九星
+        function setJiaoXing(hourGan) {
+
+          let startGong = 0;
+          let startIndex = 0;
+          let startXing = 0;
+
+          if(hourGan === '甲')
+          {
+            hourGan = pan.get('旬首');
+          }
+
+          // 先找出值符星由第幾宮開始
+          for(let i = 1; i < gongs.length; ++i) {
+
+            let diPanTianGan = gongs[i].get('地盤天干');
+
+            for(let j = 0; j < diPanTianGan.length; ++j) {
+              if(diPanTianGan[j] === hourGan) {
+                startGong = i;
+                otherMessage += '值符星 ' + pan.get('值符星') + ' 始於第 ' + startGong.toString() + ' 宮\n';
+                break;
+              }
+            }
+
+            if(startGong > 0)
+            {
+              break;
+            }
+          }
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+            // 找出八宮順序的 index
+            if(gongs_order_clockwise[i] === startGong)
+            {
+              startIndex = i;
+            }
+
+            // 找出值符星的 index
+            if(pan.get('值符星') === XING[i])
+            {
+              startXing = i;
+            }
+          }
+
+          // 從值符星開始設到不同的宮
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+            gongIndex = gongs_order_clockwise[(i + startIndex) % 8];
+            gongs[gongIndex].set('星', XING[(i + startXing) % 8]);
+            otherMessage += '第 ' + gongIndex.toString() + ' 宮設星 ' + XING[(i + startXing) % 8] + ' \n';
+          }
+        }
+
+        // 06 - 設定天盤天干
+        function setTianPanTianGan() {
+
+          let diPanTianGan = gongs[1].get('地盤天干');
+          let startGong = 0;
+          let destGongIndex = 0;
+
+          // 先找出值符星由第幾宮開始
+          for(let i = 1; i < gongs.length; ++i) {
+
+            if(gongs[i].get('星') === '天蓬') {
+              startDestGong = i;
+              break;
+            }
+          }
+
+          otherMessage += diPanTianGan + ' 設到第 ' + startDestGong.toString() + ' 宮\n';
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i)
+          {
+            if(startDestGong === gongs_order_clockwise[i]) {
+              destGongIndex = i;
+              break;
+            }
+          }
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i)
+          {
+              gongs[gongs_order_clockwise[(destGongIndex + i) % 8]].set('天盤天干', gongs[gongs_order_clockwise[i]].get('地盤天干'));
+              otherMessage += '第 ' + gongs_order_clockwise[(destGongIndex + i) % 8].toString() + ' 宮設天盤天干 ' + gongs[gongs_order_clockwise[i]].get('地盤天干') + ' \n';
+          }
+        }
+
+        // 07 - 設定八門
+        function setBaMen() {
+
+          var xunZhi = pan.get('旬支');
+          var xunShou = pan.get('旬首');
+          var hourGan = pan.get('時干');
+          var hourZhi = pan.get('時支');
+
+          const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+
+          var zhiDiff = 0;
+          var hourZhiLocation = 0;
+          var zunZhiLocation = 0;
+          let startGong = 0;
+          let startGongIndex = 0;
+          let startMenIndex = 0;
+
+          // 先找出旬支數到時支有多少個支，陽遁順數，陰遁逆數
+          // 找出旬支排多少個支
+          while(ZHI[zunZhiLocation] != xunZhi) {
+            zunZhiLocation++;
+          }
+
+          while(ZHI[hourZhiLocation] != hourZhi) {
+            hourZhiLocation++;
+          }
+
+          otherMessage += '旬支' + xunZhi + '排第 ' + zunZhiLocation.toString() + '\n';
+          otherMessage += '時支' + hourZhi + '排第 ' + hourZhiLocation.toString() + '\n';
+
+          if(hourZhiLocation < zunZhiLocation)
+          {
+              hourZhiLocation += 12;
+          }
+
+          // 支數差
+          zhiDiff = hourZhiLocation - zunZhiLocation;
+
+          otherMessage += "支差：" + zhiDiff.toString() + '\n';
+          otherMessage += "旬首：" + xunShou + '\n';
+
+          // 先找出值符星由第幾宮開始
+          for(let i = 1; i < gongs.length; ++i) {
+
+            let diPanTianGan = gongs[i].get('地盤天干');
+
+            for(let j = 0; j < diPanTianGan.length; ++j) {
+              if(diPanTianGan[j] === xunShou) {
+                startGong = i;
+                otherMessage += '第 ' + startGong.toString() + ' 宮開始數\n';
+                break;
+              }
+            }
+          }
+
+          if(pan.get('遁類') === '陽遁') {
+            // 順數
+            startGong = startGong + zhiDiff;
+            if(startGong > 9)
+            {
+              startGong = startGong - 9;
+            }
+          } else {
+            // 逆數
+            startGong = startGong - zhiDiff;
+            if(startGong < 1)
+            {
+              startGong = startGong + 9;
+            }
+          }
+
+          if(startGong === 5)
+          {
+            startGong = 2;
+          }
+
+          otherMessage += '值使門 ' + pan.get('值使門') + ' 始於第 ' + startGong.toString() + ' 宮\n';
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+
+            if(gongs_order_clockwise[i] === startGong) {
+              startGongIndex = i;
+            }
+
+            if(MEN[i] === pan.get('值使門')) {
+              startMenIndex = i;
+            }
+          }
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+
+            gongs[gongs_order_clockwise[(i + startGongIndex) % 8]].set('門', MEN[(i + startMenIndex) % 8]);
+            otherMessage += '第 ' + gongs_order_clockwise[(i + startGongIndex) % 8].toString() + ' 宮設 ' + MEN[(i + startMenIndex) % 8] + ' 門\n';
+
+          }
+        }
+
+
+        // 08 - 設定八神
+        function setBaShen(panType) {
+
+          var xunShou = pan.get('旬首');
+          var startGong = 0;
+          var startShenIndex = 0;
+
+          // 先找出值符星由第幾宮開始
+          for(let i = 1; i < gongs.length; ++i) {
+
+            let tianGan = gongs[i].get(panType + '天干');
+
+            for(let j = 0; tianGan && j < tianGan.length; ++j) {
+              if(tianGan[j] === xunShou) {
+                startGong = i;
+                otherMessage += '第 ' + startGong.toString() + ' 宮開始數\n';
+                break;
+              }
+            }
+
+          }
+
+          if(pan.get('遁類') === '陽遁') {
+            // 順數
+            for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+              if(gongs_order_clockwise[i] === startGong) {
+                startGongIndex = i;
+              }
+            }
+          } else {
+            // 逆數
+            for(let i = 0; i < gongs_order_anticlockwise.length; ++i) {
+              if(gongs_order_anticlockwise[i] === startGong) {
+                startGongIndex = i;
+              }
+            }
+          }
+
+          otherMessage += '值符 始於第 ' + startGong.toString() + ' 宮\n';
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+              if(pan.get('遁類') === '陽遁') {
+                gongs[gongs_order_clockwise[(i + startGongIndex) % 8]].set(panType + '神', SHEN[i]);
+                otherMessage += '第 ' + gongs_order_clockwise[(i + startGongIndex) % 8].toString() + ' 宮設 ' + SHEN[i] + ' 神\n';
+              }
+              else {
+                gongs[gongs_order_anticlockwise[(i + startGongIndex) % 8]].set(panType + '神', SHEN[i]);
+                otherMessage += '第 ' + gongs_order_anticlockwise[(i + startGongIndex) % 8].toString() + ' 宮設 ' + SHEN[i] + ' 神\n';
+              }
+          }
+        }
+
+        // 09 - 找擊刑
+        function setJiXing()
+        {
+          // Case 1
+          // 8 宮 ～ 庚
+          // 9 宮 ～ 辛
+          // 3 宮 ～ 戊
+          // 2 宮 ～ 己
+          // 4 宮 ～ 壬癸
+          var jiXingMap = {
+            '庚' : 8,
+            '辛' : 9,
+            '戊' : 3,
+            '己' : 2,
+            '壬' : 4,
+            '癸' : 4
+          };
+
+          for(let gan in jiXingMap)
+          {
+            // 先找出值符星由第幾宮開始
+            let tianPanTianGan = gongs[jiXingMap[gan]].get('天盤天干');
+            let diPanTianGan = gongs[jiXingMap[gan]].get('地盤天干');
+            var jiXing = false;
+
+            for(let j = 0; tianPanTianGan && j < tianPanTianGan.length; ++j) {
+              if(tianPanTianGan[j] === gan) {
+                gongs[jiXingMap[gan]].set('擊刑', true);
+                otherMessage += '第 ' + jiXingMap[gan].toString() + ' 宮設 擊刑 - ' + gan + '\n';
+                break;
+              }
+            }
+            for(let j = 0; diPanTianGan && j < diPanTianGan.length; ++j) {
+              if(diPanTianGan[j] === gan) {
+                gongs[jiXingMap[gan]].set('擊刑', true);
+                otherMessage += '第 ' + jiXingMap[gan].toString() + ' 宮設 擊刑 - ' + gan + '\n';
+                break;
+              }
+            }
+          }
+
+          // Case 2
+          // 辛 ＋ 辛
+          // 壬 ＋ 壬
+          for(let i = 1; i < 10; i++)
+          {
+            // 先找出值符星由第幾宮開始
+            let tianPanTianGan = gongs[i].get('天盤天干');
+            let diPanTianGan = gongs[i].get('地盤天干');
+
+            var tian_xin = false;
+            var di_xin = false;
+            var tian_ren = false;
+            var di_ren = false;
+
+            for(let j = 0; tianPanTianGan && j < tianPanTianGan.length; ++j) {
+              if(tianPanTianGan[j] === '辛') {
+                tian_xin = true;
+              } else if(tianPanTianGan[j] === '壬') {
+                tian_ren = true;
+              }
+            }
+
+            for(let j = 0; diPanTianGan && j < diPanTianGan.length; ++j) {
+              if(diPanTianGan[j] === '辛') {
+                di_xin = true;
+              } else if(diPanTianGan[j] === '壬') {
+                di_ren = true;
+              }
+            }
+
+            if(tian_xin && di_xin)
+            {
+              gongs[i].set('擊刑', true);
+              otherMessage += '第 ' + i.toString() + ' 宮設 擊刑 - 天地辛\n';
+            }
+
+            if(tian_ren && di_ren)
+            {
+              gongs[i].set('擊刑', true);
+              otherMessage += '第 ' + i.toString() + ' 宮設 擊刑 - 天地壬\n';
+            }
+          }
+        }
+
+        // 10 - 找入墓
+        function setRuWu()
+        {
+          // 8 宮 ～ 丁，己，庚
+          // 6 宮 ～ 乙，丙，戊
+          // 4 宮 ～ 辛，壬
+          // 2 宮 ～ 乙，癸
+
+          var ruWuMap = {
+            '丁' : [8],
+            '己' : [8],
+            '庚' : [8],
+            '辛' : [4],
+            '壬' : [4],
+            '丙' : [6],
+            '戊' : [6],
+            '癸' : [2],
+            '乙' : [2, 6]
+          };
+
+          for(let gan in ruWuMap)
+          {
+
+            for(let i = 0; i < ruWuMap[gan].length; ++i)
+            {
+              let gong = ruWuMap[gan][i];
+
+              // 先找出值符星由第幾宮開始
+              let tianPanTianGan = gongs[gong].get('天盤天干');
+              let diPanTianGan = gongs[gong].get('地盤天干');
+              var ruWu = false;
+
+              for(let j = 0; tianPanTianGan && j < tianPanTianGan.length; ++j) {
+                if(tianPanTianGan[j] === gan) {
+                  gongs[gong].set('入墓', true);
+                  otherMessage += '第 ' + gong.toString() + ' 宮設 入墓 - ' + gan + '\n';
+                  break;
+                }
+              }
+              for(let j = 0; diPanTianGan && j < diPanTianGan.length; ++j) {
+                if(diPanTianGan[j] === gan) {
+                  gongs[gong].set('入墓', true);
+                  otherMessage += '第 ' + gong.toString() + ' 宮設 入墓 - ' + gan + '\n';
+                  break;
+                }
+              }
+
+            }
+          }
+        }
+
+        // 11 - 找門迫
+        function setMenBi()
+        {
+          // 生，死 於 1 宮
+          // 傷，杜 於 2 宮
+          // 驚，開 於 3 宮
+          // 驚，開 於 4 宮
+          // 景 於 6 宮
+          // 景 於 7 宮
+          // 傷，杜 於 8 宮
+          // 休 於 9 宮
+
+          var menBiMap = {
+            '休門' : [9],
+            '生門' : [1],
+            '傷門' : [8, 2],
+            '杜門' : [8, 2],
+            '景門' : [6, 7],
+            '死門' : [1],
+            '驚門' : [3, 4],
+            '開門' : [3, 4]
+          };
+
+          for(let men in menBiMap)
+          {
+            for(let i = 0; i < menBiMap[men].length; ++i)
+            {
+              let gong = menBiMap[men][i];
+
+              if(men === gongs[gong].get('門')) {
+                  gongs[gong].set('門迫', true);
+                  otherMessage += '第 ' + gong.toString() + ' 宮設 門迫 - ' + men + '\n';
+                  break;
+              }
+            }
+          }
+        }
+
+
+        // 12 - 找馬星
+        function setMaXing()
+        {
+          // 2 宮 ～ 寅、午、戌
+          // 4 宮 ～ 亥、卯、未
+          // 6 宮 ～ 巳、酉、丑
+          // 8 宮 ～ 申、子、辰
+
+          var maXingMap = {
+            '寅' : 2,
+            '午' : 2,
+            '戌' : 2,
+            '亥' : 4,
+            '卯' : 4,
+            '未' : 4,
+            '巳' : 6,
+            '酉' : 6,
+            '丑' : 6,
+            '申' : 8,
+            '子' : 8,
+            '辰' : 8
+          };
+
+          var hourZhi = pan.get('時支');
+
+          for(let zhi in maXingMap)
+          {
+            if(zhi === hourZhi) {
+                gongs[maXingMap[zhi]].set('馬星', true);
+                otherMessage += '第 ' + maXingMap[zhi].toString() + ' 宮設 馬星 - ' + zhi + '\n';
+                break;
+            }
+          }
+        }
+
+
+        function calculate() {
+
+            const year = parseInt(document.getElementById('year').value);
+            const month = parseInt(document.getElementById('month').value);
+            const day = parseInt(document.getElementById('day').value);
+            const hourIndex = parseInt(document.getElementById('time').value);
+
+            if (!year || !month || !day) {
+                alert('請完整填寫所有資料');
+                return;
+            }
+
+            otherMessage = '';
+
+            // 使用 Solar 類建立日期
+            const solar = Solar.fromYmd(year, month, day);
+
+            // 獲取農曆
+            const lunar = solar.getLunar();
+
+            // 農曆日期轉換
+            const dayString = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
+                '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
+                '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
+
+            const lunarYear = convertToChinese(lunar.getYear());
+            const lunarMonth = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '臘'][lunar.getMonth() - 1];
+            const lunarDay = dayString[lunar._p.day - 1];
+            const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;
+
+            // 干支計算
+            const yearGan = GAN[lunar._p.yearGanIndex];
+            const yearZhi = ZHI[lunar._p.yearZhiIndex];
+            const monthGan = GAN[lunar._p.monthGanIndex];
+            const monthZhi = ZHI[lunar._p.monthZhiIndex];
+            const dayGan = GAN[lunar._p.dayGanIndex];
+            const dayZhi = ZHI[lunar._p.dayZhiIndex];
+            const hourGan = getHourGan(dayGan, hourIndex);
+            const hourZhi = ZHI[hourIndex];
+
+            // 奇門局數計算
+            const qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);
+
+            // 為了計算方便，子時為 12：00, 丑時為 2：00, etc
+            const dunType = determineDunType(year, month, day, hourIndex * 2, 0, 0);
+
+            // 計旬首及空亡
+            const kongWangAndXunShou = getKongWangAndXunShou(hourGan + hourZhi);
+            pan.set('旬', kongWangAndXunShou['旬'] + kongWangAndXunShou['旬首']);
+            pan.set('旬首', kongWangAndXunShou['旬首']);
+            pan.set('旬支', kongWangAndXunShou['旬'].at(1));
+            pan.set('時干', hourGan);
+            pan.set('時支', hourZhi);
+            pan.set('遁類', dunType);
+
+            // 設定空亡
+            for(let i = 0; i < kongWangAndXunShou['空亡'].length; ++i) {
+
+              gongs[kongWangAndXunShou['空亡'][i]].set('空亡',  true);
+              otherMessage += '第 ' + kongWangAndXunShou['空亡'][i].toString() + ' 宮設空亡\n';
+            }
+
+            otherMessage += dunType + '\n';
+
+            // 設定地盤天干
+            otherMessage += '找地盤天干：\n';
+            setDiPanTianGan_ZhiFuXing_ZhiShiMen(dunType, qimenJu.ju, kongWangAndXunShou['旬首']);
+            otherMessage += '\n';
+
+            otherMessage += '找旬首、值符星、值使門：\n';
+            otherMessage += '旬：' + pan.get('旬') + '\n';
+            otherMessage += '旬首：' + pan.get('旬首') + '\n';
+            otherMessage += '旬支：' + pan.get('旬支') + '\n';
+            otherMessage += '時干：' + pan.get('時干') + '\n';
+            otherMessage += '時支：' + pan.get('時支') + '\n';
+            otherMessage += '值符星：' + pan.get('值符星') + '\n';
+            otherMessage += '值使門：' + pan.get('值使門') + '\n';
+            otherMessage += '\n';
+
+            // 設九星跟時干走，不用天禽
+            otherMessage += '找九星：\n';
+            setJiaoXing(hourGan);
+            otherMessage += '\n';
+
+            // 設天盤天干跟九星
+            otherMessage += '找天盤天干：\n';
+            setTianPanTianGan();
+            otherMessage += '\n';
+
+            // 設八門
+            otherMessage += '找八門：\n';
+            setBaMen();
+            otherMessage += '\n';
+
+            // 設八神
+            otherMessage += '找八神：\n';
+            setBaShen('天盤');
+            setBaShen('地盤');
+            otherMessage += '\n';
+
+            // 設擊刑
+            otherMessage += '找擊刑：\n';
+            setJiXing();
+            otherMessage += '\n';
+
+            // 設入墓
+            otherMessage += '找入墓：\n';
+            setRuWu();
+            otherMessage += '\n';
+
+            // 設門迫
+            otherMessage += '找門迫：\n';
+            setMenBi();
+            otherMessage += '\n';
+
+            // 設門迫
+            otherMessage += '找馬星：\n';
+            setMaXing();
+            otherMessage += '\n';
+
+            // 結果顯示
+            const qimenJuResultDiv = document.getElementById('qimenJuResult');
+            qimenJuResultDiv.innerHTML = `
+                <div class="qimen-ju">
+                    <b><span class="${dunType === '陽遁' ? 'yang-dun' : 'yin-dun'}">
+                    ${dunType}${convertToChinese(qimenJu.ju)}局</span></b>
+                </div>
+                <div class="eight-characters">
+                    <div>
+                        <span class="header">年</span>
+                        <span class="header">月</span>
+                        <span class="header">日</span>
+                        <span class="header">時</span>
+                    </div>
+                    <div>
+                        <span class="chars gan-${getGanColor(yearGan)}">${yearGan}</span>
+                        <span class="chars gan-${getGanColor(monthGan)}">${monthGan}</span>
+                        <span class="chars gan-${getGanColor(dayGan)}">${dayGan}</span>
+                        <span class="chars gan-${getGanColor(hourGan)}">${hourGan}</span>
+                    </div>
+                    <div>
+                        <span class="chars gan-${getGanColor(yearZhi)}">${yearZhi}</span>
+                        <span class="chars gan-${getGanColor(monthZhi)}">${monthZhi}</span>
+                        <span class="chars gan-${getGanColor(dayZhi)}">${dayZhi}</span>
+                        <span class="chars gan-${getGanColor(hourZhi)}">${hourZhi}</span>
+                    </div>
+                </div>
+                <p>${lunarDateStr}</p>
+                `;
+
+            // 顯示盤
+            const qimenPanResultDiv = document.getElementById('qimenPanResult');
+            qimenPanResultDiv.innerHTML = `
+                <div class="grid-container">
+                    ${[4,9,2,3,5,7,8,1,6].map(i => {
+                        // 獲取當前宮位的天干
+                        const tianPanGan = gongs[i].get('天盤天干') || '';
+                        const diPanGan = gongs[i].get('地盤天干') || '';
+
+                        // 檢查是否與八字天干匹配（修改這裡）
+                        const bazi = [dayGan];  // 這裡應該是實際的八字天干
+                        if (!bazi.includes('甲')) {
+                            bazi.push('戊');  // 如果沒有甲，加入戊
+                        }
+                        const matchingGans = [yearGan, monthGan, dayGan, hourGan];
+                        const isTianPanMatch = matchingGans.includes(tianPanGan) || tianPanGan === '戊';
+                        const isDiPanMatch = matchingGans.includes(diPanGan) || diPanGan === '戊';
+
+                      if(i != 5)
+                      {
+                        return `
+                            <div class="grid-item palace-${i}" id="palace-${i}">
+                                <div class="grid-title">第${convertToChinese(i)}宮（${gongs[i].get('宮')}）</div>
+                                <div class="grid-content">
+                                    <div class="shen">
+                                        <span class="label">${gongs[i].get('天盤神') || ''}</span>
+                                        <span class="label">${gongs[i].get('地盤神') || ''}</span>
+                                        <span class="gan gan-${getGanColor(tianPanGan)} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan}</span>
+                                    </div>
+                                    <div class="xing">
+                                        <span class="label">${gongs[i].get('星') || ''}</span>
+                                        <span class="gan gan-${getGanColor(diPanGan)} ${isDiPanMatch ? 'grid-gan-bold' : ''}">${diPanGan}</span>
+                                    </div>
+                                    <div class="men">${gongs[i].get('門') || ''}</div>
+                                    <div class="marks">
+                                        ${gongs[i].get('空亡') ? '空' : ''}
+                                        ${gongs[i].get('擊刑') ? '刑' : ''}
+                                        ${gongs[i].get('入墓') ? '墓' : ''}
+                                        ${gongs[i].get('馬星') ? '馬' : ''}
+                                        ${gongs[i].get('門迫') ? '迫' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                      }
+                      else {
+                        return `
+                            <div class="grid-item palace-${i}" id="palace-${i}">
+                                <div class="grid-title">第${convertToChinese(i)}宮（${gongs[i].get('宮')}）</div>
+                                <div class="grid-content">
+                                    <div class="label">
+                                      旬：${pan.get('旬')}
+                                    </div>
+                                    <div class="label">
+                                      時柱：${pan.get('時干')+pan.get('時支')}
+                                    </div>
+                                    <div class="label">
+                                      值符星：${pan.get('值符星')}
+                                    </div>
+                                    <div class="label">
+                                      值使門：${pan.get('值使門')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                      }
+                    }).join('')}
+                </div>
+            `;
+
+          const debugMessageDiv = document.getElementById('debugMessage');
+          debugMessageDiv.innerHTML = `
+
+                  <details>
+                    <summary>演算</summary>
+                    <pre>${
+    `偵錯資訊：
+      (年支): ${yearZhi} -> ${qimenJu.A}
+      (月支): ${monthZhi} -> ${qimenJu.B}
+      (日期): ${lunar._p.day}
+      (時支): ${hourZhi} -> ${qimenJu.D}
+      (時): ${hourIndex * 2}
+      總計: ${qimenJu.A} + ${qimenJu.B} + ${lunar._p.day} + ${qimenJu.D} = ${qimenJu.total}
+      餘數: ${qimenJu.total} % 9 = ${qimenJu.total % 9}
+      夏至: ${lunar._getJieQiSolar(I18n.getMessage('jq.xiaZhi')).toYmdHms()}
+      冬至: ${lunar._getJieQiSolar("DONG_ZHI").toYmdHms()}
+      遁類: ${dunType}
+      其他: ${otherMessage}
+      -------------------------------
+        create by Jess Poon, AY
+        any inquiry please contact: jpoon120@gmail.com`
+                    }</pre>
+                </details>
+            `;
+        }
+    </script>
+</body>
+</html>
