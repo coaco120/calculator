@@ -139,11 +139,11 @@
         // 五行顏色
         function getWuxinColor(input) {
             const colorMap = {
-                '金': 1, '驚門': 1, '開門': 1, '天柱': 1, '天心': 1, '九地': 1, '九天': 1, '兌': 1,  '乾': 1,
-                '木': 2, '傷門': 2, '杜門': 2, '天沖': 2, '天輔': 2, '太陰': 2, '六合': 2, '震': 2,  '巽': 2,
-                '水': 3, '休門': 3, '天蓬': 3, '值符': 3, '坎': 3,
-                '火': 4, '景門': 4, '天英': 4, '白虎': 4, '離': 4,
-                '土': 5, '生門': 5, '死門': 5, '天任': 5, '天芮': 5, '騰蛇': 5, '玄武': 5, '艮': 5,  '坤': 5
+                '金': 1, '驚門': 1, '開門': 1, '天柱': 1, '天心': 1, '太陰': 1, '白虎': 1, '九天': 1, '兌': 1,  '乾': 1,
+                '木': 2, '傷門': 2, '杜門': 2, '天沖': 2, '天輔': 2, '值符': 2, '六合': 2, '震': 2,  '巽': 2,
+                '水': 3, '休門': 3, '天蓬': 3, '坎': 3, '玄武': 3,
+                '火': 4, '景門': 4, '天英': 4, '騰蛇': 4, '離': 4,
+                '土': 5, '生門': 5, '死門': 5, '天任': 5, '天芮': 5, '九地': 5, '艮': 5, '坤': 5
             };
             return colorMap[input] || 1;
         }
@@ -368,6 +368,10 @@
             }
           }
 
+			if(startGong === 5) {
+				startGong = 2;
+			}
+
           for(let i = 0; i < gongs_order_clockwise.length; ++i) {
             // 找出八宮順序的 index
             if(gongs_order_clockwise[i] === startGong)
@@ -419,8 +423,16 @@
           for(let i = 0; i < gongs_order_clockwise.length; ++i)
           {
               gongs[gongs_order_clockwise[(destGongIndex + i) % 8]].set('天盤天干', gongs[gongs_order_clockwise[i]].get('地盤天干'));
-              otherMessage += '第 ' + gongs_order_clockwise[(destGongIndex + i) % 8].toString() + ' 宮設天盤天干 ' + gongs[gongs_order_clockwise[i]].get('地盤天干') + ' \n';
+              otherMessage += '第 ' + gongs_order_clockwise[(destGongIndex + i) % 8].toString() + ' 宮設天盤天干 ' + JSON.stringify(gongs[gongs_order_clockwise[i]].get('地盤天干')) + ' \n';
           }
+        }
+
+
+        // 06-2 - 中宮地盤天干從二宮搬回中宮
+        function moveZhongGongDiPanTianGanBack() {
+
+          gongs[5].set('地盤天干', [gongs[2].get('地盤天干')[1]]);
+          gongs[2].set('地盤天干', [gongs[2].get('地盤天干')[0]]);
         }
 
 
@@ -522,6 +534,7 @@
         }
 
 
+
         // 08 - 設定八神
         function setBaShen(panType) {
 
@@ -542,6 +555,10 @@
               }
             }
 
+          }
+
+          if(startGong === 5) {
+            startGong = 2;
           }
 
           if(pan.get('遁類') === '陽遁') {
@@ -573,6 +590,40 @@
               }
           }
         }
+
+        // 08-2 - 設定引干 (Not used yet)
+        function setYinGan() {
+
+          let diPanTianGan = gongs[1].get('天盤天干');
+          let startGong = 0;
+          let destGongIndex = 0;
+
+          // 先找出值符星由第幾宮開始
+          for(let i = 1; i < gongs.length; ++i) {
+
+            if(gongs[i].get('門') === '休門') {
+              startDestGong = i;
+              break;
+            }
+          }
+
+          otherMessage += diPanTianGan + ' 設到第 ' + startDestGong.toString() + ' 宮\n';
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i)
+          {
+            if(startDestGong === gongs_order_clockwise[i]) {
+              destGongIndex = i;
+              break;
+            }
+          }
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i)
+          {
+              gongs[gongs_order_clockwise[(destGongIndex + i) % 8]].set('引干', gongs[gongs_order_clockwise[i]].get('天盤天干'));
+              otherMessage += '第 ' + gongs_order_clockwise[(destGongIndex + i) % 8].toString() + ' 宮設引干 ' + gongs[gongs_order_clockwise[i]].get('天盤天干') + ' \n';
+          }
+        }
+
 
         // 09 - 找擊刑
         function setJiXing()
@@ -874,6 +925,10 @@
             setTianPanTianGan();
             otherMessage += '\n';
 
+            otherMessage += '將中宮地盤天干從二宮移回中宮：\n';
+            moveZhongGongDiPanTianGanBack();
+            otherMessage += '\n';
+
             // 設八門
             otherMessage += '找八門：\n';
             setBaMen();
@@ -884,6 +939,12 @@
             setBaShen('天盤');
             setBaShen('地盤');
             otherMessage += '\n';
+/*
+            // 設引干
+            otherMessage += '找引干：\n';
+            setYinGan();
+            otherMessage += '\n';
+*/
 
             // 設擊刑
             otherMessage += '找擊刑：\n';
@@ -945,7 +1006,7 @@
                         const diPanGan = gongs[i].get('地盤天干') || '';
                         const yinGan = gongs[i].get('引干') || '';
 
-                        // 檢查是否與八字天干匹配（修改這裡）
+                                               // 檢查是否與八字天干匹配（修改這裡）
                         const bazi = [dayGan];  // 這裡應該是實際的八字天干
                         if (!bazi.includes('甲')) {
                             bazi.push('戊');  // 如果沒有甲，加入戊
@@ -961,8 +1022,8 @@
                                 <div class="grid-content">
                                     <div class="shen">
                                         <span class="shen wuxin-${getWuxinColor(gongs[i].get('天盤神'))}">${gongs[i].get('天盤神') || ''}</span>
-                                        <span class="shen wuxin-${getWuxinColor(gongs[i].get('地盤神'))}">${gongs[i].get('地盤神') || ''}</span>
-                                        <span class="gan gan-${getGanColor(tianPanGan)} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan}</span>
+                                        <span class="gan gan-${getGanColor(tianPanGan[1])} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan[1] || ''}</span>
+                                        <span class="gan gan-${getGanColor(tianPanGan[0])} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan[0] || ''}</span>
                                     </div>
                                     <div class="xing">
                                         <span class ="xing wuxin-${getWuxinColor(gongs[i].get('星'))}">${gongs[i].get('星') || ''}</span>
@@ -971,18 +1032,45 @@
                                     <div class="men">
                                         <span class="shen wuxin-${getWuxinColor(gongs[i].get('門'))}">${gongs[i].get('門') || ''}</span>
                                     </div>
-                                    <div class="marks">
-                                        ${gongs[i].get('空亡') ? '空' : ''}
-                                        ${gongs[i].get('擊刑') ? '刑' : ''}
-                                        ${gongs[i].get('入墓') ? '墓' : ''}
-                                        ${gongs[i].get('馬星') ? '馬' : ''}
-                                        ${gongs[i].get('門迫') ? '迫' : ''}
+
+                                    <div class="shen">
+                                        <span class="shen wuxin-${getWuxinColor(gongs[i].get('地盤神'))}">${gongs[i].get('地盤神') || ''}</span>
+                                        <div class="marks">
+                                            ${gongs[i].get('空亡') ? '空' : ''}
+                                            ${gongs[i].get('擊刑') ? '刑' : ''}
+                                            ${gongs[i].get('入墓') ? '墓' : ''}
+                                            ${gongs[i].get('馬星') ? '馬' : ''}
+                                            ${gongs[i].get('門迫') ? '迫' : ''}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         `;
                       }
                       else {
+
+                        var menFuYin = false;
+                        var menFanYin = false;
+
+                        var TianGanFuYin = false;
+                        var TianGanFanYin = false;
+
+                        const tianPanGan = gongs[1].get('天盤天干');
+                        const diPanGan1 = gongs[1].get('地盤天干');
+                        const diPanGan9 = gongs[9].get('地盤天干');
+
+                        if(gongs[1].get('門') === '休門') {
+                          menFuYin = true;
+                        } else if(gongs[1].get('門') === '景門') {
+                          menFanYin = true;
+                        }
+
+                        if(tianPanGan[0] && tianPanGan[0] === diPanGan1[0]) {
+                          TianGanFuYin = true;
+                        } else if(tianPanGan[0] && tianPanGan[0] === diPanGan9[0]) {
+                          TianGanFanYin = true;
+                        }
+
                         return `
                             <div class="grid-item palace-${i}" id="palace-${i}">
                                 <div class="grid-title">第${convertToChinese(i)}宮（${gongs[i].get('宮')}）</div>
@@ -999,6 +1087,20 @@
                                     <div class="label">
                                       值使門：${pan.get('值使門')}
                                     </div>
+
+                                    <div class="marks">
+                                      ${menFuYin ? '門伏吟' : ''}
+                                    </div>
+                                    <div class="marks">
+                                      ${menFanYin ? '門反吟' : ''}
+                                    </div>
+                                    <div class="marks">
+                                      ${TianGanFuYin ? '天干伏吟' : ''}
+                                    </div>
+                                    <div class="marks">
+                                      ${TianGanFanYin ? '天干反吟' : ''}
+                                    </div>
+
                                 </div>
                             </div>
                         `;
