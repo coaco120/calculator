@@ -44,19 +44,19 @@
     <div id="qimenPanResult">
         <!-- 九宮格容器 -->
         <div class="grid-container">
-            <div class="grid-item palace-4 wuxin-2" id="palace-4">
+            <div class="grid-item palace-4 gan-2" id="palace-4">
                 <div class="grid-title">第四宮（巽）</div>
                 <div class="grid-content"></div>
             </div>
-            <div class="grid-item palace-9 wuxin-4" id="palace-9">
+            <div class="grid-item palace-9 gan-4" id="palace-9">
                 <div class="grid-title">第九宮（離）</div>
                 <div class="grid-content"></div>
             </div>
-            <div class="grid-item palace-2 wuxin-5" id="palace-2">
+            <div class="grid-item palace-2 gan-6" id="palace-2">
                 <div class="grid-title">第二宮（坤）</div>
                 <div class="grid-content"></div>
             </div>
-            <div class="grid-item palace-3 wuxin-2" id="palace-3">
+            <div class="grid-item palace-3 gan-1" id="palace-3">
                 <div class="grid-title">第三宮（震）</div>
                 <div class="grid-content"></div>
             </div>
@@ -64,19 +64,19 @@
                 <div class="grid-title">第五宮（中）</div>
                 <div class="grid-content"></div>
             </div>
-            <div class="grid-item palace-7 wuxin-1" id="palace-7">
+            <div class="grid-item palace-7 gan-8" id="palace-7">
                 <div class="grid-title">第七宮（兌）</div>
                 <div class="grid-content"></div>
             </div>
-            <div class="grid-item palace-8 wuxin-5" id="palace-8">
+            <div class="grid-item palace-8 gan-5" id="palace-8">
                 <div class="grid-title">第八宮（艮）</div>
                 <div class="grid-content"></div>
             </div>
-            <div class="grid-item palace-1 wuxin-3" id="palace-1">
+            <div class="grid-item palace-1 gan-9" id="palace-1">
                 <div class="grid-title">第一宮（坎）</div>
                 <div class="grid-content"></div>
             </div>
-            <div class="grid-item palace-6 wuxin-1" id="palace-6">
+            <div class="grid-item palace-6 gan-7" id="palace-6">
                 <div class="grid-title">第六宮（乾）</div>
                 <div class="grid-content"></div>
             </div>
@@ -122,15 +122,15 @@
         // 干支顏色
         function getGanColor(gan) {
             const colorMap = {
-                '甲': 1, '寅': 1,
-                '乙': 2, '卯': 2,
+                '甲': 1, '寅': 1, '傷門': 1, '天沖': 1, '值符': 1, '震': 1,
+                '乙': 2, '卯': 2, '杜門': 2, '天輔': 2, '六合': 2, '巽': 2,
                 '丙': 3, '午': 3,
-                '丁': 4, '巳': 4,
-                '戊': 5, '戌': 5, '辰': 5,
-                '己': 6, '丑': 6, '未': 6,
-                '庚': 7, '申': 7,
-                '辛': 8, '酉': 8,
-                '壬': 9, '子': 9,
+                '丁': 4, '巳': 4, '景門': 4, '天英': 4, '騰蛇': 4, '離': 4,
+                '戊': 5, '戌': 5, '辰': 5, '生門': 5, '天任': 5, '艮': 5,
+                '己': 6, '丑': 6, '未': 6, '死門': 6, '天芮': 6, '九地': 6, '坤': 6,
+                '庚': 7, '申': 7, '開門': 7, '天心': 7, '白虎': 7, '九天': 7, '乾': 7,
+                '辛': 8, '酉': 8, '驚門': 8, '天柱': 8, '太陰': 8, '兌': 8,
+                '壬': 9, '子': 9, '休門': 9, '天蓬': 9, '玄武': 9, '坎': 9,
                 '癸': 10, '亥': 10
             };
             return colorMap[gan] || 1;
@@ -145,7 +145,7 @@
                 '火': 4, '景門': 4, '天英': 4, '騰蛇': 4, '離': 4,
                 '土': 5, '生門': 5, '死門': 5, '天任': 5, '天芮': 5, '九地': 5, '艮': 5, '坤': 5
             };
-            return colorMap[input] || 1;
+            return getGanColor(input) || 1;
         }
 
         // 找空亡與旬首
@@ -1018,23 +1018,23 @@
                       {
                         return `
                             <div class="grid-item palace-${i}" id="palace-${i}">
-                                <div class="grid-title wuxin-${getWuxinColor(gongs[i].get('宮'))}">第${convertToChinese(i)}宮（${gongs[i].get('宮')}）</div>
+                                <div class="grid-title gan-${getWuxinColor(gongs[i].get('宮'))}">第${convertToChinese(i)}宮（${gongs[i].get('宮')}）</div>
                                 <div class="grid-content">
                                     <div class="shen">
-                                        <span class="shen wuxin-${getWuxinColor(gongs[i].get('天盤神'))}">${gongs[i].get('天盤神') || ''}</span>
+                                        <span class="shen gan-${getWuxinColor(gongs[i].get('天盤神'))}">${gongs[i].get('天盤神') || ''}</span>
                                         <span class="gan gan-${getGanColor(tianPanGan[1])} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan[1] || ''}</span>
                                         <span class="gan gan-${getGanColor(tianPanGan[0])} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan[0] || ''}</span>
                                     </div>
                                     <div class="xing">
-                                        <span class ="xing wuxin-${getWuxinColor(gongs[i].get('星'))}">${gongs[i].get('星') || ''}</span>
+                                        <span class ="xing gan-${getWuxinColor(gongs[i].get('星'))}">${gongs[i].get('星') || ''}</span>
                                         <span class="gan gan-${getGanColor(diPanGan)} ${isDiPanMatch ? 'grid-gan-bold' : ''}">${diPanGan}</span>
                                     </div>
                                     <div class="men">
-                                        <span class="shen wuxin-${getWuxinColor(gongs[i].get('門'))}">${gongs[i].get('門') || ''}</span>
+                                        <span class="shen gan-${getWuxinColor(gongs[i].get('門'))}">${gongs[i].get('門') || ''}</span>
                                     </div>
 
                                     <div class="shen">
-                                        <span class="shen wuxin-${getWuxinColor(gongs[i].get('地盤神'))}">${gongs[i].get('地盤神') || ''}</span>
+                                        <span class="shen gan-${getWuxinColor(gongs[i].get('地盤神'))}">${gongs[i].get('地盤神') || ''}</span>
                                         <div class="marks">
                                             ${gongs[i].get('空亡') ? '空' : ''}
                                             ${gongs[i].get('擊刑') ? '刑' : ''}
