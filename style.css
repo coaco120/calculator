@@ -59,7 +59,6 @@ button {
     min-height: 150px;  
     position: relative;  
     cursor: pointer;  
-    tabindex: 0;  
 }  
 
 .grid-title {  
@@ -94,6 +93,7 @@ button {
     border: 1px solid #ccc;  
     border-radius: 5px;  
     padding: 10px;  
+    margin: 5px;  
     z-index: 1000;  
     width: auto;  
     min-width: 200px;  
@@ -104,17 +104,24 @@ button {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);  
     left: 50%;  
     transform: translateX(-50%);  
-    top: 100%;  
-    margin-top: 5px;  
 }  
 
-.grid-item.active .gongMap,  
-.grid-item.active .juMap,  
-.grid-item.active .ganMap,  
-.grid-item.active .menMap,  
-.grid-item.active .xingMap,  
-.grid-item.active .shenMap {  
-    display: block;  
+/* 描述提示框樣式 */  
+.shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc {  
+    display: none;  
+    position: absolute;  
+    bottom: 150%;  
+    left: 50%;  
+    transform: translateX(-50%);  
+    background-color: #333;  
+    color: #fff;  
+    padding: 10px;  
+    border-radius: 5px;  
+    font-size: 14px;  
+    white-space: normal;  
+    z-index: 100;  
+    width: max-content;  
+    max-width: 200px;  
 }  
 
 /* 神煞星門樣式 */  
@@ -141,32 +148,6 @@ button {
 .xing .gan.grid-gan-bold {  
     font-weight: 900 !important;  
     text-shadow: 0 0 1px;  
-}  
-
-/* 描述提示框樣式 */  
-.shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc {  
-    display: none;  
-    position: absolute;  
-    bottom: 150%;  
-    left: 50%;  
-    transform: translateX(-50%);  
-    background-color: #333;  
-    color: #fff;  
-    padding: 10px;  
-    border-radius: 5px;  
-    font-size: 14px;  
-    white-space: normal;  
-    z-index: 100;  
-    width: max-content;  
-    max-width: 200px;  
-}  
-
-.shen:hover .shen_desc,  
-.xing:hover .xing_desc,  
-.men:hover .men_desc,  
-.gan:hover .gan_desc,  
-.gong:hover .gong_desc {  
-    display: block;  
 }  
 
 /* 其他樣式 */  
@@ -223,7 +204,6 @@ button {
         width: 90%;  
         max-height: 80vh;  
         overflow-y: auto;  
-        margin: 0;  
     }  
     
     .grid-item.active::after {  
@@ -235,6 +215,15 @@ button {
         bottom: 0;  
         background: rgba(0,0,0,0.5);  
         z-index: 999;  
+    }  
+    
+    .shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc {  
+        position: fixed;  
+        top: 50%;  
+        bottom: auto;  
+        transform: translate(-50%, -50%);  
+        width: 90%;  
+        max-width: none;  
     }  
 }  
 
