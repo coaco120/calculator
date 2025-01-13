@@ -5,11 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // 為輸入框添加點擊事件  
     addClickHandlers();  
 
-    // 初始化網格交互  
+    // 為網格項添加點擊事件  
     initializeGridInteractions();  
-
-    // 初始化工具提示  
-    initializeTooltips();  
 });  
 
 function setCurrentDateTime() {  
@@ -68,40 +65,39 @@ function addClickHandlers() {
 }  
 
 function initializeGridInteractions() {  
+    // 為網格項添加點擊事件  
     const gridItems = document.querySelectorAll('.grid-item');  
     
     gridItems.forEach(item => {  
-        // 設置 tabindex 使元素可獲得焦點  
-        item.setAttribute('tabindex', '0');  
+        item.tabIndex = 0; // 使元素可獲得焦點  
         
-        // 點擊處理  
+        // 添加點擊事件處理  
         item.addEventListener('click', function(e) {  
+            // 阻止事件冒泡  
             e.stopPropagation();  
             
-            // 檢查是否點擊到展開的內容  
-            const isContentClick = e.target.closest('.gongMap') ||   
-                                 e.target.closest('.juMap') ||   
-                                 e.target.closest('.ganMap') ||   
-                                 e.target.closest('.menMap') ||   
-                                 e.target.closest('.xingMap') ||   
-                                 e.target.closest('.shenMap');  
-            
-            if (isContentClick) {  
+            // 檢查是否點擊到地圖內容  
+            if (e.target.closest('.gongMap') ||   
+                e.target.closest('.juMap') ||   
+                e.target.closest('.ganMap') ||   
+                e.target.closest('.menMap') ||   
+                e.target.closest('.xingMap') ||   
+                e.target.closest('.shenMap')) {  
                 return;  
             }  
-            
-            // 關閉其他打開的項目  
+
+            // 移除其他項目的active類  
             gridItems.forEach(otherItem => {  
-                if (otherItem !== item) {  
+                if(otherItem !== item) {  
                     otherItem.classList.remove('active');  
                 }  
             });  
             
-            // 切換當前項目  
+            // 切換當前項目的active類  
             item.classList.toggle('active');  
         });  
 
-        // 鍵盤處理  
+        // 添加鍵盤事件處理  
         item.addEventListener('keydown', function(e) {  
             if (e.key === 'Enter' || e.key === ' ') {  
                 e.preventDefault();  
@@ -109,20 +105,20 @@ function initializeGridInteractions() {
             }  
         });  
     });  
-
-    // 點擊外部關閉所有項目  
+    
+    // 點擊文檔其他部分時關閉所有地圖  
     document.addEventListener('click', function(e) {  
-        if (!e.target.closest('.grid-item')) {  
+        if(!e.target.closest('.grid-item')) {  
             gridItems.forEach(item => {  
                 item.classList.remove('active');  
             });  
         }  
     });  
 
-    // 移動設備觸摸處理  
+    // 處理移動設備的觸摸事件  
     if ('ontouchstart' in window) {  
         document.addEventListener('touchstart', function(e) {  
-            if (!e.target.closest('.grid-item')) {  
+            if(!e.target.closest('.grid-item')) {  
                 gridItems.forEach(item => {  
                     item.classList.remove('active');  
                 });  
@@ -131,30 +127,9 @@ function initializeGridInteractions() {
     }  
 }  
 
-function initializeTooltips() {  
-    const tooltipElements = document.querySelectorAll('[data-tooltip]');  
-    
-    tooltipElements.forEach(element => {  
-        element.addEventListener('mouseenter', function(e) {  
-            const tooltip = this.querySelector('.tooltip');  
-            if (tooltip) {  
-                const rect = this.getBoundingClientRect();  
-                const tooltipRect = tooltip.getBoundingClientRect();  
-                
-                // 計算位置  
-                const top = rect.top - tooltipRect.height - 10;  
-                const left = rect.left + (rect.width - tooltipRect.width) / 2;  
-                
-                // 設置位置  
-                tooltip.style.top = `${Math.max(0, top)}px`;  
-                tooltip.style.left = `${Math.max(0, left)}px`;  
-            }  
-        });  
-    });  
-}  
-
-// ESC 鍵關閉所有打開的項目  
+// 添加全局快捷鍵處理  
 document.addEventListener('keydown', function(e) {  
+    // ESC鍵關閉所有打開的項目  
     if (e.key === 'Escape') {  
         const gridItems = document.querySelectorAll('.grid-item');  
         gridItems.forEach(item => {  
@@ -163,18 +138,45 @@ document.addEventListener('keydown', function(e) {
     }  
 });  
 
-// 處理視窗大小改變  
+// 處理窗口大小改變  
 window.addEventListener('resize', function() {  
+    // 在移動設備和桌面設備之間切換時可能需要重置狀態  
     const gridItems = document.querySelectorAll('.grid-item');  
     gridItems.forEach(item => {  
         item.classList.remove('active');  
     });  
 });  
 
-// 平滑滾動功能  
+// 添加平滑滾動效果  
 function smoothScroll(element) {  
     element.scrollIntoView({  
         behavior: 'smooth',  
         block: 'nearest'  
     });  
-}
+}  
+
+// 初始化工具提示  
+function initializeTooltips() {  
+    const tooltipElements = document.querySelectorAll('[data-tooltip]');  
+    tooltipElements.forEach(element => {  
+        element.addEventListener('mouseenter', function(e) {  
+            const tooltip = this.querySelector('.tooltip');  
+            if (tooltip) {  
+                const rect = this.getBoundingClientRect();  
+                const tooltipRect = tooltip.getBoundingClientRect();  
+                
+                // 確保工具提示不會超出視窗  
+                const top = rect.top - tooltipRect.height - 10;  
+                const left = rect.left + (rect.width - tooltipRect.width) / 2;  
+                
+                tooltip.style.top = `${Math.max(0, top)}px`;  
+                tooltip.style.left = `${Math.max(0, left)}px`;  
+            }  
+        });  
+    });  
+}  
+
+// 當DOM加載完成後初始化工具提示  
+document.addEventListener('DOMContentLoaded', function() {  
+    initializeTooltips();  
+});
