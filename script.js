@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // 初始化網格交互  
     initializeGridInteractions();  
 
-    // 初始化工具提示  
-    initializeTooltips();  
+    // 初始化描述框控制  
+    initializeDescriptions();  
 });  
 
 function setCurrentDateTime() {  
@@ -109,47 +109,56 @@ function initializeGridInteractions() {
             }  
         });  
     });  
-
-    // 點擊外部關閉所有項目  
-    document.addEventListener('click', function(e) {  
-        if (!e.target.closest('.grid-item')) {  
-            gridItems.forEach(item => {  
-                item.classList.remove('active');  
-            });  
-        }  
-    });  
-
-    // 移動設備觸摸處理  
-    if ('ontouchstart' in window) {  
-        document.addEventListener('touchstart', function(e) {  
-            if (!e.target.closest('.grid-item')) {  
-                gridItems.forEach(item => {  
-                    item.classList.remove('active');  
-                });  
-            }  
-        });  
-    }  
 }  
 
-function initializeTooltips() {  
-    const tooltipElements = document.querySelectorAll('[data-tooltip]');  
+function initializeDescriptions() {  
+    // 當前顯示的描述框  
+    let currentDesc = null;  
     
-    tooltipElements.forEach(element => {  
+    // 獲取所有可能觸發描述框的元素  
+    const triggerElements = document.querySelectorAll('.shen, .xing, .men, .gan, .gong');  
+    
+    triggerElements.forEach(element => {  
+        // 鼠標進入事件  
         element.addEventListener('mouseenter', function(e) {  
-            const tooltip = this.querySelector('.tooltip');  
-            if (tooltip) {  
-                const rect = this.getBoundingClientRect();  
-                const tooltipRect = tooltip.getBoundingClientRect();  
+            // 隱藏當前顯示的描述框  
+            if (currentDesc) {  
+                currentDesc.style.display = 'none';  
+            }  
+            
+            // 找到對應的描述框  
+            const descClass = this.className.split(' ')[0] + '_desc';  
+            const desc = this.querySelector('.' + descClass);  
+            
+            if (desc) {  
+                // 顯示新的描述框  
+                desc.style.display = 'block';  
+                currentDesc = desc;  
                 
-                // 計算位置  
-                const top = rect.top - tooltipRect.height - 10;  
-                const left = rect.left + (rect.width - tooltipRect.width) / 2;  
-                
-                // 設置位置  
-                tooltip.style.top = `${Math.max(0, top)}px`;  
-                tooltip.style.left = `${Math.max(0, left)}px`;  
+                // 阻止事件冒泡  
+                e.stopPropagation();  
             }  
         });  
+
+        // 鼠標離開事件  
+        element.addEventListener('mouseleave', function(e) {  
+            // 檢查鼠標是否真的離開了元素區域  
+            const relatedTarget = e.relatedTarget;  
+            if (!this.contains(relatedTarget)) {  
+                if (currentDesc) {  
+                    currentDesc.style.display = 'none';  
+                    currentDesc = null;  
+                }  
+            }  
+        });  
+    });  
+    
+    // 點擊文檔其他地方時關閉描述框  
+    document.addEventListener('click', function(e) {  
+        if (currentDesc && !e.target.closest('.shen, .xing, .men, .gan, .gong')) {  
+            currentDesc.style.display = 'none';  
+            currentDesc = null;  
+        }  
     });  
 }  
 
@@ -160,6 +169,12 @@ document.addEventListener('keydown', function(e) {
         gridItems.forEach(item => {  
             item.classList.remove('active');  
         });  
+        
+        // 同時關閉任何打開的描述框  
+        const descriptions = document.querySelectorAll('.shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc');  
+        descriptions.forEach(desc => {  
+            desc.style.display = 'none';  
+        });  
     }  
 });  
 
@@ -168,6 +183,12 @@ window.addEventListener('resize', function() {
     const gridItems = document.querySelectorAll('.grid-item');  
     gridItems.forEach(item => {  
         item.classList.remove('active');  
+    });  
+    
+    // 同時關閉任何打開的描述框  
+    const descriptions = document.querySelectorAll('.shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc');  
+    descriptions.forEach(desc => {  
+        desc.style.display = 'none';  
     });  
 });  
 
