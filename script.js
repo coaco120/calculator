@@ -1,121 +1,180 @@
+document.addEventListener('DOMContentLoaded', function() {  
+    // 設置當前日期和時間  
+    setCurrentDateTime();  
+    
+    // 為輸入框添加點擊事件  
+    addClickHandlers();  
+
+    // 初始化網格交互  
+    initializeGridInteractions();  
+
+    // 初始化工具提示  
+    initializeTooltips();  
+});  
+
 function setCurrentDateTime() {  
     const now = new Date();  
+    
+    // 設置年月日  
     document.getElementById('year').value = now.getFullYear();  
     document.getElementById('month').value = now.getMonth() + 1;  
     document.getElementById('day').value = now.getDate();  
     
+    // 設置時辰  
     const hour = now.getHours();  
-    let timeIndex = 0;  
-    
-    if (hour >= 23 || hour < 1) timeIndex = 0;      // 子時  
-    else if (hour < 3) timeIndex = 1;               // 丑時  
-    else if (hour < 5) timeIndex = 2;               // 寅時  
-    else if (hour < 7) timeIndex = 3;               // 卯時  
-    else if (hour < 9) timeIndex = 4;               // 辰時  
-    else if (hour < 11) timeIndex = 5;              // 巳時  
-    else if (hour < 13) timeIndex = 6;              // 午時  
-    else if (hour < 15) timeIndex = 7;              // 未時  
-    else if (hour < 17) timeIndex = 8;              // 申時  
-    else if (hour < 19) timeIndex = 9;              // 酉時  
-    else if (hour < 21) timeIndex = 10;             // 戌時  
-    else timeIndex = 11;                            // 亥時  
-    
+    const timeIndex = getTimeIndex(hour);  
     document.getElementById('time').value = timeIndex;  
 }  
 
-function calculate() {  
-    let year = parseInt(document.getElementById('year').value);  
-    let month = parseInt(document.getElementById('month').value);  
-    let day = parseInt(document.getElementById('day').value);  
-    let time = parseInt(document.getElementById('time').value);  
-    
-    // 你原有的計算邏輯保持不變  
-    // ...  
+function getTimeIndex(hour) {  
+    // 子時 (23:00-01:00) = 0  
+    if (hour >= 23 || hour < 1) return 0;  
+    // 丑時 (01:00-03:00) = 1  
+    if (hour >= 1 && hour < 3) return 1;  
+    // 寅時 (03:00-05:00) = 2  
+    if (hour >= 3 && hour < 5) return 2;  
+    // 卯時 (05:00-07:00) = 3  
+    if (hour >= 5 && hour < 7) return 3;  
+    // 辰時 (07:00-09:00) = 4  
+    if (hour >= 7 && hour < 9) return 4;  
+    // 巳時 (09:00-11:00) = 5  
+    if (hour >= 9 && hour < 11) return 5;  
+    // 午時 (11:00-13:00) = 6  
+    if (hour >= 11 && hour < 13) return 6;  
+    // 未時 (13:00-15:00) = 7  
+    if (hour >= 13 && hour < 15) return 7;  
+    // 申時 (15:00-17:00) = 8  
+    if (hour >= 15 && hour < 17) return 8;  
+    // 酉時 (17:00-19:00) = 9  
+    if (hour >= 17 && hour < 19) return 9;  
+    // 戌時 (19:00-21:00) = 10  
+    if (hour >= 19 && hour < 21) return 10;  
+    // 亥時 (21:00-23:00) = 11  
+    return 11;  
 }  
 
-function initializeDescriptions() {  
-    let currentDesc = null;  
-    let currentElement = null;  
+function addClickHandlers() {  
+    // 為年月日輸入框添加點擊事件  
+    const inputs = ['year', 'month', 'day'];  
+    inputs.forEach(id => {  
+        const input = document.getElementById(id);  
+        input.addEventListener('focus', function() {  
+            if (!this.hasAttribute('user-modified')) {  
+                this.value = '';  
+                this.setAttribute('user-modified', 'true');  
+            }  
+        });  
+    });  
+}  
+
+function initializeGridInteractions() {  
+    const gridItems = document.querySelectorAll('.grid-item');  
     
-    // 選擇所有可能觸發描述框的元素  
-    const triggerElements = document.querySelectorAll('.shen, .xing, .men, .gan');  
-    
-    triggerElements.forEach(element => {  
-        // 鼠標進入事件  
-        element.addEventListener('mouseenter', function(e) {  
+    gridItems.forEach(item => {  
+        // 設置 tabindex 使元素可獲得焦點  
+        item.setAttribute('tabindex', '0');  
+        
+        // 點擊處理  
+        item.addEventListener('click', function(e) {  
             e.stopPropagation();  
             
-            // 如果已有顯示的描述框，先隱藏它  
-            if (currentDesc && currentDesc !== this.querySelector('[class$="_desc"]')) {  
-                currentDesc.style.display = 'none';  
+            // 檢查是否點擊到展開的內容  
+            const isContentClick = e.target.closest('.gongMap') ||   
+                                 e.target.closest('.juMap') ||   
+                                 e.target.closest('.ganMap') ||   
+                                 e.target.closest('.menMap') ||   
+                                 e.target.closest('.xingMap') ||   
+                                 e.target.closest('.shenMap');  
+            
+            if (isContentClick) {  
+                return;  
             }  
             
-            // 查找對應的描述框  
-            let descClass = '';  
-            if (this.classList.contains('shen')) descClass = 'shen_desc';  
-            else if (this.classList.contains('xing')) descClass = 'xing_desc';  
-            else if (this.classList.contains('men')) descClass = 'men_desc';  
-            else if (this.classList.contains('gan')) descClass = 'gan_desc';  
+            // 關閉其他打開的項目  
+            gridItems.forEach(otherItem => {  
+                if (otherItem !== item) {  
+                    otherItem.classList.remove('active');  
+                }  
+            });  
             
-            const desc = this.querySelector('.' + descClass);  
-            if (desc) {  
-                desc.style.display = 'block';  
-                currentDesc = desc;  
-                currentElement = this;  
-            }  
+            // 切換當前項目  
+            item.classList.toggle('active');  
         });  
 
-        // 鼠標離開事件  
-        element.addEventListener('mouseleave', function(e) {  
-            const relatedTarget = e.relatedTarget;  
-            const desc = this.querySelector('[class$="_desc"]');  
-            
-            // 確保鼠標真的離開了元素和描述框  
-            if (!this.contains(relatedTarget) && (!desc || !desc.contains(relatedTarget))) {  
-                if (desc) {  
-                    setTimeout(() => {  
-                        if (!this.matches(':hover') && !desc.matches(':hover')) {  
-                            desc.style.display = 'none';  
-                            if (currentDesc === desc) {  
-                                currentDesc = null;  
-                                currentElement = null;  
-                            }  
-                        }  
-                    }, 100);  
-                }  
+        // 鍵盤處理  
+        item.addEventListener('keydown', function(e) {  
+            if (e.key === 'Enter' || e.key === ' ') {  
+                e.preventDefault();  
+                this.click();  
             }  
         });  
     });  
-    
-    // 點擊文檔其他地方時關閉描述框  
+
+    // 點擊外部關閉所有項目  
     document.addEventListener('click', function(e) {  
-        if (currentDesc && !currentElement.contains(e.target) && !currentDesc.contains(e.target)) {  
-            currentDesc.style.display = 'none';  
-            currentDesc = null;  
-            currentElement = null;  
+        if (!e.target.closest('.grid-item')) {  
+            gridItems.forEach(item => {  
+                item.classList.remove('active');  
+            });  
         }  
     });  
+
+    // 移動設備觸摸處理  
+    if ('ontouchstart' in window) {  
+        document.addEventListener('touchstart', function(e) {  
+            if (!e.target.closest('.grid-item')) {  
+                gridItems.forEach(item => {  
+                    item.classList.remove('active');  
+                });  
+            }  
+        });  
+    }  
+}  
+
+function initializeTooltips() {  
+    const tooltipElements = document.querySelectorAll('[data-tooltip]');  
     
-    // ESC 鍵關閉描述框  
-    document.addEventListener('keydown', function(e) {  
-        if (e.key === 'Escape' && currentDesc) {  
-            currentDesc.style.display = 'none';  
-            currentDesc = null;  
-            currentElement = null;  
-        }  
+    tooltipElements.forEach(element => {  
+        element.addEventListener('mouseenter', function(e) {  
+            const tooltip = this.querySelector('.tooltip');  
+            if (tooltip) {  
+                const rect = this.getBoundingClientRect();  
+                const tooltipRect = tooltip.getBoundingClientRect();  
+                
+                // 計算位置  
+                const top = rect.top - tooltipRect.height - 10;  
+                const left = rect.left + (rect.width - tooltipRect.width) / 2;  
+                
+                // 設置位置  
+                tooltip.style.top = `${Math.max(0, top)}px`;  
+                tooltip.style.left = `${Math.max(0, left)}px`;  
+            }  
+        });  
     });  
 }  
 
-// 視窗大小改變時關閉描述框  
+// ESC 鍵關閉所有打開的項目  
+document.addEventListener('keydown', function(e) {  
+    if (e.key === 'Escape') {  
+        const gridItems = document.querySelectorAll('.grid-item');  
+        gridItems.forEach(item => {  
+            item.classList.remove('active');  
+        });  
+    }  
+});  
+
+// 處理視窗大小改變  
 window.addEventListener('resize', function() {  
-    const descriptions = document.querySelectorAll('.shen_desc, .xing_desc, .men_desc, .gan_desc');  
-    descriptions.forEach(desc => {  
-        desc.style.display = 'none';  
+    const gridItems = document.querySelectorAll('.grid-item');  
+    gridItems.forEach(item => {  
+        item.classList.remove('active');  
     });  
 });  
 
-// 初始化  
-document.addEventListener('DOMContentLoaded', function() {  
-    setCurrentDateTime();  
-    initializeDescriptions();  
-});
+// 平滑滾動功能  
+function smoothScroll(element) {  
+    element.scrollIntoView({  
+        behavior: 'smooth',  
+        block: 'nearest'  
+    });  
+}
