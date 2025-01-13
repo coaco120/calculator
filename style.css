@@ -1,116 +1,64 @@
-* {  
-    box-sizing: border-box;  
-}  
-
 body {  
     font-family: Arial, sans-serif;  
     max-width: 600px;  
     margin: 0 auto;  
     padding: 15px;  
-    text-align: center;  
-    line-height: 1.6;  
 }  
 
-/* 輸入表單樣式 */  
 input, select {  
     width: 100%;  
-    margin-bottom: 15px;  
-    padding: 10px;  
-    font-size: 16px;  
-    border: 1px solid #ddd;  
-    border-radius: 5px;  
+    margin-bottom: 10px;  
+    padding: 5px;  
 }  
 
 button {  
     width: 100%;  
-    padding: 12px;  
+    padding: 10px;  
     background-color: #4CAF50;  
     color: white;  
     border: none;  
-    border-radius: 5px;  
-    font-size: 16px;  
-    margin-top: 10px;  
+    cursor: pointer;  
+}  
+
+button:hover {  
+    background-color: #45a049;  
 }  
 
 #result {  
     margin-top: 20px;  
-    border: 1px solid #ddd;  
-    padding: 15px;  
-    background-color: #f9f9f9;  
-    position: relative;  
-    border-radius: 8px;  
 }  
 
-/* 九宮格布局 */  
+/* Grid Layout */  
 .grid-container {  
     display: grid;  
     grid-template-columns: repeat(3, 1fr);  
     gap: 2px;  
     margin: 20px auto;  
-    max-width: 800px;  
     background-color: #000;  
 }  
 
 .grid-item {  
     background-color: white;  
-    border: 1px solid #000;  
-    padding: 15px;  
+    padding: 10px;  
     text-align: center;  
-    min-height: 150px;  
     position: relative;  
-    cursor: pointer;  
 }  
 
 .grid-title {  
     font-weight: bold;  
-    margin-bottom: 10px;  
-    border-bottom: 1px solid #ccc;  
-    padding-bottom: 5px;  
+    margin-bottom: 5px;  
 }  
 
-.gong {  
-    font-weight: bold;  
-    margin-bottom: 10px;  
-    border-bottom: 1px solid #ccc;  
-    padding-bottom: 5px;  
-}  
-
-/* 九宮格內容樣式 */  
 .grid-content {  
     text-align: left;  
-    padding: 5px;  
+    font-size: 14px;  
 }  
 
-.grid-content div {  
-    margin: 5px 0;  
-}  
-
-/* 地圖顯示控制 */  
-.gongMap, .juMap, .ganMap, .menMap, .xingMap, .shenMap {  
-    display: none;  
-    position: absolute;  
-    background-color: white;  
-    border: 1px solid #ccc;  
-    border-radius: 5px;  
-    padding: 10px;  
-    margin: 5px;  
-    z-index: 1000;  
-    width: auto;  
-    min-width: 200px;  
-    max-width: 300px;  
-    word-wrap: break-word;  
-    white-space: normal;  
-    text-align: left;  
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);  
-    left: 50%;  
-    transform: translateX(-50%);  
-}  
-
-/* 描述提示框樣式 */  
+/* 描述框基本樣式 */  
 .shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc {  
     display: none;  
     position: absolute;  
-    bottom: 150%;  
+    bottom: 100%;  
     left: 50%;  
     transform: translateX(-50%);  
     background-color: #333;  
@@ -122,113 +70,103 @@ button {
     z-index: 100;  
     width: max-content;  
     max-width: 200px;  
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);  
 }  
 
-/* 神煞星門樣式 */  
-.shen, .xing, .men, .gong {  
-    font-size: 14px;  
-    align-items: center;  
+/* 移除所有hover顯示規則 */  
+/*.shen:hover .shen_desc,  
+.xing:hover .xing_desc,  
+.men:hover .men_desc,  
+.gan:hover .gan_desc,  
+.gong:hover .gong_desc {  
+    display: block;  
+}*/  
+
+/* 基本元素樣式 */  
+.shen, .xing, .men, .gan, .gong {  
     position: relative;  
-    text-align: left;  
-    padding: 2px 5px;  
+    cursor: pointer;  
+    padding: 2px 4px;  
 }  
-
-.shen .label, .xing .label, .men .label {  
-    flex: 1;  
-    text-align: left;  
-}  
-
-/* 天干樣式及加粗效果 */  
-.shen .gan, .xing .gan, .men .gan {  
-    text-align: right;  
-    font-weight: normal;  
-}  
-
-.shen .gan.grid-gan-bold,  
-.xing .gan.grid-gan-bold {  
-    font-weight: 900 !important;  
-    text-shadow: 0 0 1px;  
-}  
-
-/* 其他樣式 */  
-.marks {  
-    color: red;  
-    margin-top: 10px;  
-    text-align: right;  
-}  
-
-.yang-dun { color: #e47a1c; }  
-.yin-dun { color: #782a9c; }  
 
 /* 八字顯示 */  
-.qimen-ju {  
-    font-size: 2em;  
-    margin-bottom: 20px;  
+.bazi {  
+    font-size: 1.2em;  
+    margin: 10px 0;  
 }  
 
 /* 干支顏色 */  
-.gan-1 { color: #1e8116; }  
-.gan-2 { color: #2eb751; }  
-.gan-3 { color: #d51d1d; }  
-.gan-4 { color: #ff4133; }  
-.gan-5 { color: #7a440e; }  
-.gan-6 { color: #b47537; }  
-.gan-7 { color: #ff8303; }  
-.gan-8 { color: #ffb141; }  
-.gan-9 { color: #1d1aa1; }  
-.gan-10 { color: #1b7acb; }  
-
-/* 五行顏色 */  
-.wuxin-1 { color: gold; }  
-.wuxin-2 { color: green; }  
-.wuxin-3 { color: blue; }  
-.wuxin-4 { color: red; }  
-.wuxin-5 { color: brown; }  
+.gan-1 { color: #4CAF50; }  /* 甲 */  
+.gan-2 { color: #4CAF50; }  /* 乙 */  
+.gan-3 { color: #f44336; }  /* 丙 */  
+.gan-4 { color: #f44336; }  /* 丁 */  
+.gan-5 { color: #795548; }  /* 戊 */  
+.gan-6 { color: #795548; }  /* 己 */  
+.gan-7 { color: #ff9800; }  /* 庚 */  
+.gan-8 { color: #ff9800; }  /* 辛 */  
+.gan-9 { color: #2196F3; }  /* 壬 */  
+.gan-10 { color: #2196F3; } /* 癸 */  
 
 /* 響應式設計 */  
-@media screen and (max-width: 768px) {  
+@media screen and (max-width: 600px) {  
     body {  
         padding: 10px;  
     }  
     
     .grid-item {  
-        padding: 10px;  
-        min-height: 120px;  
+        padding: 5px;  
+        font-size: 12px;  
     }  
-    
-    .gongMap, .juMap, .ganMap, .menMap, .xingMap, .shenMap {  
+
+    .shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc {  
         position: fixed;  
         top: 50%;  
         left: 50%;  
         transform: translate(-50%, -50%);  
-        width: 90%;  
-        max-height: 80vh;  
-        overflow-y: auto;  
-    }  
-    
-    .grid-item.active::after {  
-        content: '';  
-        position: fixed;  
-        top: 0;  
-        left: 0;  
-        right: 0;  
-        bottom: 0;  
-        background: rgba(0,0,0,0.5);  
-        z-index: 999;  
-    }  
-    
-    .shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc {  
-        position: fixed;  
-        top: 50%;  
         bottom: auto;  
-        transform: translate(-50%, -50%);  
-        width: 90%;  
-        max-width: none;  
+        width: 80%;  
+        max-width: 300px;  
+        z-index: 1000;  
     }  
 }  
 
-/* iOS 特定樣式 */  
+/* 輸入框美化 */  
 input[type="number"] {  
     -webkit-appearance: none;  
-    margin: 0;  
+    -moz-appearance: textfield;  
+    border: 1px solid #ddd;  
+    border-radius: 4px;  
+    padding: 8px;  
+    font-size: 16px;  
+}  
+
+select {  
+    border: 1px solid #ddd;  
+    border-radius: 4px;  
+    padding: 8px;  
+    font-size: 16px;  
+    background-color: white;  
+}  
+
+/* 網格標題樣式 */  
+.grid-title {  
+    border-bottom: 1px solid #eee;  
+    padding-bottom: 5px;  
+    margin-bottom: 8px;  
+}  
+
+/* 確保描述框在滾動時保持可見 */  
+.shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc {  
+    pointer-events: none;  
+}  
+
+/* 網格內容對齊 */  
+.grid-content > div {  
+    margin: 4px 0;  
+}  
+
+/* 防止文字溢出 */  
+.grid-item {  
+    overflow: hidden;  
+    word-wrap: break-word;  
 }
