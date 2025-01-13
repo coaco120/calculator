@@ -11,6 +11,7 @@ body {
     line-height: 1.6;  
 }  
 
+/* 輸入表單樣式 */  
 input, select {  
     width: 100%;  
     margin-bottom: 15px;  
@@ -57,6 +58,8 @@ button {
     text-align: center;  
     min-height: 150px;  
     position: relative;  
+    cursor: pointer;  
+    tabindex: 0;  
 }  
 
 .grid-title {  
@@ -83,11 +86,68 @@ button {
     margin: 5px 0;  
 }  
 
-/* 描述提示框樣式 */  
-.shen_desc, .xing_desc, .men_desc, .gan_desc {  
+/* 地圖顯示控制 */  
+.gongMap, .juMap, .ganMap, .menMap, .xingMap, .shenMap {  
     display: none;  
     position: absolute;  
-    top: -120%;  
+    background-color: white;  
+    border: 1px solid #ccc;  
+    border-radius: 5px;  
+    padding: 10px;  
+    z-index: 1000;  
+    width: auto;  
+    min-width: 200px;  
+    max-width: 300px;  
+    word-wrap: break-word;  
+    white-space: normal;  
+    text-align: left;  
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);  
+    left: 50%;  
+    transform: translateX(-50%);  
+    top: 100%;  
+    margin-top: 5px;  
+}  
+
+.grid-item.active .gongMap,  
+.grid-item.active .juMap,  
+.grid-item.active .ganMap,  
+.grid-item.active .menMap,  
+.grid-item.active .xingMap,  
+.grid-item.active .shenMap {  
+    display: block;  
+}  
+
+/* 神煞星門樣式 */  
+.shen, .xing, .men, .gong {  
+    font-size: 14px;  
+    align-items: center;  
+    position: relative;  
+    text-align: left;  
+    padding: 2px 5px;  
+}  
+
+.shen .label, .xing .label, .men .label {  
+    flex: 1;  
+    text-align: left;  
+}  
+
+/* 天干樣式及加粗效果 */  
+.shen .gan, .xing .gan, .men .gan {  
+    text-align: right;  
+    font-weight: normal;  
+}  
+
+.shen .gan.grid-gan-bold,  
+.xing .gan.grid-gan-bold {  
+    font-weight: 900 !important;  
+    text-shadow: 0 0 1px;  
+}  
+
+/* 描述提示框樣式 */  
+.shen_desc, .men_desc, .xing_desc, .gan_desc, .gong_desc {  
+    display: none;  
+    position: absolute;  
+    bottom: 150%;  
     left: 50%;  
     transform: translateX(-50%);  
     background-color: #333;  
@@ -96,37 +156,18 @@ button {
     border-radius: 5px;  
     font-size: 14px;  
     white-space: normal;  
-    z-index: 1000;  
+    z-index: 100;  
     width: max-content;  
     max-width: 200px;  
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);  
 }  
 
-/* 神煞星門樣式 */  
-.shen, .xing, .men, .gan {  
-    position: relative;  
-    cursor: pointer;  
-    padding: 2px 5px;  
-    margin: 2px 0;  
+.shen:hover .shen_desc,  
+.xing:hover .xing_desc,  
+.men:hover .men_desc,  
+.gan:hover .gan_desc,  
+.gong:hover .gong_desc {  
+    display: block;  
 }  
-
-/* 天干樣式及加粗效果 */  
-.gan.grid-gan-bold {  
-    font-weight: 900 !important;  
-    text-shadow: 0 0 1px;  
-}  
-
-/* 干支顏色 */  
-.gan-1 { color: #1e8116; }  /* 甲 */  
-.gan-2 { color: #2eb751; }  /* 乙 */  
-.gan-3 { color: #d51d1d; }  /* 丙 */  
-.gan-4 { color: #ff4133; }  /* 丁 */  
-.gan-5 { color: #7a440e; }  /* 戊 */  
-.gan-6 { color: #b47537; }  /* 己 */  
-.gan-7 { color: #ff8303; }  /* 庚 */  
-.gan-8 { color: #ffb141; }  /* 辛 */  
-.gan-9 { color: #1d1aa1; }  /* 壬 */  
-.gan-10 { color: #1b7acb; } /* 癸 */  
 
 /* 其他樣式 */  
 .marks {  
@@ -144,6 +185,25 @@ button {
     margin-bottom: 20px;  
 }  
 
+/* 干支顏色 */  
+.gan-1 { color: #1e8116; }  
+.gan-2 { color: #2eb751; }  
+.gan-3 { color: #d51d1d; }  
+.gan-4 { color: #ff4133; }  
+.gan-5 { color: #7a440e; }  
+.gan-6 { color: #b47537; }  
+.gan-7 { color: #ff8303; }  
+.gan-8 { color: #ffb141; }  
+.gan-9 { color: #1d1aa1; }  
+.gan-10 { color: #1b7acb; }  
+
+/* 五行顏色 */  
+.wuxin-1 { color: gold; }  
+.wuxin-2 { color: green; }  
+.wuxin-3 { color: blue; }  
+.wuxin-4 { color: red; }  
+.wuxin-5 { color: brown; }  
+
 /* 響應式設計 */  
 @media screen and (max-width: 768px) {  
     body {  
@@ -155,15 +215,26 @@ button {
         min-height: 120px;  
     }  
     
-    .shen_desc, .xing_desc, .men_desc, .gan_desc {  
+    .gongMap, .juMap, .ganMap, .menMap, .xingMap, .shenMap {  
         position: fixed;  
         top: 50%;  
         left: 50%;  
         transform: translate(-50%, -50%);  
         width: 90%;  
-        max-width: none;  
-        background-color: #333e;  
-        backdrop-filter: blur(5px);  
+        max-height: 80vh;  
+        overflow-y: auto;  
+        margin: 0;  
+    }  
+    
+    .grid-item.active::after {  
+        content: '';  
+        position: fixed;  
+        top: 0;  
+        left: 0;  
+        right: 0;  
+        bottom: 0;  
+        background: rgba(0,0,0,0.5);  
+        z-index: 999;  
     }  
 }  
 
@@ -171,16 +242,4 @@ button {
 input[type="number"] {  
     -webkit-appearance: none;  
     margin: 0;  
-}  
-
-/* 工具提示箭頭 */  
-.shen_desc::after, .xing_desc::after, .men_desc::after, .gan_desc::after {  
-    content: '';  
-    position: absolute;  
-    bottom: -10px;  
-    left: 50%;  
-    transform: translateX(-50%);  
-    border-width: 10px 10px 0;  
-    border-style: solid;  
-    border-color: #333 transparent transparent;  
 }
