@@ -463,12 +463,18 @@
 	    
 	    // 直接比較日期  
 	    return currentDate < liChunDate;  
-	}
-	// 年干支計算函數  
+	}  
+	
 	function getYearGanZhi(year, month, day) {  
+	    // 加入調試信息  
+	    console.log('輸入日期：', year, month, day);  
+	    let liChunDay = getTerm(year, 2);  
+	    console.log('立春日：', year, '年2月', liChunDay, '日');  
+	    console.log('是否在立春前：', isBeforeLiChun(year, month, day));  
+	
 	    // 獲取原本的干支索引  
-	    let yearGanIndex = (year - 4) % 10; // 修正年份偏移  
-	    let yearZhiIndex = (year - 4) % 12; // 修正年份偏移  
+	    let yearGanIndex = (year - 4) % 10; // 使用 year - 4  
+	    let yearZhiIndex = (year - 4) % 12; // 使用 year - 4  
 	
 	    // 如果未過立春，使用上一年的干支  
 	    if (isBeforeLiChun(year, month, day)) {  
@@ -476,11 +482,15 @@
 	        yearZhiIndex = ((year - 1 - 4) % 12 + 12) % 12;  
 	    }  
 	
+	    // 調試信息  
+	    console.log('計算後的干支索引：', yearGanIndex, yearZhiIndex);  
+	    console.log('對應的干支：', GAN[yearGanIndex], ZHI[yearZhiIndex]);  
+	
 	    return {  
 	        gan: GAN[yearGanIndex],  
 	        zhi: ZHI[yearZhiIndex]  
 	    };  
-	}
+	}  
 
         // 轉換阿拉伯數字為中文數字
         function convertToChinese(number) {
@@ -1152,9 +1162,9 @@
             const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;
 
             // 干支計算
-    	    const yearGanZhi = getYearGanZhi(lunar.getYear(), lunar.getMonth(), lunar._p.day);  
-    	    const yearGan = yearGanZhi.gan;
-    	    const yearZhi = yearGanZhi.zhi; 
+	    const yearGanZhi = getYearGanZhi(year, month, day);  
+	    const yearGan = yearGanZhi.gan;  
+	    const yearZhi = yearGanZhi.zhi;  
             const monthGan = GAN[lunar._p.monthGanIndex];
             const monthZhi = ZHI[lunar._p.monthZhiIndex];
             const dayGan = GAN[lunar._p.dayGanIndex];
