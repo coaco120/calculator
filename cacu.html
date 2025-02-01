@@ -435,6 +435,7 @@
 
           return { '旬' : XunMap[rank], '旬首' : XunShouMap[rank], '空亡' : KongWangMap[rank] };
         }
+	    
 	// 添加節氣計算相關函數  
 	function getTerm(year, n) {  
 	    const terms = [  
@@ -453,35 +454,36 @@
 	
 	    const offDate = new Date(31556925974.7 * (year - 1900) + termInfo[n] * 60000 + Date.UTC(1900, 0, 6, 2, 5));  
 	    return offDate.getUTCDate();  
-	}      
+	}
+	    
 	function isBeforeLiChun(year, month, day) {  
 	    let liChunDay = getTerm(year, 2); // 2表示立春  
 	    
-	    if ((month === 12 || month === 1)) {  
-	        let currentDate = new Date(year, month - 1, day);  
-	        let liChunDate = new Date(year, 1, liChunDay); // 1代表二月  
-	        
-	        return currentDate < liChunDate;  
-	    }  
-	    return false;  
-	}
+	    // 創建當前日期和立春日期的對象  
+	    let currentDate = new Date(year, month - 1, day); // 月份需要減1因為 JS 的月份是 0-11  
+	    let liChunDate = new Date(year, 1, liChunDay); // 立春一定在2月  
+	    
+	    // 直接比較日期  
+	    return currentDate < liChunDate;  
+	}  
+	    
 	// 年干支計算函數  
 	function getYearGanZhi(year, month, day) {  
 	    // 獲取原本的干支索引  
-	    let yearGanIndex = (year - 3) % 10;  
-	    let yearZhiIndex = (year - 3) % 12;  
+	    let yearGanIndex = (year - 4) % 10; // 修正年份偏移  
+	    let yearZhiIndex = (year - 4) % 12; // 修正年份偏移  
 	
-	    // 如果是在農曆12月或1月，且未過立春，使用上一年的干支  
+	    // 如果未過立春，使用上一年的干支  
 	    if (isBeforeLiChun(year, month, day)) {  
-	        yearGanIndex = ((year - 1 - 3) % 10 + 10) % 10;  
-	        yearZhiIndex = ((year - 1 - 3) % 12 + 12) % 12;  
+	        yearGanIndex = ((year - 1 - 4) % 10 + 10) % 10;  
+	        yearZhiIndex = ((year - 1 - 4) % 12 + 12) % 12;  
 	    }  
 	
 	    return {  
 	        gan: GAN[yearGanIndex],  
 	        zhi: ZHI[yearZhiIndex]  
 	    };  
-	}  
+	}
 
         // 轉換阿拉伯數字為中文數字
         function convertToChinese(number) {
@@ -1153,9 +1155,9 @@
             const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;
 
             // 干支計算
-    	    const yearGanZhi = getYearGanZhi(lunar.getYear(), lunar.getMonth(), lunar._p.day);  
-    	    const yearGan = yearGanZhi.gan;
-    	    const yearZhi = yearGanZhi.zhi; 
+	    const yearGanZhi = getYearGanZhi(year, month, day);  
+	    const yearGan = yearGanZhi.gan;  
+	    const yearZhi = yearGanZhi.zhi; 
             const monthGan = GAN[lunar._p.monthGanIndex];
             const monthZhi = ZHI[lunar._p.monthZhiIndex];
             const dayGan = GAN[lunar._p.dayGanIndex];
