@@ -88,6 +88,7 @@
     <div id="debugMessage"></div>
 
     <script>
+document.addEventListener("DOMContentLoaded", function() {
       // You can also show/hide the bubble dynamically with JavaScript.
       const men = document.querySelector('.men');
       const men_desc = document.querySelector('.men_desc');
@@ -1218,7 +1219,7 @@
 	}   
 	
             // 奇門局數計算
-let yearZhi = ZHI[(year - 4) % 12]; // Ensure yearZhi is defined here
+let monthZhi = ZHI[monthGanZhiIndex % 12]; // Ensure monthZhi is defined here
             const qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);
 
             // 為了計算方便，子時為 12：00, 丑時為 2：00, etc
@@ -1530,4 +1531,4 @@ let yearZhi = ZHI[(year - 4) % 12]; // Ensure yearZhi is defined here
         
     </script>
 </body>
-</html>
+</html>}); // End of DOMContentLoaded
