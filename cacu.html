@@ -1218,6 +1218,7 @@
 	}   
 	
             // 奇門局數計算
+let yearZhi = ZHI[(year - 4) % 12]; // Ensure yearZhi is defined here
             const qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);
 
             // 為了計算方便，子時為 12：00, 丑時為 2：00, etc
