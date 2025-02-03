@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", function() {
       gong.addEventListener('mouseout', () => {
         gong_desc.style.display = 'none';
       });
-
+}
     </script>
 
     <script>
@@ -1157,7 +1157,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	
 	    // 使用 lunar.js 的方式獲取立春  
 	    const solar = Solar.fromYmd(year, month, day);  
-	    const lunar = solar.getLunar();  
+	    const lunar = calendar.solar2lunar(year, month, day); 
 	    
 	    // 獲取該年立春的準確時間  
 	    const jieQi = lunar.getJieQiTable();  
@@ -1176,7 +1176,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	    const yearZhi = ZHI[yearGanZhiIndex % 12];  
 	    
 	    // 計算月干支  
-	    const monthGanZhiIndex = lunar.getMonthGanZhiIndexExact();  
+	    const monthGanZhiIndex = lunar.getMonthGanZhi ? lunar.getMonthGanZhi() : lunar.monthGanZhiIndex; 
 	    const monthGan = GAN[monthGanZhiIndex % 10];  
 	    const monthZhi = ZHI[monthGanZhiIndex % 12];  
 	    
