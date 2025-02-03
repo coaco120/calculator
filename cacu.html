@@ -503,14 +503,6 @@
 	    };  
 	}  
 	    
-	// 獲取時干的輔助函數  
-	function getHourGan(dayGan, hourIndex) {  
-	    const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];  
-	    const dayGanIndex = GAN.indexOf(dayGan);  
-	    const baseIndex = (dayGanIndex * 2) % 10;  
-	    return GAN[(baseIndex + hourIndex) % 10];  
-	}  
-	    
         // 轉換阿拉伯數字為中文數字
         function convertToChinese(number) {
             const cnNums = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
@@ -1171,30 +1163,23 @@
 	    const liChun = jieQi['立春'];  
 	    
 	    // 確認是否在立春前  
-	    const currentDate = solar.getCalendar();  
 	    const isBeforeLiChun = solar.isBefore(liChun);  
 	
-	    // 計算年干支  
-	    let yearGanZhiIndex;  
-	    if (isBeforeLiChun) {  
-	        yearGanZhiIndex = lunar.getYearGanZhiIndexByLiChun() - 1;  
-	    } else {  
-	        yearGanZhiIndex = lunar.getYearGanZhiIndexByLiChun();  
-	    }  
-	    
-	    // 獲取月干支  
-	    const monthGanZhiIndex = lunar.getMonthGanZhiIndex();  
-	    
-	    // 轉換為干支  
+	    // 定義天干地支陣列  
 	    const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];  
 	    const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];  
-	    
+	
+	    // 計算年干支  
+	    let yearGanZhiIndex = lunar.getYearGanZhiIndexExact();  
 	    const yearGan = GAN[yearGanZhiIndex % 10];  
 	    const yearZhi = ZHI[yearGanZhiIndex % 12];  
+	    
+	    // 計算月干支  
+	    const monthGanZhiIndex = lunar.getMonthGanZhiIndexExact();  
 	    const monthGan = GAN[monthGanZhiIndex % 10];  
 	    const monthZhi = ZHI[monthGanZhiIndex % 12];  
 	    
-	    // 獲取日干支  
+	    // 計算日干支  
 	    const dayGanZhiIndex = lunar.getDayGanZhiIndex();  
 	    const dayGan = GAN[dayGanZhiIndex % 10];  
 	    const dayZhi = ZHI[dayGanZhiIndex % 12];  
@@ -1203,21 +1188,34 @@
 	    const hourGan = getHourGan(dayGan, hourIndex);  
 	    const hourZhi = ZHI[hourIndex];  
 	
+	    // 用於調試  
+	    console.log('立春時間：', liChun.toYmd());  
+	    console.log('當前時間：', solar.toYmd());  
+	    console.log('是否在立春前：', isBeforeLiChun);  
+	    console.log('年干支：', yearGan + yearZhi);  
+	    console.log('月干支：', monthGan + monthZhi);  
+	    console.log('日干支：', dayGan + dayZhi);  
+	    console.log('時干支：', hourGan + hourZhi);  
+	
 	    // 顯示結果  
 	    const qimenJuResult = document.getElementById('qimenJuResult');  
 	    if (qimenJuResult) {  
 	        qimenJuResult.innerHTML = `  
 	            農曆：${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}<br>  
+	            立春時間：${liChun.toYmd()}<br>  
 	            八字：${yearGan}${yearZhi} ${monthGan}${monthZhi} ${dayGan}${dayZhi} ${hourGan}${hourZhi}<br>  
-	            立春時間：${liChun.toYmd()} ${liChun.toYmdHms()}<br>  
+	            是否在立春前：${isBeforeLiChun ? '是' : '否'}  
 	        `;  
 	    }  
-	
-	    // 用於調試  
-	    console.log('立春時間：', liChun.toYmd());  
-	    console.log('當前時間：', solar.toYmd());  
-	    console.log('是否在立春前：', isBeforeLiChun);  
 	}  
+	
+	// 獲取時干的輔助函數  
+	function getHourGan(dayGan, hourIndex) {  
+	    const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];  
+	    const dayGanIndex = GAN.indexOf(dayGan);  
+	    const baseIndex = (dayGanIndex * 2) % 10;  
+	    return GAN[(baseIndex + hourIndex) % 10];  
+	}   
 	
             // 奇門局數計算
             const qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);
