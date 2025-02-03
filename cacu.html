@@ -437,51 +437,50 @@
         }
 	// 節氣    
 	function getTerm(year, n) {  
-	    const terms = [  
-	        '小寒', '大寒', '立春', '雨水', '驚蟵', '春分',  
+	    // 使用 lunar.js 的 JieQi 來獲取節氣  
+	    const solar = Solar.fromYmd(year, 1, 1);  
+	    const jieQi = solar.getJieQiTable();  
+	    const term = ['小寒', '大寒', '立春', '雨水', '驚蟵', '春分',  
 	        '清明', '穀雨', '立夏', '小滿', '芒種', '夏至',  
 	        '小暑', '大暑', '立秋', '處暑', '白露', '秋分',  
-	        '寒露', '霜降', '立冬', '小雪', '大雪', '冬至'  
-	    ];  
-	
-	    const termInfo = [  
-	        0, 21208, 42467, 63836, 85337, 107014,  
-	        128867, 150921, 173149, 195551, 218072, 240693,  
-	        263343, 285989, 308563, 331033, 353350, 375494,  
-	        397447, 419210, 440795, 462224, 483532, 504758  
-	    ];  
-	
-	    // 獲取完整的日期時間  
-	    const offDate = new Date(31556925974.7 * (year - 1900) + termInfo[n] * 60000 + Date.UTC(1900, 0, 6, 2, 5));  
+	        '寒露', '霜降', '立冬', '小雪', '大雪', '冬至'][n];  
+	    
+	    const date = jieQi[term];  
 	    return {  
-	        day: offDate.getUTCDate(),  
-	        hours: offDate.getUTCHours(),  
-	        minutes: offDate.getUTCMinutes(),  
-	        seconds: offDate.getUTCSeconds()  
+	        day: date.getDay(),  
+	        hours: date.getHours(),  
+	        minutes: date.getMinutes(),  
+	        seconds: date.getSeconds()  
 	    };  
 	}  
 	
 	function isBeforeLiChun(year, month, day, hour = 0, minute = 0, second = 0) {  
-	    let liChun = getTerm(year, 2); // 2表示立春  
+	    // 使用 lunar.js 獲取立春時間  
+	    const solar = Solar.fromYmd(year, 1, 1);  
+	    const jieQi = solar.getJieQiTable();  
+	    const liChunDate = jieQi['立春'];  
 	    
 	    // 創建當前日期時間和立春日期時間的對象  
-	    let currentDate = new Date(year, month - 1, day, hour, minute, second); // 月份需要減1  
-	    let liChunDate = new Date(year, 1, liChun.day, liChun.hours, liChun.minutes, liChun.seconds); // 立春時間  
+	    const currentDate = new Date(year, month - 1, day, hour, minute, second);  
 	    
 	    // 加入調試信息  
-	    console.log('當前時間：', currentDate.toString());  
-	    console.log('立春時間：', liChunDate.toString());  
+	    console.log('當前時間：', currentDate.toLocaleString('zh-TW'));  
+	    console.log('立春時間：', liChunDate.toLocaleString('zh-TW'));  
 	    
-	    // 直接比較日期時間  
+	    // 比較日期時間  
 	    return currentDate < liChunDate;  
 	}  
 	
 	function getYearGanZhi(year, month, day, hour = 0, minute = 0, second = 0) {  
 	    // 加入調試信息  
 	    console.log('輸入日期時間：', year, month, day, hour, minute, second);  
-	    let liChun = getTerm(year, 2);  
-	    console.log('立春時間：', year, '年2月', liChun.day, '日',   
-	                liChun.hours, '時', liChun.minutes, '分', liChun.seconds, '秒');  
+	    
+	    // 使用 lunar.js 獲取立春信息  
+	    const solar = Solar.fromYmd(year, 1, 1);  
+	    const jieQi = solar.getJieQiTable();  
+	    const liChunDate = jieQi['立春'];  
+	    
+	    console.log('立春時間：', liChunDate.toLocaleString('zh-TW'));  
 	    console.log('是否在立春前：', isBeforeLiChun(year, month, day, hour, minute, second));  
 	
 	    // 獲取原本的干支索引  
@@ -1150,43 +1149,53 @@
 	    const day = parseInt(document.getElementById('day').value);  
 	    const hourIndex = parseInt(document.getElementById('time').value);  
 	    
-	    // 從時辰轉換為小時  
-	    const hour = hourIndex * 2; // 假設每個時辰是2小時  
-	    
 	    if (!year || !month || !day) {  
 	        alert('請完整填寫所有資料');  
 	        return;  
-	    } 
-
-            otherMessage = '';
-
-            // 使用 Solar 類建立日期
-            const solar = Solar.fromYmd(year, month, day);
-
-            // 獲取農曆
-            const lunar = solar.getLunar();
-
-            // 農曆日期轉換
-            const dayString = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
-                '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
-                '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
-
-            const lunarYear = convertToChinese(lunar.getYear());
-            const lunarMonth = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '臘'][lunar.getMonth() - 1];
-            const lunarDay = dayString[lunar._p.day - 1];
-            const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;
-
-            // 干支計算
+	    }  
+	
+	    otherMessage = '';  
+	
+	    // 使用 Solar 類建立日期  
+	    const solar = Solar.fromYmd(year, month, day);  
+	
+	    // 獲取農曆  
+	    const lunar = solar.getLunar();  
+	
+	    // 農曆日期轉換  
+	    const dayString = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',  
+	        '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',  
+	        '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];  
+	
+	    const lunarYear = convertToChinese(lunar.getYear());  
+	    const lunarMonth = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '臘'][lunar.getMonth() - 1];  
+	    const lunarDay = dayString[lunar._p.day - 1];  
+	    const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;  
+	
+	    // 年干支計算  
+	    const hour = hourIndex * 2; // 轉換時辰為小時  
 	    const yearGanZhi = getYearGanZhi(year, month, day, hour);  
 	    const yearGan = yearGanZhi.gan;  
 	    const yearZhi = yearGanZhi.zhi;  
-            const monthGan = GAN[lunar._p.monthGanIndex];
-            const monthZhi = ZHI[lunar._p.monthZhiIndex];
-            const dayGan = GAN[lunar._p.dayGanIndex];
-            const dayZhi = ZHI[lunar._p.dayZhiIndex];
-            const hourGan = getHourGan(dayGan, hourIndex);
-            const hourZhi = ZHI[hourIndex];
+	
+	    // 月干支計算  
+	    const monthGan = GAN[lunar._p.monthGanIndex];  
+	    const monthZhi = ZHI[lunar._p.monthZhiIndex];  
+	
+	    // 在這裡加入console.log  
+	    console.log('最終結果：');  
+	    console.log('年干支：', yearGan + yearZhi);  
+	    console.log('月干支：', monthGan + monthZhi);  
+	
+	    // 日干支計算  
+	    const dayGan = GAN[lunar._p.dayGanIndex];  
+	    const dayZhi = ZHI[lunar._p.dayZhiIndex];  
+	
+	    // 時干支計算  
+	    const hourGan = getHourGan(dayGan, hourIndex);  
+	    const hourZhi = ZHI[hourIndex];  
 
+		
             // 奇門局數計算
             const qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);
 
