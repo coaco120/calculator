@@ -438,8 +438,8 @@
 	// 節氣    
 	function getTerm(year, n) {  
 	    // 使用 lunar.js 的 JieQi 來獲取節氣  
-	    const lunar = Lunar.fromDate(new Date(year, 0, 1));  
-	    const jieQi = lunar.getJieQiTable();  
+	    const solar = Solar.fromYmd(year, 1, 1);  
+	    const jieQi = solar.getJieQiTable();  
 	    const term = ['小寒', '大寒', '立春', '雨水', '驚蟵', '春分',  
 	        '清明', '穀雨', '立夏', '小滿', '芒種', '夏至',  
 	        '小暑', '大暑', '立秋', '處暑', '白露', '秋分',  
@@ -456,8 +456,8 @@
 	
 	function isBeforeLiChun(year, month, day, hour = 0, minute = 0, second = 0) {  
 	    // 使用 lunar.js 獲取立春時間  
-	    const lunar = Lunar.fromDate(new Date(year, 0, 1));  
-	    const jieQi = lunar.getJieQiTable();  
+	    const solar = Solar.fromYmd(year, 1, 1);  
+	    const jieQi = solar.getJieQiTable();  
 	    const liChunDate = jieQi['立春'];  
 	    
 	    // 創建當前日期時間和立春日期時間的對象  
@@ -476,8 +476,8 @@
 	    console.log('輸入日期時間：', year, month, day, hour, minute, second);  
 	    
 	    // 使用 lunar.js 獲取立春信息  
-	    const lunar = Lunar.fromDate(new Date(year, 0, 1));  
-	    const jieQi = lunar.getJieQiTable();  
+	    const solar = Solar.fromYmd(year, 1, 1);  
+	    const jieQi = solar.getJieQiTable();  
 	    const liChunDate = jieQi['立春'];  
 	    
 	    console.log('立春時間：', liChunDate.toLocaleString('zh-TW'));  
@@ -1182,7 +1182,7 @@
 	    const monthGan = GAN[lunar._p.monthGanIndex];  
 	    const monthZhi = ZHI[lunar._p.monthZhiIndex];  
 	
-	    // 添加console.log  
+	    // 在這裡加入console.log  
 	    console.log('最終結果：');  
 	    console.log('年干支：', yearGan + yearZhi);  
 	    console.log('月干支：', monthGan + monthZhi);  
@@ -1194,13 +1194,6 @@
 	    // 時干支計算  
 	    const hourGan = getHourGan(dayGan, hourIndex);  
 	    const hourZhi = ZHI[hourIndex];  
-	
-	    // 更新結果顯示  
-	    document.getElementById('result').innerHTML = `  
-	        ${lunarDateStr}<br>  
-	        ${yearGan}${yearZhi}年 ${monthGan}${monthZhi}月 ${dayGan}${dayZhi}日 ${hourGan}${hourZhi}時<br>  
-	        ${otherMessage}  
-	    `;  
 
 		
             // 奇門局數計算
