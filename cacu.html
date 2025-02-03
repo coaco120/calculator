@@ -435,7 +435,7 @@
 
           return { '旬' : XunMap[rank], '旬首' : XunShouMap[rank], '空亡' : KongWangMap[rank] };
         }
-	// 添加節氣計算相關函數  
+	// 節氣    
 	function getTerm(year, n) {  
 	    const terms = [  
 	        '小寒', '大寒', '立春', '雨水', '驚蟵', '春分',  
@@ -451,33 +451,45 @@
 	        397447, 419210, 440795, 462224, 483532, 504758  
 	    ];  
 	
+	    // 獲取完整的日期時間  
 	    const offDate = new Date(31556925974.7 * (year - 1900) + termInfo[n] * 60000 + Date.UTC(1900, 0, 6, 2, 5));  
-	    return offDate.getUTCDate();  
-	}      
-	function isBeforeLiChun(year, month, day) {  
-	    let liChunDay = getTerm(year, 2); // 2表示立春  
+	    return {  
+	        day: offDate.getUTCDate(),  
+	        hours: offDate.getUTCHours(),  
+	        minutes: offDate.getUTCMinutes(),  
+	        seconds: offDate.getUTCSeconds()  
+	    };  
+	}  
+	
+	function isBeforeLiChun(year, month, day, hour = 0, minute = 0, second = 0) {  
+	    let liChun = getTerm(year, 2); // 2表示立春  
 	    
-	    // 創建當前日期和立春日期的對象  
-	    let currentDate = new Date(year, month - 1, day); // 月份需要減1因為 JS 的月份是 0-11  
-	    let liChunDate = new Date(year, 1, liChunDay); // 立春一定在2月  
+	    // 創建當前日期時間和立春日期時間的對象  
+	    let currentDate = new Date(year, month - 1, day, hour, minute, second); // 月份需要減1  
+	    let liChunDate = new Date(year, 1, liChun.day, liChun.hours, liChun.minutes, liChun.seconds); // 立春時間  
 	    
-	    // 直接比較日期  
+	    // 加入調試信息  
+	    console.log('當前時間：', currentDate.toString());  
+	    console.log('立春時間：', liChunDate.toString());  
+	    
+	    // 直接比較日期時間  
 	    return currentDate < liChunDate;  
 	}  
 	
-	function getYearGanZhi(year, month, day) {  
+	function getYearGanZhi(year, month, day, hour = 0, minute = 0, second = 0) {  
 	    // 加入調試信息  
-	    console.log('輸入日期：', year, month, day);  
-	    let liChunDay = getTerm(year, 2);  
-	    console.log('立春日：', year, '年2月', liChunDay, '日');  
-	    console.log('是否在立春前：', isBeforeLiChun(year, month, day));  
+	    console.log('輸入日期時間：', year, month, day, hour, minute, second);  
+	    let liChun = getTerm(year, 2);  
+	    console.log('立春時間：', year, '年2月', liChun.day, '日',   
+	                liChun.hours, '時', liChun.minutes, '分', liChun.seconds, '秒');  
+	    console.log('是否在立春前：', isBeforeLiChun(year, month, day, hour, minute, second));  
 	
 	    // 獲取原本的干支索引  
-	    let yearGanIndex = (year - 4) % 10; // 使用 year - 4  
-	    let yearZhiIndex = (year - 4) % 12; // 使用 year - 4  
+	    let yearGanIndex = (year - 4) % 10;  
+	    let yearZhiIndex = (year - 4) % 12;  
 	
 	    // 如果未過立春，使用上一年的干支  
-	    if (isBeforeLiChun(year, month, day)) {  
+	    if (isBeforeLiChun(year, month, day, hour, minute, second)) {  
 	        yearGanIndex = ((year - 1 - 4) % 10 + 10) % 10;  
 	        yearZhiIndex = ((year - 1 - 4) % 12 + 12) % 12;  
 	    }  
@@ -1133,15 +1145,18 @@
 
         function calculate() {
 
-            const year = parseInt(document.getElementById('year').value);
-            const month = parseInt(document.getElementById('month').value);
-            const day = parseInt(document.getElementById('day').value);
-            const hourIndex = parseInt(document.getElementById('time').value);
-
-            if (!year || !month || !day) {
-                alert('請完整填寫所有資料');
-                return;
-            }
+	    const year = parseInt(document.getElementById('year').value);  
+	    const month = parseInt(document.getElementById('month').value);  
+	    const day = parseInt(document.getElementById('day').value);  
+	    const hourIndex = parseInt(document.getElementById('time').value);  
+	    
+	    // 從時辰轉換為小時  
+	    const hour = hourIndex * 2; // 假設每個時辰是2小時  
+	    
+	    if (!year || !month || !day) {  
+	        alert('請完整填寫所有資料');  
+	        return;  
+	    } 
 
             otherMessage = '';
 
@@ -1162,7 +1177,7 @@
             const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;
 
             // 干支計算
-	    const yearGanZhi = getYearGanZhi(year, month, day);  
+	    const yearGanZhi = getYearGanZhi(year, month, day, hour);  
 	    const yearGan = yearGanZhi.gan;  
 	    const yearZhi = yearGanZhi.zhi;  
             const monthGan = GAN[lunar._p.monthGanIndex];
