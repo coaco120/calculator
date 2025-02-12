@@ -152,6 +152,8 @@
         const SHEN = ['值符', '騰蛇', '太陰', '六合', '白虎', '玄武', '九地', '九天'];
         const GONG = ['坎', '艮', '震', '巽', '離', '坤', '兌', '乾'];
         const GONG_WITH_OLD = ['坎坤兌', '艮震乾', '震離艮', '巽兌坤', '離乾震', '坤巽坎', '兌坎巽', '乾艮離'];
+        const GONG_DI_TOU = ['坤', '震', '離', '兌', '乾', '巽', '坎', '艮'];
+        const GONG_HUI_XIANG = ['兌', '乾', '艮', '坤', '震', '坎', '巽', '離'];
         const WUXIN = ['金', '木', '水', '火', '土'];
 
         // 盤
@@ -167,7 +169,7 @@
 
         const gongs_order_clockwise = [1, 8, 3, 4, 9, 2, 7, 6];
         const gongs_order_anticlockwise = [1, 6, 7, 2, 9, 4, 3, 8];
-
+// XXX: // XXX:
         var otherMessage = '\n';
 
         // assign names to 九宮
@@ -175,6 +177,8 @@
         {
           gongs[gongs_order_clockwise[i]].set('宮', GONG[i]);
           gongs[gongs_order_clockwise[i]].set('宮連先天', GONG_WITH_OLD[i]);
+          gongs[gongs_order_clockwise[i]].set('宮低頭找', GONG_DI_TOU[i]);
+          gongs[gongs_order_clockwise[i]].set('宮回鄉尋', GONG_HUI_XIANG[i]);
         }
 
         gongs[5].set('宮', '中');
@@ -1418,10 +1422,16 @@
                         return `
                             <div class="grid-item palace-${i}" id="palace-${i}">
                                 <div class="gong gan-${getWuxinColor(gongs[i].get('宮'))}">
-                                  第${convertToChinese(i)}宮（${gongs[i].get('宮連先天')})
+                                  第${convertToChinese(i)}宮（${gongs[i].get('宮')})
                                   <span class='gong_desc'>
                                     ${getGongDescription(gongs[i].get('宮'))}
                                   </span>
+
+
+
+                                  <span class="gong gan-${getWuxinColor(gongs[i].get('宮低頭找'))}">${gongs[i].get('宮低頭找')}</span>
+                                  <span class="gong gan-${getWuxinColor(gongs[i].get('宮回鄉尋'))}">${gongs[i].get('宮回鄉尋')}</span>
+                                  
                                 </div>
                                 <div class="grid-content">
 
