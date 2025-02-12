@@ -84,7 +84,7 @@
             </div>
         </div>
     </div>
-
+    <div id="hotGongResult"></div>
     <div id="debugMessage"></div>
 
     <script>
@@ -363,15 +363,15 @@
         // 干支顏色
         function getGanColor(gan) {
             const colorMap = {
-                '甲': 1, '寅': 1, '傷門': 1, '天沖': 1, '值符': 1, '震': 1,
+                '甲': 1, '寅': 1, '傷門': 1, '天沖': 1, '值符': 1, '震': 1, '木': 1,
                 '乙': 2, '卯': 2, '杜門': 2, '天輔': 2, '六合': 2, '巽': 2,
-                '丙': 3, '午': 3,
+                '丙': 3, '午': 3, '火': 3,
                 '丁': 4, '巳': 4, '景門': 4, '天英': 4, '騰蛇': 4, '離': 4,
-                '戊': 5, '戌': 5, '辰': 5, '生門': 5, '天任': 5, '艮': 5,
+                '戊': 5, '戌': 5, '辰': 5, '生門': 5, '天任': 5, '艮': 5, '土': 5,
                 '己': 6, '丑': 6, '未': 6, '死門': 6, '天芮': 6, '九地': 6, '坤': 6,
-                '庚': 7, '申': 7, '開門': 7, '天心': 7, '白虎': 7, '九天': 7, '乾': 7,
+                '庚': 7, '申': 7, '開門': 7, '天心': 7, '白虎': 7, '九天': 7, '乾': 7, '金': 7,
                 '辛': 8, '酉': 8, '驚門': 8, '天柱': 8, '太陰': 8, '兌': 8,
-                '壬': 9, '子': 9, '休門': 9, '天蓬': 9, '玄武': 9, '坎': 9,
+                '壬': 9, '子': 9, '休門': 9, '天蓬': 9, '玄武': 9, '坎': 9, '水': 9,
                 '癸': 10, '亥': 10
             };
             return colorMap[gan] || 1;
@@ -435,62 +435,62 @@
 
           return { '旬' : XunMap[rank], '旬首' : XunShouMap[rank], '空亡' : KongWangMap[rank] };
         }
-	// 添加節氣計算相關函數  
-	function getTerm(year, n) {  
-	    const terms = [  
-	        '小寒', '大寒', '立春', '雨水', '驚蟵', '春分',  
-	        '清明', '穀雨', '立夏', '小滿', '芒種', '夏至',  
-	        '小暑', '大暑', '立秋', '處暑', '白露', '秋分',  
-	        '寒露', '霜降', '立冬', '小雪', '大雪', '冬至'  
-	    ];  
-	
-	    const termInfo = [  
-	        0, 21208, 42467, 63836, 85337, 107014,  
-	        128867, 150921, 173149, 195551, 218072, 240693,  
-	        263343, 285989, 308563, 331033, 353350, 375494,  
-	        397447, 419210, 440795, 462224, 483532, 504758  
-	    ];  
-	
-	    const offDate = new Date(31556925974.7 * (year - 1900) + termInfo[n] * 60000 + Date.UTC(1900, 0, 6, 2, 5));  
-	    return offDate.getUTCDate();  
-	}      
-	function isBeforeLiChun(year, month, day) {  
-	    let liChunDay = getTerm(year, 2); // 2表示立春  
-	    
-	    // 創建當前日期和立春日期的對象  
-	    let currentDate = new Date(year, month - 1, day); // 月份需要減1因為 JS 的月份是 0-11  
-	    let liChunDate = new Date(year, 1, liChunDay); // 立春一定在2月  
-	    
-	    // 直接比較日期  
-	    return currentDate < liChunDate;  
-	}  
-	
-	function getYearGanZhi(year, month, day) {  
-	    // 加入調試信息  
-	    console.log('輸入日期：', year, month, day);  
-	    let liChunDay = getTerm(year, 2);  
-	    console.log('立春日：', year, '年2月', liChunDay, '日');  
-	    console.log('是否在立春前：', isBeforeLiChun(year, month, day));  
-	
-	    // 獲取原本的干支索引  
-	    let yearGanIndex = (year - 4) % 10; // 使用 year - 4  
-	    let yearZhiIndex = (year - 4) % 12; // 使用 year - 4  
-	
-	    // 如果未過立春，使用上一年的干支  
-	    if (isBeforeLiChun(year, month, day)) {  
-	        yearGanIndex = ((year - 1 - 4) % 10 + 10) % 10;  
-	        yearZhiIndex = ((year - 1 - 4) % 12 + 12) % 12;  
-	    }  
-	
-	    // 調試信息  
-	    console.log('計算後的干支索引：', yearGanIndex, yearZhiIndex);  
-	    console.log('對應的干支：', GAN[yearGanIndex], ZHI[yearZhiIndex]);  
-	
-	    return {  
-	        gan: GAN[yearGanIndex],  
-	        zhi: ZHI[yearZhiIndex]  
-	    };  
-	}  
+	// 添加節氣計算相關函數
+	function getTerm(year, n) {
+	    const terms = [
+	        '小寒', '大寒', '立春', '雨水', '驚蟵', '春分',
+	        '清明', '穀雨', '立夏', '小滿', '芒種', '夏至',
+	        '小暑', '大暑', '立秋', '處暑', '白露', '秋分',
+	        '寒露', '霜降', '立冬', '小雪', '大雪', '冬至'
+	    ];
+
+	    const termInfo = [
+	        0, 21208, 42467, 63836, 85337, 107014,
+	        128867, 150921, 173149, 195551, 218072, 240693,
+	        263343, 285989, 308563, 331033, 353350, 375494,
+	        397447, 419210, 440795, 462224, 483532, 504758
+	    ];
+
+	    const offDate = new Date(31556925974.7 * (year - 1900) + termInfo[n] * 60000 + Date.UTC(1900, 0, 6, 2, 5));
+	    return offDate.getUTCDate();
+	}
+	function isBeforeLiChun(year, month, day) {
+	    let liChunDay = getTerm(year, 2); // 2表示立春
+
+	    // 創建當前日期和立春日期的對象
+	    let currentDate = new Date(year, month - 1, day); // 月份需要減1因為 JS 的月份是 0-11
+	    let liChunDate = new Date(year, 1, liChunDay); // 立春一定在2月
+
+	    // 直接比較日期
+	    return currentDate < liChunDate;
+	}
+
+	function getYearGanZhi(year, month, day) {
+	    // 加入調試信息
+	    console.log('輸入日期：', year, month, day);
+	    let liChunDay = getTerm(year, 2);
+	    console.log('立春日：', year, '年2月', liChunDay, '日');
+	    console.log('是否在立春前：', isBeforeLiChun(year, month, day));
+
+	    // 獲取原本的干支索引
+	    let yearGanIndex = (year - 4) % 10; // 使用 year - 4
+	    let yearZhiIndex = (year - 4) % 12; // 使用 year - 4
+
+	    // 如果未過立春，使用上一年的干支
+	    if (isBeforeLiChun(year, month, day)) {
+	        yearGanIndex = ((year - 1 - 4) % 10 + 10) % 10;
+	        yearZhiIndex = ((year - 1 - 4) % 12 + 12) % 12;
+	    }
+
+	    // 調試信息
+	    console.log('計算後的干支索引：', yearGanIndex, yearZhiIndex);
+	    console.log('對應的干支：', GAN[yearGanIndex], ZHI[yearZhiIndex]);
+
+	    return {
+	        gan: GAN[yearGanIndex],
+	        zhi: ZHI[yearZhiIndex]
+	    };
+	}
 
         // 轉換阿拉伯數字為中文數字
         function convertToChinese(number) {
@@ -1130,6 +1130,53 @@
           }
         }
 
+        // 定義五行旺衰規律表
+        const elementSeason = {
+            "木": { 旺: "木", 相: "火", 休: "水", 囚: "金", 死: "土" },
+            "土": { 旺: "土", 相: "金", 休: "火", 囚: "木", 死: "水" },
+            "火": { 旺: "火", 相: "土", 休: "木", 囚: "水", 死: "金" },
+            "金": { 旺: "金", 相: "水", 休: "土", 囚: "火", 死: "木" },
+            "水": { 旺: "水", 相: "木", 休: "金", 囚: "火", 死: "土" }
+        };
+
+        // 判定地支所在的季節
+        function getElementFromBranch(branch) {
+            if (["寅", "卯"].includes(branch)) return "木";
+            if (["辰", "戌", "丑", "未"].includes(branch)) return "土";
+            if (["巳", "午"].includes(branch)) return "火";
+            if (["申", "酉"].includes(branch)) return "金";
+            if (["亥", "子"].includes(branch)) return "水";
+            return null;
+        }
+
+        function getElement(stem) {
+            if (["甲", "乙"].includes(stem)) return "木";
+            if (["丙", "丁"].includes(stem)) return "火";
+            if (["戊", "己"].includes(stem)) return "土";
+            if (["庚", "辛"].includes(stem)) return "金";
+            if (["庚", "辛"].includes(stem)) return "水";
+            return null;
+        }
+
+        // 推算五行的旺衰狀態
+        function calculateElementState(dayElement, monthBranch) {
+            const season = getElementFromBranch(monthBranch); // 判斷季節
+            if (!season) {
+                throw new Error("無效的地支: " + monthBranch);
+            }
+
+            const rules = elementSeason[season]; // 獲取該季節的五行規律
+
+            // 返回日干五行在該季節中的旺衰狀態
+            for (const state in rules) {
+                if (rules[state] === dayElement) {
+                    return state; // 返回狀態（旺、相、休、囚、死）
+                }
+            }
+
+            return null; // 若無法匹配，返回null
+        }
+
 
         function calculate() {
 
@@ -1162,9 +1209,9 @@
             const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;
 
             // 干支計算
-	    const yearGanZhi = getYearGanZhi(year, month, day);  
-	    const yearGan = yearGanZhi.gan;  
-	    const yearZhi = yearGanZhi.zhi;  
+	    const yearGanZhi = getYearGanZhi(year, month, day);
+	    const yearGan = yearGanZhi.gan;
+	    const yearZhi = yearGanZhi.zhi;
             const monthGan = GAN[lunar._p.monthGanIndex];
             const monthZhi = ZHI[lunar._p.monthZhiIndex];
             const dayGan = GAN[lunar._p.dayGanIndex];
@@ -1271,6 +1318,42 @@
             otherMessage += '找馬星：\n';
             setMaXing();
             otherMessage += '\n';
+
+            var hotGong = new Map();
+            // 找旺相休囚死
+            otherMessage += '找旺相休囚死：\n';
+            otherMessage += '木：' + calculateElementState('木', monthZhi) + '\n';
+            hotGong.set(calculateElementState('木', monthZhi), '木');
+            otherMessage += '火：' + calculateElementState('火', monthZhi) + '\n';
+            hotGong.set(calculateElementState('火', monthZhi), '火');
+            otherMessage += '土：' + calculateElementState('土', monthZhi) + '\n';
+            hotGong.set(calculateElementState('土', monthZhi), '土');
+            otherMessage += '水：' + calculateElementState('水', monthZhi) + '\n';
+            hotGong.set(calculateElementState('水', monthZhi), '水');
+            otherMessage += '金：' + calculateElementState('金', monthZhi) + '\n';
+            hotGong.set(calculateElementState('金', monthZhi), '金');
+            otherMessage += '\n';
+
+            const hotGongResultDiv = document.getElementById('hotGongResult');
+            hotGongResultDiv.innerHTML = `
+                <div class="eight-characters">
+                    <div>
+                        <span class="chars wang-1">旺</span>
+                        <span class="chars wang-2">相</span>
+                        <span class="chars wang-3">休</span>
+                        <span class="chars wang-4">囚</span>
+                        <span class="chars wang-5">死</span>
+                    </div>
+                    <div>
+                        <span class="chars gan-${getWuxinColor(hotGong.get('旺'))}">${hotGong.get('旺')}</span>
+                        <span class="chars gan-${getWuxinColor(hotGong.get('相'))}">${hotGong.get('相')}</span>
+                        <span class="chars gan-${getWuxinColor(hotGong.get('休'))}">${hotGong.get('休')}</span>
+                        <span class="chars gan-${getWuxinColor(hotGong.get('囚'))}">${hotGong.get('囚')}</span>
+                        <span class="chars gan-${getWuxinColor(hotGong.get('死'))}">${hotGong.get('死')}</span>
+                    </div>
+                </div>
+                `;
+
 
             // 結果顯示
             const qimenJuResultDiv = document.getElementById('qimenJuResult');
