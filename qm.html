@@ -47,19 +47,19 @@
         <!-- 九宮格容器 -->
         <div class="grid-container">
             <div class="grid-item palace-4 gan-2" id="palace-4">
-                <div class="grid-title">第四宮（巽）</div>
+                <div class="grid-title">第四宮（巽兌坤）</div>
                 <div class="grid-content"></div>
             </div>
             <div class="grid-item palace-9 gan-4" id="palace-9">
-                <div class="grid-title">第九宮（離）</div>
+                <div class="grid-title">第九宮（離乾震）</div>
                 <div class="grid-content"></div>
             </div>
             <div class="grid-item palace-2 gan-6" id="palace-2">
-                <div class="grid-title">第二宮（坤）</div>
+                <div class="grid-title">第二宮（坤巽坎）</div>
                 <div class="grid-content"></div>
             </div>
             <div class="grid-item palace-3 gan-1" id="palace-3">
-                <div class="grid-title">第三宮（震）</div>
+                <div class="grid-title">第三宮（震離艮）</div>
                 <div class="grid-content"></div>
             </div>
             <div class="grid-item palace-5" id="palace-5">
@@ -67,19 +67,19 @@
                 <div class="grid-content"></div>
             </div>
             <div class="grid-item palace-7 gan-8" id="palace-7">
-                <div class="grid-title">第七宮（兌）</div>
+                <div class="grid-title">第七宮（兌坎巽）</div>
                 <div class="grid-content"></div>
             </div>
             <div class="grid-item palace-8 gan-5" id="palace-8">
-                <div class="grid-title">第八宮（艮）</div>
+                <div class="grid-title">第八宮（艮震乾）</div>
                 <div class="grid-content"></div>
             </div>
             <div class="grid-item palace-1 gan-9" id="palace-1">
-                <div class="grid-title">第一宮（坎）</div>
+                <div class="grid-title">第一宮（坎坤兌）</div>
                 <div class="grid-content"></div>
             </div>
             <div class="grid-item palace-6 gan-7" id="palace-6">
-                <div class="grid-title">第六宮（乾）</div>
+                <div class="grid-title">第六宮（乾艮離）</div>
                 <div class="grid-content"></div>
             </div>
         </div>
@@ -151,6 +151,7 @@
         const XING = ['天蓬', '天任', '天沖', '天輔', '天英', '天芮', '天柱', '天心'];
         const SHEN = ['值符', '騰蛇', '太陰', '六合', '白虎', '玄武', '九地', '九天'];
         const GONG = ['坎', '艮', '震', '巽', '離', '坤', '兌', '乾'];
+        const GONG_WITH_OLD = ['坎坤兌', '艮震乾', '震離艮', '巽兌坤', '離乾震', '坤巽坎', '兌坎巽', '乾艮離'];
         const WUXIN = ['金', '木', '水', '火', '土'];
 
         // 盤
@@ -173,9 +174,11 @@
         for(let i = 0; i < gongs_order_clockwise.length; ++i)
         {
           gongs[gongs_order_clockwise[i]].set('宮', GONG[i]);
+          gongs[gongs_order_clockwise[i]].set('宮連先天', GONG_WITH_OLD[i]);
         }
 
         gongs[5].set('宮', '中');
+        gongs[5].set('宮連先天', '中');
 
         function getGongDescription(gong)
         {
@@ -1209,9 +1212,9 @@
             const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;
 
             // 干支計算
-	    const yearGanZhi = getYearGanZhi(year, month, day);
-	    const yearGan = yearGanZhi.gan;
-	    const yearZhi = yearGanZhi.zhi;
+      	    const yearGanZhi = getYearGanZhi(year, month, day);
+      	    const yearGan = yearGanZhi.gan;
+      	    const yearZhi = yearGanZhi.zhi;
             const monthGan = GAN[lunar._p.monthGanIndex];
             const monthZhi = ZHI[lunar._p.monthZhiIndex];
             const dayGan = GAN[lunar._p.dayGanIndex];
@@ -1415,7 +1418,7 @@
                         return `
                             <div class="grid-item palace-${i}" id="palace-${i}">
                                 <div class="gong gan-${getWuxinColor(gongs[i].get('宮'))}">
-                                  第${convertToChinese(i)}宮（${gongs[i].get('宮')})
+                                  第${convertToChinese(i)}宮（${gongs[i].get('宮連先天')})
                                   <span class='gong_desc'>
                                     ${getGongDescription(gongs[i].get('宮'))}
                                   </span>
