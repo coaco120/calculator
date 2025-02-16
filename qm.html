@@ -1427,11 +1427,9 @@
                                     ${getGongDescription(gongs[i].get('宮'))}
                                   </span>
 
-
-
                                   <span class="gong gan-${getWuxinColor(gongs[i].get('宮低頭找'))}">${gongs[i].get('宮低頭找')}</span>
                                   <span class="gong gan-${getWuxinColor(gongs[i].get('宮回鄉尋'))}">${gongs[i].get('宮回鄉尋')}</span>
-                                  
+
                                 </div>
                                 <div class="grid-content">
 
@@ -1444,6 +1442,8 @@
                                         <span class="gan gan-${getGanColor(tianPanGan[1])} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan[1] || ''}
                                           <span class='gan_desc'>
                                             ${getGanDescription(tianPanGan[1]) || ''}
+                                            ${getGanDescription(diPanGan) || ''}:
+                                            ${getJuDescription(tianPanGan[1] + diPanGan[0]) || ''}
                                           </span>
                                         </span>
                                         <span class="gan gan-${getGanColor(tianPanGan[0])} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan[0] || ''}
