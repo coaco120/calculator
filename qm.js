@@ -27,6 +27,26 @@ function getGongDescription(gong)
   return gongMap[gong] || '';
 }
 
+// 檢查五不遇時
+function checkWuBuYueShi(riGan, shiZhu)
+{
+  const wuBuYueShiMap = {
+    '甲' : '庚午',
+    '乙' : '辛巳',
+    '丙' : '壬辰',
+    '丁' : '癸卯',
+    '戊' : '甲寅',
+    '己' : '乙丑',
+    '庚' : '丙子',
+    '辛' : '丁酉',
+    '壬' : '戊申',
+    '癸' : '己未'
+  };
+
+  return wuBuYueShiMap[riGan] === shiZhu;
+}
+
+
 // 天干組合
 function getJuDescription(gan)
 {
@@ -1177,6 +1197,7 @@ function calculate() {
     pan.set('時支', hourZhi);
     pan.set('遁類', dunType);
     pan.set('局數', qimenJu.ju);
+    pan.set('五不遇時', checkWuBuYueShi(dayGan, hourGan + hourZhi));
 
     for(let i = 1; i < 10; ++i)
     {
@@ -1487,6 +1508,9 @@ function calculate() {
                             </div>
                             <div class="marks">
                               ${TianGanFanYin ? '天干反吟' : ''}
+                            </div>
+                            <div class="marks">
+                              ${pan.get('五不遇時') ? '五不遇時' : ''}
                             </div>
                         </div>
                     </div>
