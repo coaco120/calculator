@@ -24,23 +24,83 @@
         <label>日</label><br>
         <input type="number" pattern="\d*" inputmode="numeric" id="day" placeholder="請輸入公曆日">
     </div>
-    <div>
+    <!-- 時辰調整按鈕 -->
+    <div class="form-row">
+      <div>
         <label>時</label><br>
         <select id="time">
-            <option value="0">子時 (23:00-01:00)</option>
-            <option value="1">丑時 (01:00-03:00)</option>
-            <option value="2">寅時 (03:00-05:00)</option>
-            <option value="3">卯時 (05:00-07:00)</option>
-            <option value="4">辰時 (07:00-09:00)</option>
-            <option value="5">巳時 (09:00-11:00)</option>
-            <option value="6">午時 (11:00-13:00)</option>
-            <option value="7">未時 (13:00-15:00)</option>
-            <option value="8">申時 (15:00-17:00)</option>
-            <option value="9">酉時 (17:00-19:00)</option>
-            <option value="10">戌時 (19:00-21:00)</option>
-            <option value="11">亥時 (21:00-23:00)</option>
+          <option value="0">子時 (23:00-01:00)</option>
+          <option value="1">丑時 (01:00-03:00)</option>
+          <option value="2">寅時 (03:00-05:00)</option>
+          <option value="3">卯時 (05:00-07:00)</option>
+          <option value="4">辰時 (07:00-09:00)</option>
+          <option value="5">巳時 (09:00-11:00)</option>
+          <option value="6">午時 (11:00-13:00)</option>
+          <option value="7">未時 (13:00-15:00)</option>
+          <option value="8">申時 (15:00-17:00)</option>
+          <option value="9">酉時 (17:00-19:00)</option>
+          <option value="10">戌時 (19:00-21:00)</option>
+          <option value="11">亥時 (21:00-23:00)</option>
         </select>
+      </div>
+      <div>
+        <label>&nbsp;</label><br>
+        <button onclick="changeTime(-1)">- 減時</button>
+        <button onclick="changeTime(1)">+ 加時</button>
+      </div>
     </div>
+
+    <!-- 局數選擇 -->
+    <div>
+      <label>選擇局數</label><br>
+      <select id="ju-select">
+        <option value="auto">自動計算局數</option>
+        <optgroup label="陽遁">
+          <option value="yang-1">陽遁一局</option>
+          <option value="yang-2">陽遁二局</option>
+          <option value="yang-3">陽遁三局</option>
+          <option value="yang-4">陽遁四局</option>
+          <option value="yang-5">陽遁五局</option>
+          <option value="yang-6">陽遁六局</option>
+          <option value="yang-7">陽遁七局</option>
+          <option value="yang-8">陽遁八局</option>
+          <option value="yang-9">陽遁九局</option>
+        </optgroup>
+        <optgroup label="陰遁">
+          <option value="yin-1">陰遁一局</option>
+          <option value="yin-2">陰遁二局</option>
+          <option value="yin-3">陰遁三局</option>
+          <option value="yin-4">陰遁四局</option>
+          <option value="yin-5">陰遁五局</option>
+          <option value="yin-6">陰遁六局</option>
+          <option value="yin-7">陰遁七局</option>
+          <option value="yin-8">陰遁八局</option>
+          <option value="yin-9">陰遁九局</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <script>
+      function changeTime(offset) {
+        const timeSelect = document.getElementById('time');
+        let index = parseInt(timeSelect.value);
+        index = (index + offset + 12) % 12;
+        timeSelect.value = index;
+      }
+
+      // 插入自定義局數的邏輯
+      function overrideDunAndJuIfSelected(originalJu) {
+        const selectedJu = document.getElementById('ju-select').value;
+        if (selectedJu !== 'auto') {
+          const [dunType, juNum] = selectedJu.split('-');
+          pan.set('遁類', dunType === 'yang' ? '陽遁' : '陰遁');
+          originalJu.ju = parseInt(juNum);
+          originalJu.dun = pan.get('遁類');
+        }
+        return originalJu;
+      }
+      </script>
+
     <button onclick="calculate()">計算</button>
     <div id="qimenJuResult"></div>
     <div id="qimenPanResult">
@@ -187,14 +247,14 @@
         function getGongDescription(gong)
         {
           const gongMap = {
-            '坎' : '坎 -【⽔，陽水】，其意為【陷】，落宮狀態：艱難險阻、勞苦波折、陷入迷失，身體：腎、骨骼、膀胱、耳',
-            '艮' : '艮 -【山，陽土】，其意為【止】，落宮狀態：停止不前、阻隔、困難，身體：脾',
-            '震' : '震 -【雷，陽木】，其意為【動】，落宮狀態：急動、突然的、意想不到、身不由己，身體：肝',
-            '巽' : '巽 -【風，陰木】，其意為【入】，落宮狀態：慢慢滲透、沒有方向、拿不定主意、徘徊不定、走走停停，身體：眼、膽、筋',
-            '離' : '離 -【火，陰火】，其意為【麗】，落宮狀態：璀燦亮麗、虎頭蛇尾、先盛後衰，身體：心、小腸、舌、動脈',
-            '坤' : '坤 -【地，陰土】，其意為【順】，落宮狀態：平穩平順、牽扯人多事多、拖拖拉拉、慢，身體：胃、口、肌肉',
-            '兌' : '兌 -【澤，陰金】，其意為【悅】，落宮狀態：口舌、說、不完美、缺憾，身體：皮膚、鼻、大腸',
-            '乾' : '乾 -【天，陽金】，其意為【健】，落宮狀態：積極主動、高人一等、居高臨下，身體：肺'
+            '坎' : '坎 -【⽔】，其意為【陷】，落宮狀態：艱難險阻、勞苦波折、陷入迷失',
+            '艮' : '艮 -【山】，其意為【止】，落宮狀態：停止不前、阻隔、困難',
+            '震' : '震 -【雷】，其意為【動】，落宮狀態：急動、突然的、意想不到、身不由己',
+            '巽' : '巽 -【風】，其意為【入】，落宮狀態：慢慢滲透、沒有方向、拿不定主意、徘徊不定、走走停停',
+            '離' : '離 -【火】，其意為【麗】，落宮狀態：璀燦亮麗、虎頭蛇尾、先盛後衰',
+            '坤' : '坤 -【地】，其意為【順】，落宮狀態：平穩平順、牽扯人多事多、拖拖拉拉、慢',
+            '兌' : '兌 -【澤】，其意為【悅】，落宮狀態：口舌、說、不完美、缺憾',
+            '乾' : '乾 -【天】，其意為【健】，落宮狀態：積極主動、高人一等、居高臨下'
           };
 
           return gongMap[gong] || '';
@@ -284,7 +344,7 @@
             '壬壬' : '壬壬 - (天獄自刑) 求謀無成 內起禍患 諸事破敗',
             '壬癸' : '壬癸 - (幼女姦淫) 奸私隱情 家醜外揚 測婚亂搞',
 
-            '癸乙' : '癸乙 - (華蓋逢星) 貴人祿位 常人平安 吉凶看門',
+            '癸乙' : '癸乙 - (華蓋逢星) 貴人祿位 常人平安 吉凶石門',
             '癸丙' : '癸丙 - (華蓋悖師) 貴賤不利 因勢利導 反兇為吉',
             '癸丁' : '癸丁 - (騰蛇夭矯) 又舌是非 文書官司 火焚難逃',
             '癸戊' : '癸戊 - (天乙合會) 婚姻財喜 合作投資 吉門可行',
@@ -836,7 +896,6 @@
         }
 
 
-
         // 08 - 設定八神
         function setBaShen(panType) {
 
@@ -893,36 +952,105 @@
           }
         }
 
-        // 08-2 - 設定引干 (Not used yet)
-        function setYinGan() {
+        // 08-2 - 設定隱干
+        function setYinGan(TianGanFuYin) {
 
-          let diPanTianGan = gongs[1].get('天盤天干');
-          let startGong = 0;
-          let destGongIndex = 0;
+          if(!TianGanFuYin) {
+            // 沒有天干伏吟
 
-          // 先找出值符星由第幾宮開始
-          for(let i = 1; i < gongs.length; ++i) {
+            let hourGan = pan.get('時干');
+            let startGong = 0;
+            let destGongIndex = 0;
 
-            if(gongs[i].get('門') === '休門') {
-              startDestGong = i;
-              break;
+            // 先找出值使門由第幾宮開始
+            for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+
+              if(gongs[gongs_order_clockwise[i]].get('門') === pan.get('值使門')) {
+                destGongIndex = i;
+                break;
+              }
             }
-          }
 
-          otherMessage += diPanTianGan + ' 設到第 ' + startDestGong.toString() + ' 宮\n';
+            otherMessage += '隱干 ' + hourGan + ' 設到第 ' + gongs_order_clockwise[destGongIndex].toString() + ' 宮\n';
 
-          for(let i = 0; i < gongs_order_clockwise.length; ++i)
-          {
-            if(startDestGong === gongs_order_clockwise[i]) {
-              destGongIndex = i;
-              break;
+            for(let i = 0; i < gongs_order_clockwise.length; ++i)
+            {
+              otherMessage += '地盤天干 ' + gongs[gongs_order_clockwise[i]].get('地盤天干') +  ' ' + gongs_order_clockwise[i].toString() + ' 宮\n';
+
+              if(gongs[gongs_order_clockwise[i]].get('地盤天干')[0] === hourGan)
+              {
+                otherMessage += 'Matched\n';
+                startGong = i;
+                break;
+              }
             }
-          }
 
-          for(let i = 0; i < gongs_order_clockwise.length; ++i)
-          {
-              gongs[gongs_order_clockwise[(destGongIndex + i) % 8]].set('引干', gongs[gongs_order_clockwise[i]].get('天盤天干'));
-              otherMessage += '第 ' + gongs_order_clockwise[(destGongIndex + i) % 8].toString() + ' 宮設引干 ' + gongs[gongs_order_clockwise[i]].get('天盤天干') + ' \n';
+            otherMessage += '地盤天干' + hourGan +  ' 在第 ' + gongs_order_clockwise[startGong].toString() + ' 宮\n';
+
+            for(let i = 0; i < gongs_order_clockwise.length; ++i)
+            {
+                gongs[gongs_order_clockwise[(destGongIndex + i) % 8]].set('隱干', gongs[gongs_order_clockwise[(startGong + i) % 8]].get('地盤天干'));
+                otherMessage += '第 ' + gongs_order_clockwise[(destGongIndex + i) % 8].toString() + ' 宮設隱干 ' + gongs[gongs_order_clockwise[(startGong + i) % 8]].get('地盤天干') + ' \n';
+            }
+
+            gongs[5].set('隱干', gongs[5].get('地盤天干'));
+
+          }
+          else {
+
+            // 天干伏吟
+            var startGan = '';
+            var ju = 0;
+
+            if(gongs[5].get('地盤天干')[0] === pan.get('旬首'))
+            {
+              // Case 1, 旬首等於中宮地盤天干
+              // 1。找二宮地盤天干寫到五宮作為隱干
+              // 2。排其他宮隱干
+
+              startGan = gongs[2].get('地盤天干')[0];
+            }
+            else {
+              // Case 2, 旬首不等於中宮地盤天干
+              // 1。旬首寫到五宮作為隱干
+              // 2。排其他宮隱干
+
+              startGan = pan.get('旬首');
+            }
+
+            otherMessage += startGan + '\n';
+
+            const yinGanArray = ['戊', '己', '庚', '辛', '壬', '癸', '丁', '丙', '乙'];
+
+            for(let i = 0; i < yinGanArray.length; ++i) {
+                if(yinGanArray[i] === startGan)
+                {
+                  ju = i;
+                  otherMessage += ju.toString() + '\n';
+                  break;
+                }
+            }
+
+            var j = 0;
+            var start = 4;
+            var finish = 0;
+            var change = 0;
+            var dunType = pan.get('遁類');
+
+            for(let i = 0; i <  yinGanArray.length; ++i)
+            {
+              gongs[(start + change + 9) % 9 + 1].set('隱干', [yinGanArray[(ju + i) % 9]]);
+              otherMessage += '第 ' + ((start + change + 9) % 9 + 1).toString() + ' 宮設隱干 ' + yinGanArray[(ju + i) % 9] + '\n';
+
+              if(dunType === '陽遁')
+              {
+                change++;
+              }
+              if(dunType === '陰遁')
+              {
+                change--;
+              }
+            }
           }
         }
 
@@ -1246,10 +1374,17 @@
             const hourZhi = ZHI[hourIndex];
 
             // 奇門局數計算
-            const qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);
-
+            var qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);
             // 為了計算方便，子時為 12：00, 丑時為 2：00, etc
-            const dunType = determineDunType(year, month, day, hourIndex * 2, 0, 0);
+            var dunType = determineDunType(year, month, day, hourIndex * 2, 0, 0);
+
+            qimenJu = overrideDunAndJuIfSelected(qimenJu);
+
+            if(qimenJu.dun !== '')
+            {
+              otherMessage += '遁類 ' + qimenJu.dun + ' \n';
+//              dunType = qimenJu.dun;
+            }
 
             // 計旬首及空亡
             const kongWangAndXunShou = getKongWangAndXunShou(hourGan + hourZhi);
@@ -1319,12 +1454,33 @@
             setBaShen('天盤');
             setBaShen('地盤');
             otherMessage += '\n';
-/*
-            // 設引干
-            otherMessage += '找引干：\n';
-            setYinGan();
+
+            var menFuYin = false;
+            var menFanYin = false;
+
+            var TianGanFuYin = false;
+            var TianGanFanYin = false;
+
+            const tianPanGan = gongs[1].get('天盤天干');
+            const diPanGan1 = gongs[1].get('地盤天干');
+            const diPanGan9 = gongs[9].get('地盤天干');
+
+            if(gongs[1].get('門') === '休門') {
+              menFuYin = true;
+            } else if(gongs[1].get('門') === '景門') {
+              menFanYin = true;
+            }
+
+            if(tianPanGan[0] && tianPanGan[0] === diPanGan1[0]) {
+              TianGanFuYin = true;
+            } else if(tianPanGan[0] && tianPanGan[0] === diPanGan9[0]) {
+              TianGanFanYin = true;
+            }
+
+            // 設隱干
+            otherMessage += '找隱干：\n';
+            setYinGan(TianGanFuYin);
             otherMessage += '\n';
-*/
 
             // 設擊刑
             otherMessage += '找擊刑：\n';
@@ -1420,7 +1576,7 @@
                         // 獲取當前宮位的天干
                         const tianPanGan = gongs[i].get('天盤天干') || '';
                         const diPanGan = gongs[i].get('地盤天干') || '';
-                        const yinGan = gongs[i].get('引干') || '';
+                        const yinGan = gongs[i].get('隱干') || '';
 
                         var marks = '';
                         marks = gongs[i].get('空亡') ? '空' : '';
@@ -1497,6 +1653,8 @@
                                             ${getMenDescription(gongs[i].get('門'))}
                                           </span>
                                         </span>
+<!--                                        <span class="gan grey">${yinGan || ''}
+                                        </span> -->
                                     </div>
 
                                     <div class="shen">
@@ -1514,37 +1672,19 @@
                       }
                       else {
 
-                        var menFuYin = false;
-                        var menFanYin = false;
-
-                        var TianGanFuYin = false;
-                        var TianGanFanYin = false;
-
-                        const tianPanGan = gongs[1].get('天盤天干');
-                        const diPanGan1 = gongs[1].get('地盤天干');
-                        const diPanGan9 = gongs[9].get('地盤天干');
-
-                        if(gongs[1].get('門') === '休門') {
-                          menFuYin = true;
-                        } else if(gongs[1].get('門') === '景門') {
-                          menFanYin = true;
-                        }
-
-                        if(tianPanGan[0] && tianPanGan[0] === diPanGan1[0]) {
-                          TianGanFuYin = true;
-                        } else if(tianPanGan[0] && tianPanGan[0] === diPanGan9[0]) {
-                          TianGanFanYin = true;
-                        }
-
                         return `
                             <div class="grid-item palace-${i}" id="palace-${i}">
                                 <div class="grid-title">第${convertToChinese(i)}宮（${gongs[i].get('宮')}）</div>
                                 <div class="grid-content">
                                     <div class="label">
                                       旬：${pan.get('旬')}
+                                      <span class="gan gan-${getGanColor(gongs[5].get('地盤天干'))}">${gongs[5].get('地盤天干')}
+                                      </span>
                                     </div>
                                     <div class="label">
                                       時柱：${pan.get('時干')+pan.get('時支')}
+                                      <span class="gan grey">${gongs[5].get('隱干')}
+                                      </span>
                                     </div>
                                     <div class="label">
                                       值符星：${pan.get('值符星')}
@@ -1552,7 +1692,6 @@
                                     <div class="label">
                                       值使門：${pan.get('值使門')}
                                     </div>
-
                                     <div class="marks">
                                       ${menFuYin ? '門伏吟' : ''}
                                     </div>
@@ -1601,6 +1740,8 @@
                 </details>
             `;
         }
-    </script>
+</script>
+
+<!-- 新增 UI 控制區塊 END -->
 </body>
 </html>
