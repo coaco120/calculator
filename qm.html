@@ -53,7 +53,7 @@
     <!-- 局數選擇 -->
     <div>
       <label>選擇局數</label><br>
-      <select id="ju-select">
+      <select id="ju-select" onchange="calculate()">
         <option value="auto">自動計算局數</option>
         <optgroup label="陽遁">
           <option value="yang-1">陽遁一局</option>
@@ -86,6 +86,7 @@
         let index = parseInt(timeSelect.value);
         index = (index + offset + 12) % 12;
         timeSelect.value = index;
+        calculate();
       }
 
       // 插入自定義局數的邏輯
