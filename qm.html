@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="lunar.js"></script>
     <script src="script.js"></script>
-
-
+    <script>
+      const version = 1.5;
+    </script>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
@@ -232,7 +233,7 @@
         const gongs_order_clockwise = [1, 8, 3, 4, 9, 2, 7, 6];
         const gongs_order_anticlockwise = [1, 6, 7, 2, 9, 4, 3, 8];
 // XXX: // XXX:
-        var otherMessage = '\n';
+        var otherMessage = 'Version：' + version + '\n';
 
         // assign names to 九宮
         for(let i = 0; i < gongs_order_clockwise.length; ++i)
