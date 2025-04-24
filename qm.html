@@ -43,13 +43,13 @@
           <option value="9">酉時 (17:00-19:00)</option>
           <option value="10">戌時 (19:00-21:00)</option>
           <option value="11">亥時 (21:00-23:00)</option>
-          <option value="12">夜子時 (23:00-00:00)</option>
+          <option value="12">晚子時 (23:00-00:00)</option>
         </select>
       </div>
       <div>
-        <label>&nbsp;</label><br>
         <button onclick="changeTime(-1)">- 減時</button>
         <button onclick="changeTime(1)">+ 加時</button>
+        <label>&nbsp;</label><br>
       </div>
     </div>
 
@@ -87,7 +87,7 @@
       function changeTime(offset) {
         const timeSelect = document.getElementById('time');
         let index = parseInt(timeSelect.value);
-        index = (index + offset + 12) % 12;
+        index = (index + offset + 13) % 13;
         timeSelect.value = index;
         calculate();
       }
@@ -234,7 +234,6 @@
         const gongs_order_clockwise = [1, 8, 3, 4, 9, 2, 7, 6];
         const gongs_order_anticlockwise = [1, 6, 7, 2, 9, 4, 3, 8];
 // XXX: // XXX:
-        var otherMessage = 'Version：' + version + '\n';
 
         // assign names to 九宮
         for(let i = 0; i < gongs_order_clockwise.length; ++i)
@@ -1341,14 +1340,21 @@
             const year = parseInt(document.getElementById('year').value);
             const month = parseInt(document.getElementById('month').value);
             const day = parseInt(document.getElementById('day').value);
-            const hourIndex = parseInt(document.getElementById('time').value);
+            var hourIndex = parseInt(document.getElementById('time').value);
 
             if (!year || !month || !day) {
                 alert('請完整填寫所有資料');
                 return;
             }
 
-            otherMessage = '';
+            otherMessage = 'Version：' + version + '\n';
+            otherMessage += 'Hour Index：' + hourIndex + '\n';
+
+            if(hourIndex === 12) {
+              hourIndex = 0;
+              otherMessage += 'Hour Index：' + hourIndex + '\n';
+            }
+
 
             // 使用 Solar 類建立日期
             const solar = Solar.fromYmd(year, month, day);
@@ -1383,12 +1389,6 @@
             var dunType = determineDunType(year, month, day, hourIndex * 2, 0, 0);
 
             qimenJu = overrideDunAndJuIfSelected(qimenJu);
-
-            if(qimenJu.dun !== '')
-            {
-              otherMessage += '遁類 ' + qimenJu.dun + ' \n';
-//              dunType = qimenJu.dun;
-            }
 
             // 計旬首及空亡
             const kongWangAndXunShou = getKongWangAndXunShou(hourGan + hourZhi);
