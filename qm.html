@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <script>
-  const version = 1.5;
+  const version = 1.51;
 </script>
 <head>
     <meta charset="UTF-8">
@@ -86,7 +86,16 @@
     <script>
       function changeTime(offset) {
         const timeSelect = document.getElementById('time');
+        const dayInput = document.getElementById('day');
         let index = parseInt(timeSelect.value);
+
+        if(offset === 1 && index === 12) {
+          dayInput.value = parseInt(dayInput.value) + 1;
+        }
+        else if(offset === -1 && index === 0) {
+          dayInput.value = parseInt(dayInput.value) - 1;
+        }
+
         index = (index + offset + 13) % 13;
         timeSelect.value = index;
         calculate();
@@ -1347,7 +1356,7 @@
                 return;
             }
 
-            otherMessage = 'Version：' + version + '\n';
+            otherMessage = '';
             otherMessage += 'Hour Index：' + hourIndex + '\n';
 
             if(hourIndex === 12) {
@@ -1726,6 +1735,9 @@
                     <summary>演算</summary>
                     <pre>${
     `偵錯資訊：
+
+      Current version： ${version}
+
       (年支): ${yearZhi} -> ${qimenJu.A}
       (月支): ${monthZhi} -> ${qimenJu.B}
       (日期): ${lunar._p.day}
