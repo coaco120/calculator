@@ -1067,6 +1067,52 @@
         }
 
 
+        // 08-2 - 設定隱干
+        function setYinGan2() {
+
+          let hourGan = pan.get('時干');
+          let startGong = 0;
+          let destGongIndex = 0;
+
+          // 先找出值使門由第幾宮開始
+          for(let i = 0; i < gongs_order_clockwise.length; ++i) {
+
+            if(gongs[gongs_order_clockwise[i]].get('門') === pan.get('值使門')) {
+              destGongIndex = i;
+              break;
+            }
+          }
+
+          otherMessage += '時干：' + hourGan +  '\n';
+          otherMessage += '值使門：' + pan.get('值使門') +  '\n';
+
+          otherMessage += '隱干' + hourGan +  ' 在第 ' + gongs_order_clockwise[destGongIndex].toString() + ' 宮\n';
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i)
+          {
+            otherMessage += '地盤天干 ' + gongs[gongs_order_clockwise[i]].get('地盤天干') +  ' 在第 ' + gongs_order_clockwise[i].toString() + ' 宮\n';
+            if(gongs[gongs_order_clockwise[i]].get('地盤天干')[0] === hourGan)
+            {
+              otherMessage += 'Matched\n';
+              startGong = i;
+              break;
+            }
+            else {
+              otherMessage += 'Not Matched\n';
+            }
+          }
+
+
+          for(let i = 0; i < gongs_order_clockwise.length; ++i)
+          {
+              gongs[gongs_order_clockwise[(destGongIndex + i) % 8]].set('隱干', gongs[gongs_order_clockwise[(startGong + i) % 8]].get('地盤天干'));
+              otherMessage += '第 ' + gongs_order_clockwise[(destGongIndex + i) % 8].toString() + ' 宮設隱干 ' + gongs[gongs_order_clockwise[(destGongIndex + i) % 8]].get('隱干') + ' \n';
+          }
+
+//          gongs[5].set('隱干', gongs[5].get('地盤天干'));
+        }
+
+
         // 09 - 找擊刑
         function setJiXing()
         {
@@ -1492,7 +1538,7 @@
 
             // 設隱干
             otherMessage += '找隱干：\n';
-            setYinGan(TianGanFuYin);
+            setYinGan();
             otherMessage += '\n';
 
             // 設擊刑
@@ -1666,8 +1712,8 @@
                                             ${getMenDescription(gongs[i].get('門'))}
                                           </span>
                                         </span>
-<!--                                        <span class="gan grey">${yinGan || ''}
-                                        </span> -->
+                                        <span class="gan grey">${yinGan || ''}
+                                        </span>
                                     </div>
 
                                     <div class="shen">
@@ -1706,10 +1752,10 @@
                                       值使門：${pan.get('值使門')}
                                     </div>
                                     <div class="marks">
-                                      ${menFuYin ? '門伏吟' : ''}
+                                      ${menFuYin ? '八門伏吟' : ''}
                                     </div>
                                     <div class="marks">
-                                      ${menFanYin ? '門反吟' : ''}
+                                      ${menFanYin ? '八門反吟' : ''}
                                     </div>
                                     <div class="marks">
                                       ${TianGanFuYin ? '天干伏吟' : ''}
