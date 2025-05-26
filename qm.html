@@ -109,6 +109,8 @@
           pan.set('遁類', dunType === 'yang' ? '陽遁' : '陰遁');
           originalJu.ju = parseInt(juNum);
           originalJu.dun = pan.get('遁類');
+          otherMessage += 'Set 遁類 to ' + pan.get('遁類') + '\n';
+
         }
         return originalJu;
       }
@@ -1447,6 +1449,10 @@
 
             qimenJu = overrideDunAndJuIfSelected(qimenJu);
 
+            if(pan.get('遁類') != null) {
+              dunType = pan.get('遁類');
+            }
+
             // 計旬首及空亡
             const kongWangAndXunShou = getKongWangAndXunShou(hourGan + hourZhi);
             pan.set('旬', kongWangAndXunShou['旬'] + kongWangAndXunShou['旬首']);
@@ -1540,7 +1546,7 @@
 
             // 設隱干
             otherMessage += '找隱干：\n';
-            setYinGan();
+            setYinGan(TianGanFuYin);
             otherMessage += '\n';
 
             // 設擊刑
