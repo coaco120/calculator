@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <script>
-  const version = 1.56;
+  const version = 1.57;
 </script>
 <head>
     <meta charset="UTF-8">
@@ -275,6 +275,23 @@
 
           return gongMap[gong] || '';
         }
+
+        function getGongDescription2(gong)
+        {
+          const gongMap = {
+            '坎' : '【⽔】，其意為【陷】，陽水。落宮狀態：艱難險阻、勞苦波折、陷入迷失；身體部位：下身/下體；疾病：腎水/泌尿/婦科/前列腺',
+            '艮' : '【山】，其意為【止】，陽土。落宮狀態：停止不前、阻隔、困難；身體部位：腰腳；疾病：消化系統（腸胃）',
+            '震' : '【雷】，其意為【動】，陽木。落宮狀態：急動、突然的、意想不到、身不由己；身體部位：腰腳/中部；疾病：肝膽',
+            '巽' : '【風】，其意為【入】，陰木。落宮狀態：慢慢滲透、沒有方向、拿不定主意、徘徊不定、走走停停；身體部位：肩頸/手；疾病：眼、膽、筋',
+            '離' : '【火】，其意為【麗】，陰火。落宮狀態：璀燦亮麗、虎頭蛇尾、先盛後衰；身體部位：頭；疾病：心、小腸、舌、動脈',
+            '坤' : '【地】，其意為【順】，陰土。落宮狀態：平穩平順、牽扯人多事多、拖拖拉拉、慢；身體部位：胸/腹；疾病：胃、口、肌肉',
+            '兌' : '【澤】，其意為【悅】，陰金。落宮狀態：口舌、說、不完美、缺憾；身體部位：胸/中部；疾病：皮膚、鼻、大腸',
+            '乾' : '【天】，其意為【健】，陽金。落宮狀態：積極主動、高人一等、居高臨下；身體部位：頭/腳；疾病：肺'
+          };
+
+          return gongMap[gong] || '';
+        }
+
 
         function getJuDescription(gan)
         {
@@ -1400,6 +1417,8 @@
             const month = parseInt(document.getElementById('month').value);
             const day = parseInt(document.getElementById('day').value);
             var hourIndex = parseInt(document.getElementById('time').value);
+            var hourSelect = document.getElementById("time");
+            var hourText = hourSelect.options[hourSelect.selectedIndex].text;
 
             if (!year || !month || !day) {
                 alert('請完整填寫所有資料');
@@ -1441,6 +1460,8 @@
             const dayZhi = ZHI[lunar._p.dayZhiIndex];
             const hourGan = getHourGan(dayGan, hourIndex);
             const hourZhi = ZHI[hourIndex];
+
+            const westernDateStr = `西曆 ${year} 年 ${month} 月 ${day} ${hourText}`;
 
             // 奇門局數計算
             var qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);
@@ -1632,7 +1653,7 @@
                         <span class="chars gan-${getGanColor(hourZhi)}">${hourZhi}</span>
                     </div>
                 </div>
-                <p>${lunarDateStr}</p>
+                <p>${lunarDateStr} ${westernDateStr}</p>
                 `;
 
             // 顯示盤
