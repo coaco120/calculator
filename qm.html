@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <script>
-  const version = 1.57;
+  const version = 1.58;
 </script>
 <head>
     <meta charset="UTF-8">
@@ -1448,7 +1448,7 @@
             const lunarYear = lunar.getYearInChinese();         // 得到例如“二〇二五”
             const lunarMonth = lunar.getMonthInChinese();       // 得到“閏五月”或“八月”
             const lunarDay = lunar.getDayInChinese();           // 得到“十八”或“三十”
-            const lunarDateStr = `農曆${lunarYear}年${lunarMonth}${lunarDay}`;
+            const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;
 
             // 干支計算
       	    const yearGanZhi = getYearGanZhi(year, month, day);

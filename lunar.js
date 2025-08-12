@@ -312,7 +312,7 @@
         toFullString:function(){
           var s = this.toYmdHms();
           if(this.isLeapYear()){
-            s += ' 闰年';
+            s += ' 閏年';
           }
           s += ' 星期'+this.getWeekInChinese();
           var festivals = this.getFestivals();
@@ -968,7 +968,7 @@
         },
         getMonthInChinese:function(){
           var month = this._p.month;
-          return (month<0?'闰':'')+LunarUtil.MONTH[Math.abs(month)];
+          return (month<0?'閏':'')+LunarUtil.MONTH[Math.abs(month)];
         },
         getDayInChinese:function(){
           return LunarUtil.DAY[this._p.day];
@@ -2956,7 +2956,7 @@
             }
           }
         },
-        toString:function(){return this.getYear()+'年'+(this.isLeap()?'闰':'')+LunarUtil.MONTH[Math.abs(this.getMonth())]+'月('+this.getDayCount()+')天';}
+        toString:function(){return this.getYear()+'年'+(this.isLeap()?'閏':'')+LunarUtil.MONTH[Math.abs(this.getMonth())]+'月('+this.getDayCount()+')天';}
       };
     };
     return {
