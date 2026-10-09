@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title"><title id="title">八卦太極</title>
+<path d="M40 4h40l36 36v40l-36 36H40L4 80V40Z" fill="#173f35"/>
+<path d="M41 9h38l32 32v38l-32 32H41L9 79V41Z" fill="none" stroke="#bca273" stroke-width=".8"/>
+<g transform="rotate(0 60 60)" fill="#e6d5ad">
+<rect x="49" y="16" width="22" height="2.5" rx=".6"/>
+<rect x="49" y="21" width="22" height="2.5" rx=".6"/>
+<rect x="49" y="26" width="22" height="2.5" rx=".6"/>
+</g>
+<g transform="rotate(45 60 60)" fill="#e6d5ad">
+<rect x="49" y="16" width="9" height="2.5" rx=".6"/><rect x="62" y="16" width="9" height="2.5" rx=".6"/>
+<rect x="49" y="21" width="22" height="2.5" rx=".6"/>
+<rect x="49" y="26" width="22" height="2.5" rx=".6"/>
+</g>
+<g transform="rotate(90 60 60)" fill="#e6d5ad">
+<rect x="49" y="16" width="9" height="2.5" rx=".6"/><rect x="62" y="16" width="9" height="2.5" rx=".6"/>
+<rect x="49" y="21" width="22" height="2.5" rx=".6"/>
+<rect x="49" y="26" width="9" height="2.5" rx=".6"/><rect x="62" y="26" width="9" height="2.5" rx=".6"/>
+</g>
+<g transform="rotate(135 60 60)" fill="#e6d5ad">
+<rect x="49" y="16" width="9" height="2.5" rx=".6"/><rect x="62" y="16" width="9" height="2.5" rx=".6"/>
+<rect x="49" y="21" width="9" height="2.5" rx=".6"/><rect x="62" y="21" width="9" height="2.5" rx=".6"/>
+<rect x="49" y="26" width="22" height="2.5" rx=".6"/>
+</g>
+<g transform="rotate(180 60 60)" fill="#e6d5ad">
+<rect x="49" y="16" width="9" height="2.5" rx=".6"/><rect x="62" y="16" width="9" height="2.5" rx=".6"/>
+<rect x="49" y="21" width="9" height="2.5" rx=".6"/><rect x="62" y="21" width="9" height="2.5" rx=".6"/>
+<rect x="49" y="26" width="9" height="2.5" rx=".6"/><rect x="62" y="26" width="9" height="2.5" rx=".6"/>
+</g>
+<g transform="rotate(225 60 60)" fill="#e6d5ad">
+<rect x="49" y="16" width="22" height="2.5" rx=".6"/>
+<rect x="49" y="21" width="9" height="2.5" rx=".6"/><rect x="62" y="21" width="9" height="2.5" rx=".6"/>
+<rect x="49" y="26" width="9" height="2.5" rx=".6"/><rect x="62" y="26" width="9" height="2.5" rx=".6"/>
+</g>
+<g transform="rotate(270 60 60)" fill="#e6d5ad">
+<rect x="49" y="16" width="22" height="2.5" rx=".6"/>
+<rect x="49" y="21" width="9" height="2.5" rx=".6"/><rect x="62" y="21" width="9" height="2.5" rx=".6"/>
+<rect x="49" y="26" width="22" height="2.5" rx=".6"/>
+</g>
+<g transform="rotate(315 60 60)" fill="#e6d5ad">
+<rect x="49" y="16" width="22" height="2.5" rx=".6"/>
+<rect x="49" y="21" width="22" height="2.5" rx=".6"/>
+<rect x="49" y="26" width="9" height="2.5" rx=".6"/><rect x="62" y="26" width="9" height="2.5" rx=".6"/>
+</g>
+<circle cx="60" cy="60" r="22" fill="#f7f5ed"/>
+<path d="M60 38a22 22 0 0 1 0 44 11 11 0 0 1 0-22 11 11 0 0 0 0-22Z" fill="#173f35"/>
+<circle cx="60" cy="49" r="3.4" fill="#173f35"/><circle cx="60" cy="71" r="3.4" fill="#f7f5ed"/>
+</svg>

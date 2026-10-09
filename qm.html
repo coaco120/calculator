@@ -1,107 +1,92 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-<script>
-  const version = 1.59;
-</script>
+<html lang="zh-Hant-HK">
 <head>
     <meta charset="UTF-8">
-    <title>速算陰盤奇門</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>陰盤奇門 · 九宮起盤</title>
+    <meta name="description" content="速算陰盤奇門，子初換日，清晰呈現四柱、九宮盤與五行旺衰。">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#173f35">
+    <link rel="icon" type="image/svg+xml" href="assets/bagua.svg">
+    <link rel="stylesheet" href="style.css">
+    <script>const version = 1.60;</script>
     <script src="lunar.js"></script>
-    <script src="script.js"></script>
-
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="qimen-time.js"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <h2>速算陰盤奇門</h2>
-    <div>
-        <label>年份（範圍：0001年 ~ 9999年）</label><br>
-        <input type="number" pattern="\d*" inputmode="numeric" id="year" placeholder="請輸入公曆年">
-    </div>
-    <div>
-        <label>月</label><br>
-        <input type="number" pattern="\d*" inputmode="numeric" id="month" placeholder="請輸入公曆月">
-    </div>
-    <div>
-        <label>日</label><br>
-        <input type="number" pattern="\d*" inputmode="numeric" id="day" placeholder="請輸入公曆日">
-    </div>
-    <!-- 時辰調整按鈕 -->
-    <div class="form-row">
-      <div>
-        <label>時</label><br>
-        <select id="time">
-          <option value="0">早子時 (00:00-01:00)</option>
-          <option value="1">丑時 (01:00-03:00)</option>
-          <option value="2">寅時 (03:00-05:00)</option>
-          <option value="3">卯時 (05:00-07:00)</option>
-          <option value="4">辰時 (07:00-09:00)</option>
-          <option value="5">巳時 (09:00-11:00)</option>
-          <option value="6">午時 (11:00-13:00)</option>
-          <option value="7">未時 (13:00-15:00)</option>
-          <option value="8">申時 (15:00-17:00)</option>
-          <option value="9">酉時 (17:00-19:00)</option>
-          <option value="10">戌時 (19:00-21:00)</option>
-          <option value="11">亥時 (21:00-23:00)</option>
-          <option value="12">晚子時 (23:00-00:00)</option>
-        </select>
-      </div>
-      <div>
-        <button onclick="changeTime(-1)">- 減時</button>
-        <button onclick="changeTime(1)">+ 加時</button>
-        <label>&nbsp;</label><br>
-      </div>
-    </div>
-
-    <!-- 局數選擇 -->
-    <div>
-      <label>選擇局數</label><br>
-      <select id="ju-select" onchange="calculate()">
-        <option value="auto">自動計算局數</option>
-        <optgroup label="陽遁">
-          <option value="yang-1">陽遁一局</option>
-          <option value="yang-2">陽遁二局</option>
-          <option value="yang-3">陽遁三局</option>
-          <option value="yang-4">陽遁四局</option>
-          <option value="yang-5">陽遁五局</option>
-          <option value="yang-6">陽遁六局</option>
-          <option value="yang-7">陽遁七局</option>
-          <option value="yang-8">陽遁八局</option>
-          <option value="yang-9">陽遁九局</option>
-        </optgroup>
-        <optgroup label="陰遁">
-          <option value="yin-1">陰遁一局</option>
-          <option value="yin-2">陰遁二局</option>
-          <option value="yin-3">陰遁三局</option>
-          <option value="yin-4">陰遁四局</option>
-          <option value="yin-5">陰遁五局</option>
-          <option value="yin-6">陰遁六局</option>
-          <option value="yin-7">陰遁七局</option>
-          <option value="yin-8">陰遁八局</option>
-          <option value="yin-9">陰遁九局</option>
-        </optgroup>
-      </select>
-    </div>
-
+    <header class="app-header">
+        <a class="brand" href="qm.html" aria-label="陰盤奇門首頁">
+            <img class="brand-logo" src="assets/bagua.svg" alt="八卦太極" width="60" height="60">
+            <span><span class="brand-name">陰盤奇門</span><span class="brand-subtitle">QIMEN · 九宮起盤</span></span>
+        </a>
+        <span class="header-note"><span class="status-dot" aria-hidden="true"></span>子初換日 · 十二時辰</span>
+    </header>
+    <main class="app-layout">
+        <aside class="input-panel" aria-labelledby="settings-title">
+            <div class="panel-heading">
+                <div><p class="eyebrow">起盤設定</p><h1 id="settings-title">擇時，起局。</h1></div>
+                <button class="now-button" id="now-button" type="button" aria-label="以現在日期及時間起盤">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>現在
+                </button>
+            </div>
+            <form id="chart-form" novalidate>
+                <div class="date-fields">
+                    <div class="field"><label for="year">公曆年</label><input type="number" inputmode="numeric" id="year" min="1" max="9999" step="1" required aria-describedby="date-hint"></div>
+                    <div class="field"><label for="month">月</label><input type="number" inputmode="numeric" id="month" min="1" max="12" step="1" required></div>
+                    <div class="field"><label for="day">日</label><input type="number" inputmode="numeric" id="day" min="1" max="31" step="1" required></div>
+                </div>
+                <p class="field-hint" id="date-hint">輸入實際日期 · 支援 0001–9999 年</p>
+                <div class="time-fields">
+                    <div class="field"><label for="clock-time">起盤時間</label><input type="time" id="clock-time" step="60" required aria-describedby="time-rule"></div>
+                    <div class="field"><label for="time">所屬時辰</label>
+                        <select id="time" aria-describedby="time-rule">
+                            <option value="0">子時 · 23:00–01:00</option>
+                            <option value="1">丑時 · 01:00–03:00</option>
+                            <option value="2">寅時 · 03:00–05:00</option>
+                            <option value="3">卯時 · 05:00–07:00</option>
+                            <option value="4">辰時 · 07:00–09:00</option>
+                            <option value="5">巳時 · 09:00–11:00</option>
+                            <option value="6">午時 · 11:00–13:00</option>
+                            <option value="7">未時 · 13:00–15:00</option>
+                            <option value="8">申時 · 15:00–17:00</option>
+                            <option value="9">酉時 · 17:00–19:00</option>
+                            <option value="10">戌時 · 19:00–21:00</option>
+                            <option value="11">亥時 · 21:00–23:00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="time-rule" id="time-rule"><span class="rule-symbol" aria-hidden="true">子</span><p><strong>子時換日</strong><span>23:00 起計作翌日子時；00:00–00:59 屬當日。</span></p></div>
+                <div class="field"><label for="ju-select">遁局設定</label><select id="ju-select">
+                    <option value="auto">自動計算局數</option>
+                    <optgroup label="陽遁">
+                        <option value="yang-1">陽遁一局</option><option value="yang-2">陽遁二局</option><option value="yang-3">陽遁三局</option><option value="yang-4">陽遁四局</option><option value="yang-5">陽遁五局</option><option value="yang-6">陽遁六局</option><option value="yang-7">陽遁七局</option><option value="yang-8">陽遁八局</option><option value="yang-9">陽遁九局</option>
+                    </optgroup>
+                    <optgroup label="陰遁">
+                        <option value="yin-1">陰遁一局</option><option value="yin-2">陰遁二局</option><option value="yin-3">陰遁三局</option><option value="yin-4">陰遁四局</option><option value="yin-5">陰遁五局</option><option value="yin-6">陰遁六局</option><option value="yin-7">陰遁七局</option><option value="yin-8">陰遁八局</option><option value="yin-9">陰遁九局</option>
+                    </optgroup>
+                </select></div>
+                <p class="form-error" id="form-error" role="alert" hidden></p>
+                <button type="submit" class="primary-button">起盤<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
+                <div class="step-controls"><button type="button" id="previous-time"><span aria-hidden="true">←</span> 上一時辰</button><button type="button" id="next-time">下一時辰 <span aria-hidden="true">→</span></button></div>
+            </form>
+        </aside>
+        <div class="chart-workspace">
+            <section class="summary-panel" aria-label="起盤結果"><div id="qimenJuResult" aria-live="polite"></div></section>
+            <section class="board-panel" aria-labelledby="board-title">
+                <div class="board-heading"><div><p class="eyebrow">陰盤奇門</p><h2 id="board-title">九宮盤</h2></div><span>點選宮位查看詳解 <span aria-hidden="true">↗</span></span></div>
+                <div id="qimenPanResult"></div>
+                <div class="board-legend"><span>粗體天干為四柱天干或戊</span><span>空 · 刑 · 自 · 墓 · 馬 · 迫</span></div>
+            </section>
+            <section class="element-panel" aria-labelledby="elements-title"><div class="section-heading"><h2 id="elements-title">五行旺衰</h2><span class="element-subtitle">依月支推算</span></div><div id="hotGongResult"></div></section>
+            <div id="debugMessage"></div>
+        </div>
+    </main>
+    <footer class="app-footer"><span>陰盤奇門 · 子初換日</span><span>Jess Poon &amp; Antonio Yu</span></footer>
+    <dialog id="palace-dialog" aria-labelledby="palace-dialog-title">
+        <div class="dialog-heading"><div><p class="eyebrow">宮位詳解</p><h2 id="palace-dialog-title"></h2></div><button class="dialog-close" type="button" aria-label="關閉宮位詳解">×</button></div>
+        <div id="palace-dialog-content"></div>
+    </dialog>
     <script>
-      function changeTime(offset) {
-        const timeSelect = document.getElementById('time');
-        const dayInput = document.getElementById('day');
-        let index = parseInt(timeSelect.value);
-
-        if(offset === 1 && index === 12) {
-          dayInput.value = parseInt(dayInput.value) + 1;
-        }
-        else if(offset === -1 && index === 0) {
-          dayInput.value = parseInt(dayInput.value) - 1;
-        }
-
-        index = (index + offset + 13) % 13;
-        timeSelect.value = index;
-        calculate();
-      }
-
-      // 插入自定義局數的邏輯
       function overrideDunAndJuIfSelected(originalJu) {
         const selectedJu = document.getElementById('ju-select').value;
         if (selectedJu !== 'auto') {
@@ -110,113 +95,10 @@
           originalJu.ju = parseInt(juNum);
           originalJu.dun = pan.get('遁類');
           otherMessage += 'Set 遁類 to ' + pan.get('遁類') + '\n';
-
         }
         return originalJu;
       }
-      </script>
-
-    <button onclick="calculate()">計算</button>
-    <div id="qimenJuResult"></div>
-    <div id="qimenPanResult">
-        <!-- 九宮格容器 -->
-        <div class="grid-container">
-            <div class="grid-item palace-4 gan-2" id="palace-4">
-                <div class="grid-title">第四宮（巽兌坤）</div>
-                <div class="grid-content"></div>
-            </div>
-            <div class="grid-item palace-9 gan-4" id="palace-9">
-                <div class="grid-title">第九宮（離乾震）</div>
-                <div class="grid-content"></div>
-            </div>
-            <div class="grid-item palace-2 gan-6" id="palace-2">
-                <div class="grid-title">第二宮（坤巽坎）</div>
-                <div class="grid-content"></div>
-            </div>
-            <div class="grid-item palace-3 gan-1" id="palace-3">
-                <div class="grid-title">第三宮（震離艮）</div>
-                <div class="grid-content"></div>
-            </div>
-            <div class="grid-item palace-5" id="palace-5">
-                <div class="grid-title">第五宮（中）</div>
-                <div class="grid-content"></div>
-            </div>
-            <div class="grid-item palace-7 gan-8" id="palace-7">
-                <div class="grid-title">第七宮（兌坎巽）</div>
-                <div class="grid-content"></div>
-            </div>
-            <div class="grid-item palace-8 gan-5" id="palace-8">
-                <div class="grid-title">第八宮（艮震乾）</div>
-                <div class="grid-content"></div>
-            </div>
-            <div class="grid-item palace-1 gan-9" id="palace-1">
-                <div class="grid-title">第一宮（坎坤兌）</div>
-                <div class="grid-content"></div>
-            </div>
-            <div class="grid-item palace-6 gan-7" id="palace-6">
-                <div class="grid-title">第六宮（乾艮離）</div>
-                <div class="grid-content"></div>
-            </div>
-        </div>
-    </div>
-    <div id="hotGongResult"></div>
-    <div id="debugMessage"></div>
-
-    <script>
-      // You can also show/hide the bubble dynamically with JavaScript.
-      const men = document.querySelector('.men');
-      const men_desc = document.querySelector('.men_desc');
-      const shen = document.querySelector('.shen');
-      const shen_desc = document.querySelector('.shen_desc');
-      const xing = document.querySelector('.xing');
-      const xing_desc = document.querySelector('.xing_desc');
-      const gan = document.querySelector('.gan');
-      const gan_desc = document.querySelector('.gan_desc');
-      const gong = document.querySelector('.gong');
-      const gong_desc = document.querySelector('.gong_desc');
-
-      men.addEventListener('mouseover', () => {
-        men_desc.style.display = 'block';
-      });
-
-      men.addEventListener('mouseout', () => {
-        men_desc.style.display = 'none';
-      });
-
-      shen.addEventListener('mouseover', () => {
-        shen_desc.style.display = 'block';
-      });
-
-      shen.addEventListener('mouseout', () => {
-        shen_desc.style.display = 'none';
-      });
-
-      xing.addEventListener('mouseover', () => {
-        xing_desc.style.display = 'block';
-      });
-
-      xing.addEventListener('mouseout', () => {
-        xing_desc.style.display = 'none';
-      });
-
-      gan.addEventListener('mouseover', () => {
-        gan_desc.style.display = 'block';
-      });
-
-      gan.addEventListener('mouseout', () => {
-        gan_desc.style.display = 'none';
-      });
-
-      gong.addEventListener('mouseover', () => {
-        gong_desc.style.display = 'block';
-      });
-
-      gong.addEventListener('mouseout', () => {
-        gong_desc.style.display = 'none';
-      });
-
     </script>
-
     <script>
 
         const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
@@ -556,13 +438,7 @@
 	}
 	function isBeforeLiChun(year, month, day) {
 	    let liChunDay = getTerm(year, 2); // 2表示立春
-
-	    // 創建當前日期和立春日期的對象
-	    let currentDate = new Date(year, month - 1, day); // 月份需要減1因為 JS 的月份是 0-11
-	    let liChunDate = new Date(year, 1, liChunDay); // 立春一定在2月
-
-	    // 直接比較日期
-	    return currentDate < liChunDate;
+	    return month < 2 || (month === 2 && day < liChunDay);
 	}
 
 	function getYearGanZhi(year, month, day) {
@@ -573,8 +449,8 @@
 	    console.log('是否在立春前：', isBeforeLiChun(year, month, day));
 
 	    // 獲取原本的干支索引
-	    let yearGanIndex = (year - 4) % 10; // 使用 year - 4
-	    let yearZhiIndex = (year - 4) % 12; // 使用 year - 4
+	    let yearGanIndex = ((year - 4) % 10 + 10) % 10;
+	    let yearZhiIndex = ((year - 4) % 12 + 12) % 12;
 
 	    // 如果未過立春，使用上一年的干支
 	    if (isBeforeLiChun(year, month, day)) {
@@ -1412,48 +1288,49 @@
 
 
         function calculate() {
-
-            const year = parseInt(document.getElementById('year').value);
-            const month = parseInt(document.getElementById('month').value);
-            const day = parseInt(document.getElementById('day').value);
-            var hourIndex = parseInt(document.getElementById('time').value);
-            var hourSelect = document.getElementById("time");
-            var hourText = hourSelect.options[hourSelect.selectedIndex].text;
-
-            if (!year || !month || !day) {
-                alert('請完整填寫所有資料');
-                return;
+            const formError = document.getElementById('form-error');
+            let chartTime, solar, lunar;
+            try {
+                chartTime = QimenTime.normalize({
+                    year: document.getElementById('year').value,
+                    month: document.getElementById('month').value,
+                    day: document.getElementById('day').value,
+                    ...QimenTime.parseClock(document.getElementById('clock-time').value)
+                });
+                const date = chartTime.effectiveDate;
+                solar = Solar.fromYmd(date.year, date.month, date.day);
+                lunar = solar.getLunar();
+            } catch (error) {
+                if (formError) {
+                    formError.textContent = error.message;
+                    formError.hidden = false;
+                }
+                document.querySelector('.chart-workspace')?.classList.add('is-stale');
+                const status = document.querySelector('.chart-status');
+                if (status) status.textContent = '待重新起盤';
+                return false;
             }
-
+            if (formError) {
+                formError.textContent = '';
+                formError.hidden = true;
+            }
+            const { year, month, day } = chartTime.effectiveDate;
+            const hourIndex = chartTime.hourIndex;
+            const hourText = ZHI[hourIndex] + '時';
+            document.getElementById('time').value = String(hourIndex);
             otherMessage = '';
             otherMessage += 'Hour Index：' + hourIndex + '\n';
 
-            if(hourIndex === 12) {
-              hourIndex = 0;
-              otherMessage += 'Hour Index：' + hourIndex + '\n';
-            }
-
-
-            // 使用 Solar 類建立日期
-            const solar = Solar.fromYmd(year, month, day);
-
-            // 獲取農曆
-            const lunar = solar.getLunar();
-
             // 農曆日期轉換
-            const dayString = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
-                '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
-                '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
-
             const lunarYear = lunar.getYearInChinese();         // 得到例如“二〇二五”
             const lunarMonth = lunar.getMonthInChinese();       // 得到“閏五月”或“八月”
             const lunarDay = lunar.getDayInChinese();           // 得到“十八”或“三十”
             const lunarDateStr = `農曆${lunarYear}年${lunarMonth}月${lunarDay}`;
 
             // 干支計算
-      	    const yearGanZhi = getYearGanZhi(year, month, day);
-      	    const yearGan = yearGanZhi.gan;
-      	    const yearZhi = yearGanZhi.zhi;
+            const yearGanZhi = getYearGanZhi(year, month, day);
+            const yearGan = yearGanZhi.gan;
+            const yearZhi = yearGanZhi.zhi;
             const monthGan = GAN[lunar._p.monthGanIndex];
             const monthZhi = ZHI[lunar._p.monthZhiIndex];
             const dayGan = GAN[lunar._p.dayGanIndex];
@@ -1461,18 +1338,13 @@
             const hourGan = getHourGan(dayGan, hourIndex);
             const hourZhi = ZHI[hourIndex];
 
-            const westernDateStr = `西曆 ${year} 年 ${month} 月 ${day} ${hourText}`;
-
             // 奇門局數計算
             var qimenJu = calculateQimenJu(yearZhi, monthZhi, lunar._p.day, hourZhi, month);
-            // 為了計算方便，子時為 12：00, 丑時為 2：00, etc
-            var dunType = determineDunType(year, month, day, hourIndex * 2, 0, 0);
-
+            // 子時以有效日期的 00:00 計算；其餘時辰維持原有代表時間。
+            var dunType = determineDunType(year, month, day, chartTime.hour, 0, 0);
+            qimenJu.dun = dunType;
             qimenJu = overrideDunAndJuIfSelected(qimenJu);
-
-            if(pan.get('遁類') != null) {
-              dunType = pan.get('遁類');
-            }
+            dunType = qimenJu.dun;
 
             // 計旬首及空亡
             const kongWangAndXunShou = getKongWangAndXunShou(hourGan + hourZhi);
@@ -1626,190 +1498,65 @@
                 `;
 
 
-            // 結果顯示
+            // 四柱與起盤日期：保留實際輸入時間，清楚標示子初換日。
             const qimenJuResultDiv = document.getElementById('qimenJuResult');
             qimenJuResultDiv.innerHTML = `
-                <div class="qimen-ju">
-                    <b><span class="${dunType === '陽遁' ? 'yang-dun' : 'yin-dun'}">
-                    ${dunType}${convertToChinese(qimenJu.ju)}局</span></b>
+                <div class="summary-top">
+                    <div class="ju-heading"><span class="eyebrow">本局</span><div class="qimen-ju ${dunType === '陽遁' ? 'yang-dun' : 'yin-dun'}">${dunType}${convertToChinese(qimenJu.ju)}局</div></div>
+                    <span class="chart-status">已起盤</span>
                 </div>
-                <div class="eight-characters">
-                    <div>
-                        <span class="header">年</span>
-                        <span class="header">月</span>
-                        <span class="header">日</span>
-                        <span class="header">時</span>
+                <div class="summary-body">
+                    <div class="eight-characters" aria-label="四柱干支">
+                        <div>${['年', '月', '日', '時'].map(label => `<span class="header">${label}</span>`).join('')}</div>
+                        <div>${[yearGan, monthGan, dayGan, hourGan].map(gan => `<span class="chars gan-${getGanColor(gan)}">${gan}</span>`).join('')}</div>
+                        <div>${[yearZhi, monthZhi, dayZhi, hourZhi].map(zhi => `<span class="chars gan-${getGanColor(zhi)}">${zhi}</span>`).join('')}</div>
                     </div>
-                    <div>
-                        <span class="chars gan-${getGanColor(yearGan)}">${yearGan}</span>
-                        <span class="chars gan-${getGanColor(monthGan)}">${monthGan}</span>
-                        <span class="chars gan-${getGanColor(dayGan)}">${dayGan}</span>
-                        <span class="chars gan-${getGanColor(hourGan)}">${hourGan}</span>
+                    <div class="calendar-meta">
+                        <p class="date-line">${QimenTime.formatDate(chartTime.civilDate)} · ${chartTime.civilClock}</p>
+                        <p class="lunar-date">${lunarDateStr}</p>
+                        <p id="effective-date-note" data-next-day="${chartTime.isNextDay}">${chartTime.isNextDay ? `按 ${QimenTime.formatDate(chartTime.effectiveDate)} 子時起盤（翌日子時）` : `按當日${hourText}起盤`}</p>
                     </div>
-                    <div>
-                        <span class="chars gan-${getGanColor(yearZhi)}">${yearZhi}</span>
-                        <span class="chars gan-${getGanColor(monthZhi)}">${monthZhi}</span>
-                        <span class="chars gan-${getGanColor(dayZhi)}">${dayZhi}</span>
-                        <span class="chars gan-${getGanColor(hourZhi)}">${hourZhi}</span>
-                    </div>
-                </div>
-                <p>${lunarDateStr} ${westernDateStr}</p>
-                `;
+                </div>`;
 
-            // 顯示盤
+            const matchingGans = [yearGan, monthGan, dayGan, hourGan];
+            const stemMarkup = (stems, muted = false) => Array.from(stems || []).map(gan =>
+                `<span class="gan ${muted ? 'grey' : `gan-${getGanColor(gan)} ${matchingGans.includes(gan) || gan === '戊' ? 'grid-gan-bold' : ''}`}">${gan}</span>`
+            ).join('');
+            const markerNames = { '空亡': '空', '擊刑': '刑', '自刑': '自', '入墓': '墓', '馬星': '馬', '門迫': '迫' };
+            const directions = { 4: '東南', 9: '南', 2: '西南', 3: '東', 7: '西', 8: '東北', 1: '北', 6: '西北', 5: '中' };
             const qimenPanResultDiv = document.getElementById('qimenPanResult');
-            qimenPanResultDiv.innerHTML = `
-                <div class="grid-container">
-                    ${[4,9,2,3,5,7,8,1,6].map(i => {
-                        // 獲取當前宮位的天干
-                        const tianPanGan = gongs[i].get('天盤天干') || '';
-                        const diPanGan = gongs[i].get('地盤天干') || '';
-                        const yinGan = gongs[i].get('隱干') || '';
-
-                        var marks = '';
-                        marks = gongs[i].get('空亡') ? '空' : '';
-                        marks += gongs[i].get('擊刑') ? '刑' : '';
-                        marks += gongs[i].get('自刑') ? '自' : '';
-                        marks += gongs[i].get('入墓') ? '墓' : '';
-                        marks += gongs[i].get('馬星') ? '馬' : '';
-                        marks += gongs[i].get('門迫') ? '迫' : '';
-
-                        const bazi = [dayGan];  // 這裡應該是實際的八字天干
-                        if (!bazi.includes('甲')) {
-                            bazi.push('戊');  // 如果沒有甲，加入戊
-                        }
-                        const matchingGans = [yearGan, monthGan, dayGan, hourGan];
-                        const isTianPanMatch = matchingGans.includes(tianPanGan) || tianPanGan === '戊';
-                        const isDiPanMatch = matchingGans.includes(diPanGan) || diPanGan === '戊';
-                      if(i != 5)
-                      {
-                        return `
-                            <div class="grid-item palace-${i}" id="palace-${i}">
-                                <div class="gong gan-${getWuxinColor(gongs[i].get('宮'))}">
-                                  第${convertToChinese(i)}宮（${gongs[i].get('宮')})
-                                  <span class='gong_desc'>
-                                    ${getGongDescription(gongs[i].get('宮'))}
-                                  </span>
-
-                                  <span class="gong gan-${getWuxinColor(gongs[i].get('宮低頭找'))}">${gongs[i].get('宮低頭找')}</span>
-                                  <span class="gong gan-${getWuxinColor(gongs[i].get('宮回鄉尋'))}">${gongs[i].get('宮回鄉尋')}</span>
-                                  <span class="gong gan-${getWuxinColor(gongs[i].get('時辰')[0])}">${gongs[i].get('時辰')[0]}</span>
-                                  <span class="gong gan-${getWuxinColor(gongs[i].get('時辰')[1])}">${gongs[i].get('時辰')[1] || ''}</span>
-
-                                </div>
-                                <div class="grid-content">
-
-                                    <div class="shen">
-                                        <span class="shen gan-${getWuxinColor(gongs[i].get('天盤神'))}">${gongs[i].get('天盤神') || ''}
-                                          <span class='shen_desc'>
-                                            ${getShenDescription(gongs[i].get('天盤神'))}
-                                          </span>
-                                        </span>
-                                        <span class="gan gan-${getGanColor(tianPanGan[1])} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan[1] || ''}
-                                          <span class='gan_desc'>
-                                            ${getGanDescription(tianPanGan[1]) || ''}
-                                            ${getGanDescription(diPanGan) || ''}:
-                                            ${getJuDescription(tianPanGan[1] + diPanGan[0]) || ''}
-                                          </span>
-                                        </span>
-                                        <span class="gan gan-${getGanColor(tianPanGan[0])} ${isTianPanMatch ? 'grid-gan-bold' : ''}">${tianPanGan[0] || ''}
-                                          <span class='gan_desc'>
-                                            ${getGanDescription(tianPanGan[0]) || ''}:
-                                            ${getGanDescription(diPanGan) || ''}:
-                                            ${getJuDescription(tianPanGan[0] + diPanGan[0]) || ''}
-                                          </span>
-                                        </span>
-                                    </div>
-
-                                    <div class="xing">
-                                        <span class ="xing gan-${getWuxinColor(gongs[i].get('星'))}">${gongs[i].get('星') || ''}
-                                          <span class='xing_desc'>
-                                            ${getXingDescription(gongs[i].get('星'))}
-                                          </span>
-                                        </span>
-                                        <span class="gan gan-${getGanColor(diPanGan)} ${isDiPanMatch ? 'grid-gan-bold' : ''}">${diPanGan}
-                                          <span class='gan_desc'>
-                                            ${getGanDescription(tianPanGan[0]) || ''}:
-                                            ${getGanDescription(diPanGan) || ''}:
-                                            ${getJuDescription(tianPanGan[0] + diPanGan[0]) || ''}
-                                          </span>
-                                        </span>
-                                    </div>
-
-                                    <div class='men'>
-                                        <span class="men gan-${getWuxinColor(gongs[i].get('門'))}">
-                                          ${gongs[i].get('門') || ''}
-                                          <span class='men_desc'>
-                                            ${getMenDescription(gongs[i].get('門'))}
-                                          </span>
-                                        </span>
-                                        <span class="gan grey">${yinGan || ''}
-                                        </span>
-                                    </div>
-
-                                    <div class="shen">
-                                        <span class="shen gan-${getWuxinColor(gongs[i].get('地盤神'))}">${gongs[i].get('地盤神') || ''}</span>
-                                        <span class='shen_desc'>
-                                          ${getShenDescription(gongs[i].get('地盤神'))}
-                                        </span>
-                                        <span class="marks">
-                                            ${marks}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                      }
-                      else {
-
-                        return `
-                            <div class="grid-item palace-${i}" id="palace-${i}">
-                                <div class="grid-title">第${convertToChinese(i)}宮（${gongs[i].get('宮')}）</div>
-                                <div class="grid-content">
-                                    <div class="label">
-                                      旬：${pan.get('旬')}
-                                      <span class="gan gan-${getGanColor(gongs[5].get('地盤天干'))}">${gongs[5].get('地盤天干')}
-                                      </span>
-                                    </div>
-                                    <div class="label">
-                                      時柱：${pan.get('時干')+pan.get('時支')}
-                                      <span class="gan grey">${gongs[5].get('隱干')}
-                                      </span>
-                                    </div>
-                                    <div class="label">
-                                      值符星：${pan.get('值符星')}
-                                    </div>
-                                    <div class="label">
-                                      值使門：${pan.get('值使門')}
-                                    </div>
-                                    <div class="marks">
-                                      ${menFuYin ? '八門伏吟' : ''}
-                                    </div>
-                                    <div class="marks">
-                                      ${menFanYin ? '八門反吟' : ''}
-                                    </div>
-                                    <div class="marks">
-                                      ${TianGanFuYin ? '天干伏吟' : ''}
-                                    </div>
-                                    <div class="marks">
-                                      ${TianGanFanYin ? '天干反吟' : ''}
-                                    </div>
-                                    <div class="marks">
-                                      ${pan.get('五不遇時') ? '五不遇時' : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                      }
-                    }).join('')}
-                </div>
-            `;
+            qimenPanResultDiv.innerHTML = `<div class="grid-container" aria-label="九宮盤，南上北下">${[4,9,2,3,5,7,8,1,6].map(i => {
+                const gong = gongs[i];
+                const name = gong.get('宮');
+                const heading = `<div class="palace-heading"><span class="palace-name gan-${getWuxinColor(name)}">${name}<span class="palace-number">${convertToChinese(i)}</span></span><span class="palace-direction">${directions[i]}</span></div>`;
+                const markMarkup = Object.entries(markerNames).filter(([key]) => gong.get(key)).map(([key, short]) => `<span class="mark" title="${key}">${short}</span>`).join('');
+                if (i === 5) {
+                    const conditions = [menFuYin ? '八門伏吟' : '', menFanYin ? '八門反吟' : '', TianGanFuYin ? '天干伏吟' : '', TianGanFanYin ? '天干反吟' : '', pan.get('五不遇時') ? '五不遇時' : ''].filter(Boolean);
+                    return `<div class="grid-item palace-5" id="palace-5" role="button" tabindex="0" aria-haspopup="dialog" aria-label="中宮，第五宮，查看詳解">${heading}
+                        <div class="grid-content palace-center">
+                            <div class="center-row"><span class="center-label">旬</span><span class="center-value">${pan.get('旬')}</span></div>
+                            <div class="center-row"><span class="center-label">時柱</span><span class="center-value">${hourGan}${hourZhi}</span></div>
+                            <div class="center-row"><span class="center-label">值符</span><span class="center-value">${pan.get('值符星')}</span></div>
+                            <div class="center-row"><span class="center-label">值使</span><span class="center-value">${pan.get('值使門')}</span></div>
+                            <div class="center-row"><span class="center-label">地 / 隱</span><span class="center-gans">${stemMarkup(gong.get('地盤天干'))}${stemMarkup(gong.get('隱干'), true)}</span></div>
+                            ${conditions.map(condition => `<div class="marks">${condition}</div>`).join('')}
+                        </div></div>`;
+                }
+                return `<div class="grid-item palace-${i}" id="palace-${i}" role="button" tabindex="0" aria-haspopup="dialog" aria-label="${name}宮，第${convertToChinese(i)}宮，查看詳解">${heading}
+                    <div class="palace-associations"><span class="gan-${getWuxinColor(gong.get('宮低頭找'))}">${gong.get('宮低頭找')}</span><span class="gan-${getWuxinColor(gong.get('宮回鄉尋'))}">${gong.get('宮回鄉尋')}</span><span aria-hidden="true">·</span><span>${gong.get('時辰').join(' ')}</span></div>
+                    <div class="grid-content">
+                        <div class="palace-line"><span class="gan-${getWuxinColor(gong.get('天盤神'))}">${gong.get('天盤神') || ''}</span>${stemMarkup(gong.get('天盤天干'))}</div>
+                        <div class="palace-line"><span class="gan-${getWuxinColor(gong.get('星'))}">${gong.get('星') || ''}</span>${stemMarkup(gong.get('地盤天干'))}</div>
+                        <div class="palace-line"><span class="gan-${getWuxinColor(gong.get('門'))}">${gong.get('門') || ''}</span>${stemMarkup(gong.get('隱干'), true)}</div>
+                        <div class="palace-line earth-spirit"><span class="gan-${getWuxinColor(gong.get('地盤神'))}">${gong.get('地盤神') || ''}</span><span class="palace-marks">${markMarkup}</span></div>
+                    </div></div>`;
+            }).join('')}</div>`;
 
           const debugMessageDiv = document.getElementById('debugMessage');
           debugMessageDiv.innerHTML = `
 
                   <details>
-                    <summary>演算</summary>
+                    <summary>查看演算過程</summary>
                     <pre>${
     `偵錯資訊：
 
@@ -1832,9 +1579,12 @@
                     }</pre>
                 </details>
             `;
+            document.querySelector('.chart-workspace')?.classList.remove('is-stale');
+            const status = document.querySelector('.chart-status');
+            if (status) status.textContent = '已起盤';
+            return true;
         }
 </script>
 
-<!-- 新增 UI 控制區塊 END -->
 </body>
 </html>

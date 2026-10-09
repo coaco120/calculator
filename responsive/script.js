@@ -1,180 +1,152 @@
-document.addEventListener('DOMContentLoaded', function() {  
-    // 設置當前日期和時間  
-    setCurrentDateTime();  
-    
-    // 為輸入框添加點擊事件  
-    addClickHandlers();  
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('chart-form');
+    const clock = document.getElementById('clock-time');
+    const period = document.getElementById('time');
 
-    // 初始化網格交互  
-    initializeGridInteractions();  
+    setCurrentDateTime();
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+        calculate();
+    });
+    document.getElementById('now-button').addEventListener('click', () => {
+        setCurrentDateTime();
+        calculate();
+    });
+    clock.addEventListener('change', () => {
+        if (clock.value) period.value = QimenTime.getTimeIndex(QimenTime.parseClock(clock.value).hour);
+    });
+    period.addEventListener('change', () => {
+        clock.value = `${String(QimenTime.canonicalHour(Number(period.value))).padStart(2, '0')}:00`;
+        calculate();
+    });
+    document.getElementById('ju-select').addEventListener('change', calculate);
+    ['year', 'month', 'day'].forEach(id => {
+        const input = document.getElementById(id);
+        input.addEventListener('focus', () => input.select());
+    });
+    form.addEventListener('input', () => {
+        document.querySelector('.chart-workspace').classList.add('is-stale');
+        const status = document.querySelector('.chart-status');
+        if (status) status.textContent = '待重新起盤';
+    });
+    document.getElementById('previous-time').addEventListener('click', () => changeTime(-1));
+    document.getElementById('next-time').addEventListener('click', () => changeTime(1));
+    initializePalaceDetails();
+    calculate();
+});
 
-    // 初始化工具提示  
-    initializeTooltips();  
-});  
+function setCurrentDateTime() {
+    const now = new Date();
+    document.getElementById('year').value = now.getFullYear();
+    document.getElementById('month').value = now.getMonth() + 1;
+    document.getElementById('day').value = now.getDate();
+    document.getElementById('clock-time').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    document.getElementById('time').value = QimenTime.getTimeIndex(now.getHours());
+}
 
-function setCurrentDateTime() {  
-    const now = new Date();  
-    
-    // 設置年月日  
-    document.getElementById('year').value = now.getFullYear();  
-    document.getElementById('month').value = now.getMonth() + 1;  
-    document.getElementById('day').value = now.getDate();  
-    
-    // 設置時辰  
-    const hour = now.getHours();  
-    const timeIndex = getTimeIndex(hour);  
-    document.getElementById('time').value = timeIndex;  
-}  
+function readCivilDateTime() {
+    const clock = QimenTime.parseClock(document.getElementById('clock-time').value);
+    return {
+        year: Number(document.getElementById('year').value),
+        month: Number(document.getElementById('month').value),
+        day: Number(document.getElementById('day').value),
+        ...clock
+    };
+}
 
-function getTimeIndex(hour) {  
-    // 子時 (23:00-01:00) = 0  
-    if (hour >= 23 || hour < 1) return 0;  
-    // 丑時 (01:00-03:00) = 1  
-    if (hour >= 1 && hour < 3) return 1;  
-    // 寅時 (03:00-05:00) = 2  
-    if (hour >= 3 && hour < 5) return 2;  
-    // 卯時 (05:00-07:00) = 3  
-    if (hour >= 5 && hour < 7) return 3;  
-    // 辰時 (07:00-09:00) = 4  
-    if (hour >= 7 && hour < 9) return 4;  
-    // 巳時 (09:00-11:00) = 5  
-    if (hour >= 9 && hour < 11) return 5;  
-    // 午時 (11:00-13:00) = 6  
-    if (hour >= 11 && hour < 13) return 6;  
-    // 未時 (13:00-15:00) = 7  
-    if (hour >= 13 && hour < 15) return 7;  
-    // 申時 (15:00-17:00) = 8  
-    if (hour >= 15 && hour < 17) return 8;  
-    // 酉時 (17:00-19:00) = 9  
-    if (hour >= 17 && hour < 19) return 9;  
-    // 戌時 (19:00-21:00) = 10  
-    if (hour >= 19 && hour < 21) return 10;  
-    // 亥時 (21:00-23:00) = 11  
-    return 11;  
-}  
+function changeTime(offset) {
+    try {
+        const next = QimenTime.shiftShichen(readCivilDateTime(), offset);
+        ['year', 'month', 'day'].forEach(id => { document.getElementById(id).value = next[id]; });
+        document.getElementById('clock-time').value = next.clock;
+        document.getElementById('time').value = QimenTime.getTimeIndex(next.hour);
+        calculate();
+    } catch (error) {
+        const message = document.getElementById('form-error');
+        message.textContent = error.message;
+        message.hidden = false;
+    }
+}
 
-function addClickHandlers() {  
-    // 為年月日輸入框添加點擊事件  
-    const inputs = ['year', 'month', 'day'];  
-    inputs.forEach(id => {  
-        const input = document.getElementById(id);  
-        input.addEventListener('focus', function() {  
-            if (!this.hasAttribute('user-modified')) {  
-                this.value = '';  
-                this.setAttribute('user-modified', 'true');  
-            }  
-        });  
-    });  
-}  
+function initializePalaceDetails() {
+    const board = document.getElementById('qimenPanResult');
+    const dialog = document.getElementById('palace-dialog');
+    let trigger = null;
+    const open = palace => {
+        if (document.querySelector('.chart-workspace').classList.contains('is-stale')) {
+            if (!calculate()) return;
+            palace = document.getElementById(palace.id);
+        }
+        trigger = palace;
+        showPalaceDetails(Number(palace.id.split('-')[1]));
+        dialog.showModal();
+        document.body.classList.add('dialog-open');
+    };
+    board.addEventListener('click', event => {
+        const palace = event.target.closest('.grid-item');
+        if (palace) open(palace);
+    });
+    board.addEventListener('keydown', event => {
+        const palace = event.target.closest('.grid-item');
+        if (palace && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            open(palace);
+        }
+    });
+    dialog.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', event => {
+        const rect = dialog.getBoundingClientRect();
+        if (event.target === dialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+        document.body.classList.remove('dialog-open');
+        if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    });
+}
 
-function initializeGridInteractions() {  
-    const gridItems = document.querySelectorAll('.grid-item');  
-    
-    gridItems.forEach(item => {  
-        // 設置 tabindex 使元素可獲得焦點  
-        item.setAttribute('tabindex', '0');  
-        
-        // 點擊處理  
-        item.addEventListener('click', function(e) {  
-            e.stopPropagation();  
-            
-            // 檢查是否點擊到展開的內容  
-            const isContentClick = e.target.closest('.gongMap') ||   
-                                 e.target.closest('.juMap') ||   
-                                 e.target.closest('.ganMap') ||   
-                                 e.target.closest('.menMap') ||   
-                                 e.target.closest('.xingMap') ||   
-                                 e.target.closest('.shenMap');  
-            
-            if (isContentClick) {  
-                return;  
-            }  
-            
-            // 關閉其他打開的項目  
-            gridItems.forEach(otherItem => {  
-                if (otherItem !== item) {  
-                    otherItem.classList.remove('active');  
-                }  
-            });  
-            
-            // 切換當前項目  
-            item.classList.toggle('active');  
-        });  
-
-        // 鍵盤處理  
-        item.addEventListener('keydown', function(e) {  
-            if (e.key === 'Enter' || e.key === ' ') {  
-                e.preventDefault();  
-                this.click();  
-            }  
-        });  
-    });  
-
-    // 點擊外部關閉所有項目  
-    document.addEventListener('click', function(e) {  
-        if (!e.target.closest('.grid-item')) {  
-            gridItems.forEach(item => {  
-                item.classList.remove('active');  
-            });  
-        }  
-    });  
-
-    // 移動設備觸摸處理  
-    if ('ontouchstart' in window) {  
-        document.addEventListener('touchstart', function(e) {  
-            if (!e.target.closest('.grid-item')) {  
-                gridItems.forEach(item => {  
-                    item.classList.remove('active');  
-                });  
-            }  
-        });  
-    }  
-}  
-
-function initializeTooltips() {  
-    const tooltipElements = document.querySelectorAll('[data-tooltip]');  
-    
-    tooltipElements.forEach(element => {  
-        element.addEventListener('mouseenter', function(e) {  
-            const tooltip = this.querySelector('.tooltip');  
-            if (tooltip) {  
-                const rect = this.getBoundingClientRect();  
-                const tooltipRect = tooltip.getBoundingClientRect();  
-                
-                // 計算位置  
-                const top = rect.top - tooltipRect.height - 10;  
-                const left = rect.left + (rect.width - tooltipRect.width) / 2;  
-                
-                // 設置位置  
-                tooltip.style.top = `${Math.max(0, top)}px`;  
-                tooltip.style.left = `${Math.max(0, left)}px`;  
-            }  
-        });  
-    });  
-}  
-
-// ESC 鍵關閉所有打開的項目  
-document.addEventListener('keydown', function(e) {  
-    if (e.key === 'Escape') {  
-        const gridItems = document.querySelectorAll('.grid-item');  
-        gridItems.forEach(item => {  
-            item.classList.remove('active');  
-        });  
-    }  
-});  
-
-// 處理視窗大小改變  
-window.addEventListener('resize', function() {  
-    const gridItems = document.querySelectorAll('.grid-item');  
-    gridItems.forEach(item => {  
-        item.classList.remove('active');  
-    });  
-});  
-
-// 平滑滾動功能  
-function smoothScroll(element) {  
-    element.scrollIntoView({  
-        behavior: 'smooth',  
-        block: 'nearest'  
-    });  
+function showPalaceDetails(index) {
+    const palace = gongs[index];
+    document.getElementById('palace-dialog-title').textContent = `${palace.get('宮')}宮 · 第${convertToChinese(index)}宮`;
+    const content = document.getElementById('palace-dialog-content');
+    content.replaceChildren();
+    const section = (label, value, description) => {
+        if (!value) return;
+        const block = document.createElement('section');
+        block.className = 'detail-section';
+        const heading = document.createElement('h3');
+        heading.textContent = `${label} · ${value}`;
+        block.append(heading);
+        if (description) {
+            const paragraph = document.createElement('p');
+            paragraph.textContent = description;
+            block.append(paragraph);
+        }
+        content.append(block);
+    };
+    section('宮位', palace.get('宮'), getGongDescription(palace.get('宮')));
+    if (index === 5) {
+        section('旬首', pan.get('旬'));
+        section('時柱', pan.get('時干') + pan.get('時支'));
+        section('值符星', pan.get('值符星'), getXingDescription(pan.get('值符星')));
+        section('值使門', pan.get('值使門'), getMenDescription(pan.get('值使門')));
+    } else {
+        section('天盤神', palace.get('天盤神'), getShenDescription(palace.get('天盤神')));
+        section('九星', palace.get('星'), getXingDescription(palace.get('星')));
+        section('八門', palace.get('門'), getMenDescription(palace.get('門')));
+        section('地盤神', palace.get('地盤神'), getShenDescription(palace.get('地盤神')));
+    }
+    for (const key of ['天盤天干', '地盤天干', '隱干']) {
+        const stems = palace.get(key);
+        if (stems) section(key, Array.from(stems).join('、'), Array.from(stems).map(getGanDescription).filter(Boolean).join('；'));
+    }
+    const earthStem = (palace.get('地盤天干') || [])[0];
+    for (const stem of (palace.get('天盤天干') || [])) {
+        section('干格', stem + earthStem, getJuDescription(stem + earthStem));
+    }
+    const marks = ['空亡', '擊刑', '自刑', '入墓', '馬星', '門迫'].filter(key => palace.get(key));
+    if (marks.length) section('宮位標記', marks.join(' · '));
+    if (index === 5) {
+        const conditions = Array.from(document.querySelectorAll('#palace-5 .marks')).map(item => item.textContent.trim()).filter(Boolean);
+        if (conditions.length) section('盤局標記', conditions.join(' · '));
+    }
 }
