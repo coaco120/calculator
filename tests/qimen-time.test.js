@@ -156,6 +156,7 @@ function calculator(page = 'qm.html') {
       board: document.getElementById('qimenPanResult').innerHTML,
       elements: document.getElementById('hotGongResult').innerHTML,
       summary: document.getElementById('qimenJuResult').innerHTML,
+      debug: document.getElementById('debugMessage').innerHTML,
       solarDate: solarDates.at(-1)
     };
   }
@@ -217,4 +218,92 @@ test('page calculation rejects invalid civil input and accepts years 1 through 9
     assert.equal(result.succeeded, true, String(year));
     assert.doesNotMatch(result.summary, /undefined|NaN/, String(year));
   }
+});
+
+test('debug formatting names all nine palaces without changing positions, arithmetic or 九宮 terminology', () => {
+  const { context } = calculator();
+  const names = ['坎', '坤', '震', '巽', '中', '乾', '兌', '艮', '離'];
+  const source = [];
+  const expected = [];
+  names.forEach((name, i) => {
+    const index = i + 1;
+    source.push(`第\t${index} \t宮設地盤天干 甲`, `地盤天干 乙 ${index} 宮`, `值符星 天蓬 始於第 ${index} 宮`, `隱干 丙 設到第 ${index} 宮`, `地盤天干丁 在第 ${index} 宮`);
+    expected.push(`${name}宮設地盤天干 甲`, `地盤天干 乙 ${name}宮`, `值符星 天蓬 始於${name}宮`, `隱干 丙 設到${name}宮`, `地盤天干丁 在${name}宮`);
+  });
+  const unchanged = [
+    '旬支子排第2', '旬支子排第 2', '時支丑排第 3', '支差：1',
+    '10宮、19宮、第 10 宮、第 19 宮', '九宮盤、九宮格、中宮',
+    '日期：2026-10-10 23:30', '總計: 7 + 9 + 30 + 1 = 47', '餘數: 47 % 9 = 2',
+    'Hour Index：11', '旬首：甲子戊', '天干：甲乙丙丁戊己庚辛壬癸'
+  ];
+  source.push(...unchanged);
+  expected.push(...unchanged);
+  assert.equal(context.formatDebugMessage(source.join('\n')), expected.join('\n'));
+});
+
+test('debug formatting normalizes line endings and exactly one blank line between steps, including an empty step', () => {
+  const { context } = calculator();
+  const source = [
+    '  ', '\t', '  Hour Index：0  ', '', '  ', '',
+    '  找地盤天干：  ', '\t第 1 宮設地盤天干 戊  ',
+    ' 找九星： ', ' 第 9 宮設星 天英 ', '', '', '\t',
+    ' 將中宮地盤天干從坤宮移回中宮： ',
+    ' 找八門： ', ' 第 2 宮設 死門 門 ', '', '', '  '
+  ].join('\r\n');
+  const expected = [
+    'Hour Index：0', '',
+    '找地盤天干：', '坎宮設地盤天干 戊', '',
+    '找九星：', '離宮設星 天英', '',
+    '將中宮地盤天干從坤宮移回中宮：', '',
+    '找八門：', '坤宮設 死門 門'
+  ].join('\n');
+  assert.equal(context.formatDebugMessage(source), expected);
+  assert.equal(context.formatDebugMessage(expected), expected, 'formatting should be idempotent');
+  assert.equal(context.formatDebugMessage('  找八門： \r第 2 宮開始數  '), '找八門：\n坤宮開始數');
+});
+
+test('both page entry points render named palace steps with consistent spacing and intact numeric calculations', () => {
+  const headings = [
+    '找地盤天干：', '找旬首、值符星、值使門：', '找九星：', '找天盤天干：',
+    '將中宮地盤天干從坤宮移回中宮：', '找八門：', '找八神：', '找隱干：',
+    '找擊刑：', '找入墓：', '找門迫：', '找馬星：', '找旺相休囚死：'
+  ];
+  const entries = ['qm.html', 'responsive/qm.html'];
+  const outputs = [];
+  for (const page of entries) {
+    const calc = calculator(page);
+    const result = calc.run(input(2026, 10, 10, '23:30'));
+    assert.equal(result.succeeded, true, page);
+    const pre = result.debug.match(/<pre>([\s\S]*?)<\/pre>/);
+    assert.ok(pre, `${page} renders an explanation`);
+    const explanation = pre[1];
+    outputs.push(explanation);
+    for (const name of ['坎', '坤', '震', '巽', '中', '乾', '兌', '艮', '離']) {
+      assert.ok(explanation.includes(`${name}宮`), `${page} includes ${name}宮`);
+    }
+    assert.doesNotMatch(explanation, /(?:第[ \t]*)?\d+[ \t]*宮/);
+    assert.doesNotMatch(explanation, /二宮|\r|\n{3,}/);
+    const lines = explanation.split('\n');
+    for (const heading of headings) {
+      const positions = lines.flatMap((line, index) => line === heading ? [index] : []);
+      assert.equal(positions.length, 1, `${page}: ${heading}`);
+      const position = positions[0];
+      assert.ok(position > 1, `${page}: ${heading} has a preceding step or prelude`);
+      assert.equal(lines[position - 1], '', `${page}: ${heading} has one blank line before it`);
+      assert.notEqual(lines[position - 2], '', `${page}: ${heading} has no extra blank line before it`);
+    }
+    assert.ok(explanation.includes('將中宮地盤天干從坤宮移回中宮：\n\n找八門：'), 'empty step is retained');
+    const total = explanation.match(/^總計: (\d+) \+ (\d+) \+ (\d+) \+ (\d+) = (\d+)$/m);
+    const remainder = explanation.match(/^餘數: (\d+) % 9 = (\d+)$/m);
+    assert.ok(total, `${page}: numeric total remains an equation`);
+    assert.ok(remainder, `${page}: numeric remainder remains an equation`);
+    const actualTotal = total.slice(1, 5).map(Number).reduce((sum, value) => sum + value, 0);
+    assert.equal(Number(total[5]), actualTotal);
+    assert.equal(Number(remainder[1]), actualTotal);
+    assert.equal(Number(remainder[2]), actualTotal % 9);
+    assert.equal(explanation.match(/^\(日期\): (\d+)$/m)[1], total[3]);
+    assert.match(explanation, /旬支[子丑寅卯辰巳午未申酉戌亥]排第 \d+/);
+    assert.match(explanation, /時支[子丑寅卯辰巳午未申酉戌亥]排第 \d+/);
+  }
+  assert.equal(outputs[0], outputs[1], 'both entry points show the same explanation');
 });

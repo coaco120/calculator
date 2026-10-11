@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clock = document.getElementById('clock-time');
     const period = document.getElementById('time');
 
+    initializeThemeControls();
     setCurrentDateTime();
     form.addEventListener('submit', event => {
         event.preventDefault();
@@ -33,7 +34,92 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('next-time').addEventListener('click', () => changeTime(1));
     initializePalaceDetails();
     calculate();
+    initializeFontSizeControls();
 });
+
+function initializeThemeControls() {
+    const storageKey = 'qimen-theme';
+    const buttons = Array.from(document.querySelectorAll('.theme-button'));
+    const themes = buttons.map(button => button.dataset.theme);
+    const themeColors = { jade: '#173f35', warm: '#694a30', dark: '#112129' };
+    const applyTheme = theme => {
+        document.documentElement.dataset.theme = theme;
+        buttons.forEach(button => {
+            button.setAttribute('aria-pressed', String(button.dataset.theme === theme));
+        });
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColors[theme]);
+    };
+
+    let preferredTheme = 'jade';
+    try {
+        const savedTheme = localStorage.getItem(storageKey);
+        if (themes.includes(savedTheme)) preferredTheme = savedTheme;
+    } catch {
+        // Theme switching also works without browser storage.
+    }
+    applyTheme(preferredTheme);
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            const theme = button.dataset.theme;
+            applyTheme(theme);
+            try {
+                localStorage.setItem(storageKey, theme);
+            } catch {
+                // Keep this theme for the current page even without storage.
+            }
+        });
+    });
+}
+
+function initializeFontSizeControls() {
+    const storageKey = 'qimen-board-font-size';
+    const buttons = Array.from(document.querySelectorAll('.font-size-button'));
+    const sizes = buttons.map(button => button.dataset.boardFontSize);
+    const board = document.getElementById('qimenPanResult');
+    const hint = document.getElementById('board-scroll-hint');
+    const updateScrollHint = () => {
+        const scrollable = board.scrollWidth > board.clientWidth + 1;
+        hint.hidden = !scrollable;
+        if (scrollable) {
+            board.setAttribute('tabindex', '0');
+            board.setAttribute('aria-describedby', hint.id);
+        } else {
+            board.removeAttribute('tabindex');
+            board.removeAttribute('aria-describedby');
+        }
+    };
+    const applySize = size => {
+        document.documentElement.dataset.boardFontSize = size;
+        buttons.forEach(button => {
+            button.setAttribute('aria-pressed', String(button.dataset.boardFontSize === size));
+        });
+        updateScrollHint();
+    };
+
+    let preferredSize = 'large';
+    try {
+        const savedSize = localStorage.getItem(storageKey);
+        if (sizes.includes(savedSize)) preferredSize = savedSize;
+    } catch {
+        // The controls still work when the browser blocks local storage.
+    }
+    applySize(preferredSize);
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            const size = button.dataset.boardFontSize;
+            applySize(size);
+            try {
+                localStorage.setItem(storageKey, size);
+            } catch {
+                // Keep this selection for the current page even without storage.
+            }
+        });
+    });
+    if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(updateScrollHint).observe(board);
+    }
+    window.addEventListener('resize', updateScrollHint);
+}
 
 function setCurrentDateTime() {
     const now = new Date();

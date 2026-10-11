@@ -1,25 +1,39 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-HK">
+<html lang="zh-Hant-HK" data-board-font-size="large" data-theme="jade">
 <head>
     <meta charset="UTF-8">
-    <title>陰盤奇門 · 九宮起盤</title>
-    <meta name="description" content="速算陰盤奇門，子初換日，清晰呈現四柱、九宮盤與五行旺衰。">
+    <title>陰盤奇門速算 · 九宮起盤</title>
+    <meta name="description" content="陰盤奇門速算，子初換日，清晰呈現四柱、九宮盤與五行旺衰。">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#173f35">
+    <script>
+        try {
+            const savedTheme = localStorage.getItem('qimen-theme');
+            if (['jade', 'warm', 'dark'].includes(savedTheme)) document.documentElement.dataset.theme = savedTheme;
+        } catch {}
+    </script>
     <link rel="icon" type="image/svg+xml" href="assets/bagua.svg">
-    <link rel="stylesheet" href="style.css">
-    <script>const version = 1.60;</script>
+    <link rel="stylesheet" href="style.css?v=1.63">
+    <script>const version = 1.63;</script>
     <script src="lunar.js"></script>
     <script src="qimen-time.js"></script>
-    <script src="script.js" defer></script>
+    <script src="script.js?v=1.63" defer></script>
 </head>
 <body>
     <header class="app-header">
-        <a class="brand" href="qm.html" aria-label="陰盤奇門首頁">
+        <a class="brand" href="qm.html" aria-label="陰盤奇門速算首頁">
             <img class="brand-logo" src="assets/bagua.svg" alt="八卦太極" width="60" height="60">
-            <span><span class="brand-name">陰盤奇門</span><span class="brand-subtitle">QIMEN · 九宮起盤</span></span>
+            <span><span class="brand-name">陰盤奇門速算</span><span class="brand-subtitle">QIMEN · 九宮起盤</span></span>
         </a>
-        <span class="header-note"><span class="status-dot" aria-hidden="true"></span>子初換日 · 十二時辰</span>
+        <div class="header-settings">
+            <span class="header-note"><span class="status-dot" aria-hidden="true"></span>子初換日 · 十二時辰</span>
+            <div class="theme-control" role="group" aria-label="外觀主題">
+                <span class="theme-label" aria-hidden="true">外觀</span>
+                <button class="theme-button" type="button" data-theme="jade" aria-pressed="true"><span class="theme-swatch" aria-hidden="true"></span>青綠</button>
+                <button class="theme-button" type="button" data-theme="warm" aria-pressed="false"><span class="theme-swatch" aria-hidden="true"></span>暖白</button>
+                <button class="theme-button" type="button" data-theme="dark" aria-pressed="false"><span class="theme-swatch" aria-hidden="true"></span>深色</button>
+            </div>
+        </div>
     </header>
     <main class="app-layout">
         <aside class="input-panel" aria-labelledby="settings-title">
@@ -73,15 +87,25 @@
         <div class="chart-workspace">
             <section class="summary-panel" aria-label="起盤結果"><div id="qimenJuResult" aria-live="polite"></div></section>
             <section class="board-panel" aria-labelledby="board-title">
-                <div class="board-heading"><div><p class="eyebrow">陰盤奇門</p><h2 id="board-title">九宮盤</h2></div><span>點選宮位查看詳解 <span aria-hidden="true">↗</span></span></div>
-                <div id="qimenPanResult"></div>
+                <div class="board-heading"><div><p class="eyebrow">陰盤奇門速算</p><h2 id="board-title">九宮盤</h2></div></div>
+                <div class="board-tools">
+                    <span class="board-instruction">點選宮位查看詳解 <span aria-hidden="true">↗</span></span>
+                    <div class="font-size-control" role="group" aria-label="盤面字體大小">
+                        <span class="font-size-label" aria-hidden="true">字體</span>
+                        <button class="font-size-button" type="button" data-board-font-size="standard" aria-pressed="false">標準</button>
+                        <button class="font-size-button" type="button" data-board-font-size="large" aria-pressed="true">大字</button>
+                        <button class="font-size-button" type="button" data-board-font-size="extra" aria-pressed="false">特大</button>
+                    </div>
+                </div>
+                <p class="board-scroll-hint" id="board-scroll-hint" hidden>左右滑動，查看完整九宮盤</p>
+                <div id="qimenPanResult" role="region" aria-label="九宮盤"></div>
                 <div class="board-legend"><span>粗體天干為四柱天干或戊</span><span>空 · 刑 · 自 · 墓 · 馬 · 迫</span></div>
             </section>
             <section class="element-panel" aria-labelledby="elements-title"><div class="section-heading"><h2 id="elements-title">五行旺衰</h2><span class="element-subtitle">依月支推算</span></div><div id="hotGongResult"></div></section>
             <div id="debugMessage"></div>
         </div>
     </main>
-    <footer class="app-footer"><span>陰盤奇門 · 子初換日</span><span>Jess Poon &amp; Antonio Yu</span></footer>
+    <footer class="app-footer"><span>陰盤奇門速算 · 子初換日</span><span>Jess Poon &amp; Antonio Yu</span></footer>
     <dialog id="palace-dialog" aria-labelledby="palace-dialog-title">
         <div class="dialog-heading"><div><p class="eyebrow">宮位詳解</p><h2 id="palace-dialog-title"></h2></div><button class="dialog-close" type="button" aria-label="關閉宮位詳解">×</button></div>
         <div id="palace-dialog-content"></div>
@@ -141,6 +165,15 @@
 
         gongs[5].set('宮', '中');
         gongs[5].set('宮連先天', '中');
+
+        function formatDebugMessage(message) {
+          return String(message)
+            .replace(/(?<!\d)(?:第[ \t]*)?([1-9])[ \t]*宮/g, (_, index) => gongs[Number(index)].get('宮') + '宮')
+            .replace(/\r\n?/g, '\n')
+            .split('\n').map(line => line.trim()).join('\n').trim()
+            .replace(/\n{3,}/g, '\n\n')
+            .replace(/([^\n])\n(?=(?:找.+|將中宮.+)[:：](?:\n|$))/g, '$1\n\n');
+        }
 
         function getGongDescription(gong)
         {
@@ -1400,7 +1433,7 @@
             setTianPanTianGan();
             otherMessage += '\n';
 
-            otherMessage += '將中宮地盤天干從二宮移回中宮：\n';
+            otherMessage += '將中宮地盤天干從坤宮移回中宮：\n';
             moveZhongGongDiPanTianGanBack();
             otherMessage += '\n';
 
@@ -1519,8 +1552,8 @@
                 </div>`;
 
             const matchingGans = [yearGan, monthGan, dayGan, hourGan];
-            const stemMarkup = (stems, muted = false) => Array.from(stems || []).map(gan =>
-                `<span class="gan ${muted ? 'grey' : `gan-${getGanColor(gan)} ${matchingGans.includes(gan) || gan === '戊' ? 'grid-gan-bold' : ''}`}">${gan}</span>`
+            const stemMarkup = (stems, muted = false) => Array.from(stems || []).map((gan, index) =>
+                `<span class="gan ${index === 0 ? 'core-stem' : 'inherited-stem'} ${muted ? 'grey' : `gan-${getGanColor(gan)} ${matchingGans.includes(gan) || gan === '戊' ? 'grid-gan-bold' : ''}`}">${gan}</span>`
             ).join('');
             const markerNames = { '空亡': '空', '擊刑': '刑', '自刑': '自', '入墓': '墓', '馬星': '馬', '門迫': '迫' };
             const directions = { 4: '東南', 9: '南', 2: '西南', 3: '東', 7: '西', 8: '東北', 1: '北', 6: '西北', 5: '中' };
@@ -1544,23 +1577,28 @@
                 }
                 return `<div class="grid-item palace-${i}" id="palace-${i}" role="button" tabindex="0" aria-haspopup="dialog" aria-label="${name}宮，第${convertToChinese(i)}宮，查看詳解">${heading}
                     <div class="palace-associations"><span class="gan-${getWuxinColor(gong.get('宮低頭找'))}">${gong.get('宮低頭找')}</span><span class="gan-${getWuxinColor(gong.get('宮回鄉尋'))}">${gong.get('宮回鄉尋')}</span><span aria-hidden="true">·</span><span>${gong.get('時辰').join(' ')}</span></div>
-                    <div class="grid-content">
-                        <div class="palace-line"><span class="gan-${getWuxinColor(gong.get('天盤神'))}">${gong.get('天盤神') || ''}</span>${stemMarkup(gong.get('天盤天干'))}</div>
-                        <div class="palace-line"><span class="gan-${getWuxinColor(gong.get('星'))}">${gong.get('星') || ''}</span>${stemMarkup(gong.get('地盤天干'))}</div>
-                        <div class="palace-line"><span class="gan-${getWuxinColor(gong.get('門'))}">${gong.get('門') || ''}</span>${stemMarkup(gong.get('隱干'), true)}</div>
-                        <div class="palace-line earth-spirit"><span class="gan-${getWuxinColor(gong.get('地盤神'))}">${gong.get('地盤神') || ''}</span><span class="palace-marks">${markMarkup}</span></div>
+                    <div class="grid-content palace-layout">
+                        <div class="palace-spirits">
+                            <span class="heaven-spirit gan-${getWuxinColor(gong.get('天盤神'))}">${gong.get('天盤神') || ''}</span>
+                            <span class="palace-star gan-${getWuxinColor(gong.get('星'))}">${gong.get('星') || ''}</span>
+                            <span class="earth-spirit gan-${getWuxinColor(gong.get('地盤神'))}">${gong.get('地盤神') || ''}</span>
+                        </div>
+                        <div class="palace-door-group">
+                            <span class="palace-door gan-${getWuxinColor(gong.get('門'))}">${gong.get('門') || ''}</span>
+                            <span class="palace-marks">${markMarkup}</span>
+                        </div>
+                        <div class="palace-stems">
+                            <div class="stem-row heavenly-stems" aria-label="天盤天干">${stemMarkup(gong.get('天盤天干'))}</div>
+                            <div class="stem-row earthly-stems" aria-label="地盤天干">${stemMarkup(gong.get('地盤天干'))}</div>
+                            <div class="stem-row hidden-stems" aria-label="隱干">${stemMarkup(gong.get('隱干'), true)}</div>
+                        </div>
                     </div></div>`;
             }).join('')}</div>`;
 
           const debugMessageDiv = document.getElementById('debugMessage');
-          debugMessageDiv.innerHTML = `
+          const debugText = formatDebugMessage(`偵錯資訊：
 
-                  <details>
-                    <summary>查看演算過程</summary>
-                    <pre>${
-    `偵錯資訊：
-
-      Current version： ${version}
+      現時版本號： ${version}
 
       (年支): ${yearZhi} -> ${qimenJu.A}
       (月支): ${monthZhi} -> ${qimenJu.B}
@@ -1572,13 +1610,16 @@
       夏至: ${lunar._getJieQiSolar(I18n.getMessage('jq.xiaZhi')).toYmdHms()}
       冬至: ${lunar._getJieQiSolar("DONG_ZHI").toYmdHms()}
       遁類: ${dunType}
-      其他: ${otherMessage}
+
+      演算步驟：
+      ${otherMessage}
       -------------------------------
         created by Jess Poon, Antonio Yu
-        any inquiry please contact: jpoon120@gmail.com`
-                    }</pre>
-                </details>
-            `;
+        any inquiry please contact: jpoon120@gmail.com`);
+          debugMessageDiv.innerHTML = `<details>
+              <summary>查看演算過程</summary>
+              <pre>${debugText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+            </details>`;
             document.querySelector('.chart-workspace')?.classList.remove('is-stale');
             const status = document.querySelector('.chart-status');
             if (status) status.textContent = '已起盤';
